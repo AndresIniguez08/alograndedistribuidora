@@ -1,0 +1,13 @@
+{
+  "name": "a-lo-grande",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sitio institucional de A lo grande (distribuidora de huevos, Pigüé y Neuquén)",
+  "scripts": {
+    "dev": "wrangler pages dev public",
+    "deploy": "wrangler pages deploy public --project-name=a-lo-grande"
+  },
+  "devDependencies": {
+    "wrangler": "^4.148.0"
+  }
+}
