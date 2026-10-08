@@ -31,9 +31,12 @@ Objetivo: captar consultas con un formulario simple y aparecer en Google.
 - Mantener la paleta de marca: navy `#12182B`, cobalto `#2646C8`, ámbar `#F0B429`, hueso `#F3F0E9`.
   Cualquier cambio de color se hace en los tokens y con justificación.
 - Mantener las tipografías Sora e Inter autoalojadas.
-- Mantener el orden de secciones y la estructura del wireframe aprobado: inicio con formulario, productos, zonas, nosotros y contacto.
+- Mantener el orden de secciones y la estructura del wireframe aprobado: inicio con formulario, productos, recetas, zonas, nosotros y contacto.
 - Rendimiento: sin imágenes pesadas, sin librerías de animación. Las animaciones son CSS y respetan `prefers-reduced-motion`.
-- No agregar carruseles, ventanas emergentes ni chatbots.
+- No agregar chatbots.
+- El carrusel de "Recetas" (`.carousel`) y su modal (`<dialog>` nativo) son la única excepción admitida a "sin carruseles ni ventanas emergentes":
+  se armaron sin librerías, con scroll-snap nativo y `<dialog>`, y están pensados para reusarse si hace falta otro listado similar.
+  No agregar un segundo carrusel o modal con una implementación distinta sin un motivo concreto.
 
 ## Probar
 `npm install` y `npm run dev` (sitio y función en http://localhost:8788). El formulario necesita `.dev.vars` (ver `.dev.vars.example`).

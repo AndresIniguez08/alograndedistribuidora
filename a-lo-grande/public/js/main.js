@@ -8,7 +8,8 @@
    4. Navegación (menú móvil y sección activa)
    5. Botones "Consultar"
    6. Formularios
-   7. Inicio
+   7. Recetas (carrusel, modal y aparición al scroll)
+   8. Inicio
    ========================================================================== */
 
 "use strict";
@@ -242,7 +243,138 @@ function initForms(openedAt) {
 }
 
 
-/* 7. INICIO --------------------------------------------------------------- */
+/* 7. RECETAS (carrusel, modal y aparición al scroll) ---------------------- */
+
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function initRecipesCarousel() {
+  const root = $("[data-carousel]");
+  if (!root) return;
+
+  const track = $("[data-carousel-track]", root);
+  const prevBtn = $("[data-carousel-prev]", root);
+  const nextBtn = $("[data-carousel-next]", root);
+  const cards = $$(".recipe-card", track);
+  if (!track || cards.length === 0) return;
+
+  const step = () => {
+    const item = cards[0].closest(".carousel__item");
+    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+    return item.getBoundingClientRect().width + gap;
+  };
+
+  const updateButtons = () => {
+    const maxScroll = track.scrollWidth - track.clientWidth;
+    const overflowing = maxScroll > 1;
+
+    if (prevBtn) {
+      prevBtn.hidden = !overflowing;
+      prevBtn.disabled = track.scrollLeft <= 1;
+    }
+    if (nextBtn) {
+      nextBtn.hidden = !overflowing;
+      nextBtn.disabled = track.scrollLeft >= maxScroll - 1;
+    }
+  };
+
+  prevBtn?.addEventListener("click", () => {
+    track.scrollBy({ left: -step(), behavior: prefersReducedMotion() ? "auto" : "smooth" });
+  });
+  nextBtn?.addEventListener("click", () => {
+    track.scrollBy({ left: step(), behavior: prefersReducedMotion() ? "auto" : "smooth" });
+  });
+
+  track.addEventListener("scroll", updateButtons, { passive: true });
+  window.addEventListener("resize", updateButtons);
+  updateButtons();
+
+  track.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    const focusedIndex = cards.indexOf(document.activeElement);
+    if (focusedIndex === -1) return;
+
+    event.preventDefault();
+    const nextIndex =
+      event.key === "ArrowRight"
+        ? Math.min(focusedIndex + 1, cards.length - 1)
+        : Math.max(focusedIndex - 1, 0);
+
+    cards[nextIndex].focus();
+    cards[nextIndex].scrollIntoView({
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+      inline: "nearest",
+      block: "nearest",
+    });
+  });
+}
+
+function initRecipeModal() {
+  const dialog = $("[data-recipe-modal]");
+  if (!dialog) return;
+
+  const content = $("[data-recipe-content]", dialog);
+  const closeBtn = $("[data-recipe-close]", dialog);
+  let lastTrigger = null;
+
+  const openRecipe = (id, trigger) => {
+    const template = document.getElementById(`receta-${id}`);
+    if (!template) return;
+
+    content.innerHTML = "";
+    content.appendChild(template.content.cloneNode(true));
+
+    const title = $(".recipe-modal__title", content);
+    if (title) dialog.setAttribute("aria-labelledby", title.id);
+
+    lastTrigger = trigger;
+    document.body.style.overflow = "hidden";
+    dialog.showModal();
+  };
+
+  $$("[data-recipe-open]").forEach((button) => {
+    button.addEventListener("click", () => openRecipe(button.dataset.recipeOpen, button));
+  });
+
+  closeBtn?.addEventListener("click", () => dialog.close());
+
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  dialog.addEventListener("close", () => {
+    document.body.style.overflow = "";
+    content.innerHTML = "";
+    lastTrigger?.focus();
+    lastTrigger = null;
+  });
+}
+
+function initRecipeReveal() {
+  const cards = $$(".recipe-card");
+  if (cards.length === 0) return;
+
+  if (!("IntersectionObserver" in window)) {
+    cards.forEach((card) => card.classList.add("is-visible"));
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries, obs) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        obs.unobserve(entry.target);
+      });
+    },
+    { threshold: 0.2 },
+  );
+  cards.forEach((card) => observer.observe(card));
+}
+
+
+/* 8. INICIO --------------------------------------------------------------- */
 
 document.addEventListener("DOMContentLoaded", () => {
   const openedAt = Date.now();
@@ -255,4 +387,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initScrollSpy();
   initProductButtons();
   initForms(openedAt);
+  initRecipesCarousel();
+  initRecipeModal();
+  initRecipeReveal();
 });

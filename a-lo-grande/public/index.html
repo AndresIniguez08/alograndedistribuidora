@@ -129,6 +129,12 @@
             d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 .8a4 4 0 01-2-2l.8-1-1-2z"
           />
         </symbol>
+        <symbol id="i-chevron-left" viewBox="0 0 24 24">
+          <path d="M15 6l-6 6 6 6" />
+        </symbol>
+        <symbol id="i-chevron-right" viewBox="0 0 24 24">
+          <path d="M9 6l6 6-6 6" />
+        </symbol>
       </defs>
     </svg>
 
@@ -145,6 +151,7 @@
           <ul class="nav__list">
             <li><a class="nav__link" href="#inicio">Inicio</a></li>
             <li><a class="nav__link" href="#productos">Productos</a></li>
+            <li><a class="nav__link" href="#recetas">Recetas</a></li>
             <li><a class="nav__link" href="#zonas">Zonas de reparto</a></li>
             <li><a class="nav__link" href="#nosotros">Nosotros</a></li>
             <li><a class="nav__link" href="#contacto">Contacto</a></li>
@@ -401,6 +408,466 @@
 
           <div class="divider" aria-hidden="true"></div>
         </div>
+      </section>
+
+      <!-- ======================= RECETAS ======================= -->
+      <section class="section recipes" id="recetas">
+        <div class="container">
+          <div class="recipes__head">
+            <p class="eyebrow">Recetas</p>
+            <h2 class="section-title">Ideas para cocinar con huevo</h2>
+            <p class="recipes__intro">
+              Algunas recetas clásicas para aprovechar los huevos en casa o en
+              el local. Tocá una tarjeta para ver la receta completa.
+            </p>
+          </div>
+
+          <div class="carousel" data-carousel>
+            <button
+              class="carousel__btn carousel__btn--prev"
+              type="button"
+              aria-label="Receta anterior"
+              data-carousel-prev
+            >
+              <svg class="icon" aria-hidden="true">
+                <use href="#i-chevron-left" />
+              </svg>
+            </button>
+
+            <ul
+              class="carousel__track"
+              role="region"
+              aria-roledescription="carrusel"
+              aria-label="Recetas con huevo"
+              data-carousel-track
+            >
+              <li class="carousel__item">
+                <button
+                  class="recipe-card"
+                  type="button"
+                  data-recipe-open="tortilla-papas"
+                >
+                  <span class="recipe-card__media">
+                    <img
+                      src="assets/img/receta-placeholder.svg"
+                      width="480"
+                      height="600"
+                      loading="lazy"
+                      decoding="async"
+                      alt="Tortilla de papas cortada en porciones, servida en un plato"
+                    />
+                  </span>
+                  <span class="recipe-card__title">Tortilla de papas</span>
+                  <span class="recipe-card__meta">45 min · 4 porciones</span>
+                </button>
+              </li>
+
+              <li class="carousel__item">
+                <button
+                  class="recipe-card"
+                  type="button"
+                  data-recipe-open="huevos-rellenos"
+                >
+                  <span class="recipe-card__media">
+                    <img
+                      src="assets/img/receta-placeholder.svg"
+                      width="480"
+                      height="600"
+                      loading="lazy"
+                      decoding="async"
+                      alt="Mitades de huevos rellenos con pimentón espolvoreado"
+                    />
+                  </span>
+                  <span class="recipe-card__title">Huevos rellenos</span>
+                  <span class="recipe-card__meta">25 min · 4 porciones</span>
+                </button>
+              </li>
+
+              <li class="carousel__item">
+                <button
+                  class="recipe-card"
+                  type="button"
+                  data-recipe-open="panqueques"
+                >
+                  <span class="recipe-card__media">
+                    <img
+                      src="assets/img/receta-placeholder.svg"
+                      width="480"
+                      height="600"
+                      loading="lazy"
+                      decoding="async"
+                      alt="Panqueques apilados"
+                    />
+                  </span>
+                  <span class="recipe-card__title">Panqueques</span>
+                  <span class="recipe-card__meta">30 min · 8 unidades</span>
+                </button>
+              </li>
+
+              <li class="carousel__item">
+                <button
+                  class="recipe-card"
+                  type="button"
+                  data-recipe-open="budin-pan"
+                >
+                  <span class="recipe-card__media">
+                    <img
+                      src="assets/img/receta-placeholder.svg"
+                      width="480"
+                      height="600"
+                      loading="lazy"
+                      decoding="async"
+                      alt="Budín de pan cortado en porciones"
+                    />
+                  </span>
+                  <span class="recipe-card__title">Budín de pan</span>
+                  <span class="recipe-card__meta">1 h 10 min · 8 porciones</span>
+                </button>
+              </li>
+
+              <li class="carousel__item">
+                <button
+                  class="recipe-card"
+                  type="button"
+                  data-recipe-open="huevos-horno-verduras"
+                >
+                  <span class="recipe-card__media">
+                    <img
+                      src="assets/img/receta-placeholder.svg"
+                      width="480"
+                      height="600"
+                      loading="lazy"
+                      decoding="async"
+                      alt="Huevos al horno sobre verduras salteadas"
+                    />
+                  </span>
+                  <span class="recipe-card__title"
+                    >Huevos al horno con verduras</span
+                  >
+                  <span class="recipe-card__meta">35 min · 2 porciones</span>
+                </button>
+              </li>
+
+              <li class="carousel__item">
+                <button
+                  class="recipe-card"
+                  type="button"
+                  data-recipe-open="mayonesa-casera"
+                >
+                  <span class="recipe-card__media">
+                    <img
+                      src="assets/img/receta-placeholder.svg"
+                      width="480"
+                      height="600"
+                      loading="lazy"
+                      decoding="async"
+                      alt="Mayonesa casera en un bol"
+                    />
+                  </span>
+                  <span class="recipe-card__title">Mayonesa casera</span>
+                  <span class="recipe-card__meta">10 min · aprox. 250 g</span>
+                </button>
+              </li>
+            </ul>
+
+            <button
+              class="carousel__btn carousel__btn--next"
+              type="button"
+              aria-label="Receta siguiente"
+              data-carousel-next
+            >
+              <svg class="icon" aria-hidden="true">
+                <use href="#i-chevron-right" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <template id="receta-tortilla-papas">
+          <img
+            class="recipe-modal__media"
+            src="assets/img/receta-placeholder.svg"
+            width="480"
+            height="600"
+            loading="lazy"
+            decoding="async"
+            alt="Tortilla de papas cortada en porciones, servida en un plato"
+          />
+          <div class="recipe-modal__body">
+            <h3 class="recipe-modal__title" id="receta-tortilla-papas-titulo">
+              Tortilla de papas
+            </h3>
+            <p class="recipe-modal__meta">45 min · 4 porciones</p>
+            <h4 class="recipe-modal__subtitle">Ingredientes</h4>
+            <ul class="recipe-modal__list">
+              <li>6 huevos</li>
+              <li>4 papas medianas</li>
+              <li>1 cebolla</li>
+              <li>4 cucharadas de aceite de oliva</li>
+              <li>Sal y pimienta a gusto</li>
+            </ul>
+            <h4 class="recipe-modal__subtitle">Preparación</h4>
+            <ol class="recipe-modal__steps">
+              <li>Pelá las papas y cortalas en rodajas finas.</li>
+              <li>
+                Cociná las papas en una sartén con aceite, a fuego bajo y
+                tapadas, 15 a 20 minutos, hasta que estén tiernas.
+              </li>
+              <li>
+                En otra sartén chica, rehogá la cebolla picada hasta que esté
+                transparente.
+              </li>
+              <li>
+                Batí los huevos con sal y pimienta, y mezclalos con las papas
+                y la cebolla.
+              </li>
+              <li>
+                Volcá todo en una sartén caliente con un poco de aceite y
+                cociná 5 minutos a fuego medio.
+              </li>
+              <li>
+                Ayudate con un plato para darla vuelta y cociná 5 minutos más
+                del otro lado.
+              </li>
+            </ol>
+          </div>
+        </template>
+
+        <template id="receta-huevos-rellenos">
+          <img
+            class="recipe-modal__media"
+            src="assets/img/receta-placeholder.svg"
+            width="480"
+            height="600"
+            loading="lazy"
+            decoding="async"
+            alt="Mitades de huevos rellenos con pimentón espolvoreado"
+          />
+          <div class="recipe-modal__body">
+            <h3
+              class="recipe-modal__title"
+              id="receta-huevos-rellenos-titulo"
+            >
+              Huevos rellenos
+            </h3>
+            <p class="recipe-modal__meta">25 min · 4 porciones (12 mitades)</p>
+            <h4 class="recipe-modal__subtitle">Ingredientes</h4>
+            <ul class="recipe-modal__list">
+              <li>6 huevos</li>
+              <li>3 cucharadas de mayonesa</li>
+              <li>1 cucharadita de mostaza</li>
+              <li>Sal a gusto</li>
+              <li>Pimentón para espolvorear</li>
+            </ul>
+            <h4 class="recipe-modal__subtitle">Preparación</h4>
+            <ol class="recipe-modal__steps">
+              <li>
+                Herví los huevos 10 minutos desde que rompe el hervor y
+                enfrialos en agua fría.
+              </li>
+              <li>Pelalos y cortalos al medio a lo largo.</li>
+              <li>
+                Retirá las yemas con cuidado y reservá las claras enteras.
+              </li>
+              <li>
+                Pisá las yemas con la mayonesa, la mostaza y la sal hasta
+                formar una pasta lisa.
+              </li>
+              <li>
+                Rellená las claras con la mezcla, con una cuchara o una manga.
+              </li>
+              <li>
+                Espolvoreá con pimentón y refrigerá hasta el momento de
+                servir.
+              </li>
+            </ol>
+          </div>
+        </template>
+
+        <template id="receta-panqueques">
+          <img
+            class="recipe-modal__media"
+            src="assets/img/receta-placeholder.svg"
+            width="480"
+            height="600"
+            loading="lazy"
+            decoding="async"
+            alt="Panqueques apilados"
+          />
+          <div class="recipe-modal__body">
+            <h3 class="recipe-modal__title" id="receta-panqueques-titulo">
+              Panqueques
+            </h3>
+            <p class="recipe-modal__meta">30 min · 8 unidades</p>
+            <h4 class="recipe-modal__subtitle">Ingredientes</h4>
+            <ul class="recipe-modal__list">
+              <li>2 huevos</li>
+              <li>250 ml de leche</li>
+              <li>125 g de harina</li>
+              <li>1 cucharada de manteca derretida</li>
+              <li>Una pizca de sal</li>
+            </ul>
+            <h4 class="recipe-modal__subtitle">Preparación</h4>
+            <ol class="recipe-modal__steps">
+              <li>Batí los huevos con la leche.</li>
+              <li>
+                Incorporá la harina tamizada de a poco, batiendo para que no
+                se formen grumos.
+              </li>
+              <li>Agregá la manteca derretida y la sal, y mezclá bien.</li>
+              <li>Dejá descansar la mezcla 10 minutos.</li>
+              <li>
+                Calentá una sartén con un poco de manteca, volcá un cucharón
+                fino de mezcla y moví la sartén para cubrir todo el fondo.
+              </li>
+              <li>Cociná 1 a 2 minutos de cada lado, hasta dorar.</li>
+            </ol>
+          </div>
+        </template>
+
+        <template id="receta-budin-pan">
+          <img
+            class="recipe-modal__media"
+            src="assets/img/receta-placeholder.svg"
+            width="480"
+            height="600"
+            loading="lazy"
+            decoding="async"
+            alt="Budín de pan cortado en porciones"
+          />
+          <div class="recipe-modal__body">
+            <h3 class="recipe-modal__title" id="receta-budin-pan-titulo">
+              Budín de pan
+            </h3>
+            <p class="recipe-modal__meta">1 h 10 min · 8 porciones</p>
+            <h4 class="recipe-modal__subtitle">Ingredientes</h4>
+            <ul class="recipe-modal__list">
+              <li>300 g de pan duro</li>
+              <li>1 litro de leche</li>
+              <li>4 huevos</li>
+              <li>200 g de azúcar</li>
+              <li>1 cucharadita de esencia de vainilla</li>
+              <li>Canela a gusto</li>
+            </ul>
+            <h4 class="recipe-modal__subtitle">Preparación</h4>
+            <ol class="recipe-modal__steps">
+              <li>
+                Remojá el pan en la leche hasta que se ablande por completo.
+              </li>
+              <li>Trituralo con un tenedor hasta que quede una pasta.</li>
+              <li>Batí los huevos con el azúcar y la esencia de vainilla.</li>
+              <li>Mezclá todo junto con el pan remojado.</li>
+              <li>
+                Volcá en un molde acaramelado o enmantecado y espolvoreá con
+                canela.
+              </li>
+              <li>
+                Cociná al baño María en horno medio (180 °C) 50 a 60 minutos,
+                hasta que al pinchar con un cuchillo salga limpio.
+              </li>
+              <li>Dejá enfriar antes de desmoldar.</li>
+            </ol>
+          </div>
+        </template>
+
+        <template id="receta-huevos-horno-verduras">
+          <img
+            class="recipe-modal__media"
+            src="assets/img/receta-placeholder.svg"
+            width="480"
+            height="600"
+            loading="lazy"
+            decoding="async"
+            alt="Huevos al horno sobre verduras salteadas"
+          />
+          <div class="recipe-modal__body">
+            <h3
+              class="recipe-modal__title"
+              id="receta-huevos-horno-verduras-titulo"
+            >
+              Huevos al horno con verduras
+            </h3>
+            <p class="recipe-modal__meta">35 min · 2 porciones</p>
+            <h4 class="recipe-modal__subtitle">Ingredientes</h4>
+            <ul class="recipe-modal__list">
+              <li>4 huevos</li>
+              <li>1 morrón</li>
+              <li>1 cebolla</li>
+              <li>2 tomates</li>
+              <li>Aceite de oliva, sal y pimienta a gusto</li>
+              <li>Perejil picado para terminar</li>
+            </ul>
+            <h4 class="recipe-modal__subtitle">Preparación</h4>
+            <ol class="recipe-modal__steps">
+              <li>Cortá el morrón, la cebolla y el tomate en cubos chicos.</li>
+              <li>
+                Rehogá las verduras en una sartén con aceite hasta que estén
+                tiernas.
+              </li>
+              <li>
+                Repartí las verduras en dos moldes individuales o una fuente
+                para horno.
+              </li>
+              <li>Cascá los huevos encima y salpimentá.</li>
+              <li>
+                Horneá a 180 °C durante 10 a 12 minutos, hasta que la clara
+                esté cocida y la yema al punto que prefieras.
+              </li>
+              <li>Espolvoreá con perejil antes de servir.</li>
+            </ol>
+          </div>
+        </template>
+
+        <template id="receta-mayonesa-casera">
+          <img
+            class="recipe-modal__media"
+            src="assets/img/receta-placeholder.svg"
+            width="480"
+            height="600"
+            loading="lazy"
+            decoding="async"
+            alt="Mayonesa casera en un bol"
+          />
+          <div class="recipe-modal__body">
+            <h3
+              class="recipe-modal__title"
+              id="receta-mayonesa-casera-titulo"
+            >
+              Mayonesa casera
+            </h3>
+            <p class="recipe-modal__meta">10 min · aprox. 250 g</p>
+            <h4 class="recipe-modal__subtitle">Ingredientes</h4>
+            <ul class="recipe-modal__list">
+              <li>1 huevo bien fresco, a temperatura ambiente</li>
+              <li>200 ml de aceite neutro</li>
+              <li>1 cucharada de jugo de limón o vinagre</li>
+              <li>Sal a gusto</li>
+            </ul>
+            <h4 class="recipe-modal__subtitle">Preparación</h4>
+            <ol class="recipe-modal__steps">
+              <li>
+                Colocá el huevo entero en el vaso de la minipimer y agregá el
+                aceite.
+              </li>
+              <li>
+                Apoyá la minipimer en el fondo del vaso y accioná sin mover
+                hasta que empiece a emulsionar.
+              </li>
+              <li>
+                Subí lentamente la minipimer para incorporar el resto del
+                aceite, sin dejar de batir.
+              </li>
+              <li>
+                Agregá el jugo de limón y la sal, y mezclá unos segundos más.
+              </li>
+            </ol>
+            <p class="recipe-modal__tip">
+              Esta receta lleva huevo crudo: usá huevos frescos y en buen
+              estado, conservá la mayonesa en la heladera y consumila el
+              mismo día o al día siguiente.
+            </p>
+          </div>
+        </template>
       </section>
 
       <!-- ======================= ZONAS DE REPARTO ======================= -->
@@ -683,6 +1150,21 @@
       </section>
     </main>
 
+    <!-- Modal de receta: el JS clona el <template> de la receta abierta acá adentro -->
+    <dialog class="recipe-modal" data-recipe-modal>
+      <button
+        class="recipe-modal__close"
+        type="button"
+        aria-label="Cerrar"
+        data-recipe-close
+      >
+        <svg class="icon" aria-hidden="true"><use href="#i-close" /></svg>
+      </button>
+      <div class="recipe-modal__panel">
+        <div data-recipe-content></div>
+      </div>
+    </dialog>
+
     <!-- ======================= PIE ======================= -->
     <footer class="site-footer">
       <div class="container">
@@ -692,6 +1174,7 @@
             <ul class="site-footer__nav">
               <li><a href="#inicio">Inicio</a></li>
               <li><a href="#productos">Productos</a></li>
+              <li><a href="#recetas">Recetas</a></li>
               <li><a href="#zonas">Zonas de reparto</a></li>
               <li><a href="#nosotros">Nosotros</a></li>
               <li><a href="#contacto">Contacto</a></li>
