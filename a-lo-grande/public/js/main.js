@@ -14,16 +14,15 @@
 
 "use strict";
 
-
 /* 1. CONFIGURACIÓN -------------------------------------------------------- */
 /* Los campos vacíos no se muestran en el sitio. */
 
 const SITE_CONFIG = Object.freeze({
   email: "contacto@alograndedistribuidora.com.ar",
-  phone: "",       // ejemplo: "+54 9 2923 00 0000"
-  whatsapp: "",    // solo dígitos con código de país, ejemplo: "5492923000000"
-  instagram: "",   // usuario sin @, ejemplo: "alogrande"
-  hours: "",       // ejemplo: "Lunes a viernes, de 8 a 17 h"
+  phone: "", // ejemplo: "+54 9 2923 00 0000"
+  whatsapp: "", // solo dígitos con código de país, ejemplo: "5492923000000"
+  instagram: "", // usuario sin @, ejemplo: "alogrande"
+  hours: "", // ejemplo: "Lunes a viernes, de 8 a 17 h"
   formEndpoint: "/api/contact",
   formTimeoutMs: 12000,
 });
@@ -37,13 +36,12 @@ const FIELD_MESSAGES = Object.freeze({
 
 const MIN_PHONE_DIGITS = 8;
 
-
 /* 2. UTILIDADES ----------------------------------------------------------- */
 
 const $ = (selector, root = document) => root.querySelector(selector);
-const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+const $$ = (selector, root = document) =>
+  Array.from(root.querySelectorAll(selector));
 const digitsOnly = (value) => value.replace(/\D/g, "");
-
 
 /* 3. DATOS DE CONTACTO ---------------------------------------------------- */
 
@@ -57,11 +55,24 @@ function initContactInfo() {
     if (value) fill($(".contact-list__value", item));
   };
 
-  show("email", email, (el) => { el.textContent = email; el.href = `mailto:${email}`; });
-  show("phone", phone, (el) => { el.textContent = phone; el.href = `tel:${phone.replace(/[^\d+]/g, "")}`; });
-  show("whatsapp", whatsapp, (el) => { el.href = `https://wa.me/${digitsOnly(whatsapp)}`; });
-  show("instagram", instagram, (el) => { el.textContent = `@${instagram}`; el.href = `https://www.instagram.com/${instagram}`; });
-  show("hours", hours, (el) => { el.textContent = hours; });
+  show("email", email, (el) => {
+    el.textContent = email;
+    el.href = `mailto:${email}`;
+  });
+  show("phone", phone, (el) => {
+    el.textContent = phone;
+    el.href = `tel:${phone.replace(/[^\d+]/g, "")}`;
+  });
+  show("whatsapp", whatsapp, (el) => {
+    el.href = `https://wa.me/${digitsOnly(whatsapp)}`;
+  });
+  show("instagram", instagram, (el) => {
+    el.textContent = `@${instagram}`;
+    el.href = `https://www.instagram.com/${instagram}`;
+  });
+  show("hours", hours, (el) => {
+    el.textContent = hours;
+  });
 
   const footerSocial = $('[data-social="instagram"]');
   if (footerSocial && instagram) {
@@ -69,7 +80,6 @@ function initContactInfo() {
     footerSocial.hidden = false;
   }
 }
-
 
 /* 4. NAVEGACIÓN ----------------------------------------------------------- */
 
@@ -87,16 +97,23 @@ function initMobileMenu() {
     icon.setAttribute("href", open ? "#i-close" : "#i-menu");
   };
 
-  toggle.addEventListener("click", () => setOpen(!nav.classList.contains("is-open")));
-  nav.addEventListener("click", (event) => { if (event.target.closest("a")) setOpen(false); });
-  document.addEventListener("keydown", (event) => { if (event.key === "Escape") setOpen(false); });
+  toggle.addEventListener("click", () =>
+    setOpen(!nav.classList.contains("is-open")),
+  );
+  nav.addEventListener("click", (event) => {
+    if (event.target.closest("a")) setOpen(false);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setOpen(false);
+  });
 }
 
 function initScrollSpy() {
   const links = $$(".nav__link");
   const setActive = (id) => {
     links.forEach((link) => {
-      if (link.getAttribute("href") === `#${id}`) link.setAttribute("aria-current", "true");
+      if (link.getAttribute("href") === `#${id}`)
+        link.setAttribute("aria-current", "true");
       else link.removeAttribute("aria-current");
     });
   };
@@ -105,7 +122,10 @@ function initScrollSpy() {
   if (!("IntersectionObserver" in window)) return;
 
   const observer = new IntersectionObserver(
-    (entries) => entries.forEach((entry) => { if (entry.isIntersecting) setActive(entry.target.id); }),
+    (entries) =>
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) setActive(entry.target.id);
+      }),
     { rootMargin: "-45% 0px -50% 0px" },
   );
   links.forEach((link) => {
@@ -113,7 +133,6 @@ function initScrollSpy() {
     if (section) observer.observe(section);
   });
 }
-
 
 /* 5. BOTONES "CONSULTAR" -------------------------------------------------- */
 /* Al tocar "Consultar" en un producto, se precarga el mensaje del formulario. */
@@ -124,11 +143,11 @@ function initProductButtons() {
 
   $$("[data-product]").forEach((button) => {
     button.addEventListener("click", () => {
-      if (!message.value.trim()) message.value = `Consulta por: ${button.dataset.product}. `;
+      if (!message.value.trim())
+        message.value = `Consulta por: ${button.dataset.product}. `;
     });
   });
 }
-
 
 /* 6. FORMULARIOS ---------------------------------------------------------- */
 
@@ -136,10 +155,14 @@ function isFieldValid(field) {
   const value = field.value.trim();
   switch (field.name) {
     case "name":
-    case "city": return value.length >= 2;
-    case "phone": return digitsOnly(value).length >= MIN_PHONE_DIGITS;
-    case "businessType": return value !== "";
-    default: return true;
+    case "city":
+      return value.length >= 2;
+    case "phone":
+      return digitsOnly(value).length >= MIN_PHONE_DIGITS;
+    case "businessType":
+      return value !== "";
+    default:
+      return true;
   }
 }
 
@@ -166,8 +189,8 @@ function buildPayload(form, openedAt) {
     city: data.get("city"),
     businessType: data.get("businessType") || "",
     message: data.get("message") || "",
-    website: data.get("website") || "",     // campo trampa anti-spam: debe llegar vacío
-    t: Date.now() - openedAt,               // tiempo en pantalla, para descartar envíos instantáneos
+    website: data.get("website") || "", // campo trampa anti-spam: debe llegar vacío
+    t: Date.now() - openedAt, // tiempo en pantalla, para descartar envíos instantáneos
   };
 }
 
@@ -209,9 +232,15 @@ function initForms(openedAt) {
         const flagged = field.getAttribute("aria-invalid") === "true";
         if (touched || flagged) setFieldError(field, !isFieldValid(field));
       };
-      field.addEventListener("blur", () => { if (field.value.trim() !== "") revalidate(); });
-      field.addEventListener("input", () => { if (field.getAttribute("aria-invalid") === "true") revalidate(); });
-      field.addEventListener("change", () => { if (field.getAttribute("aria-invalid") === "true") revalidate(); });
+      field.addEventListener("blur", () => {
+        if (field.value.trim() !== "") revalidate();
+      });
+      field.addEventListener("input", () => {
+        if (field.getAttribute("aria-invalid") === "true") revalidate();
+      });
+      field.addEventListener("change", () => {
+        if (field.getAttribute("aria-invalid") === "true") revalidate();
+      });
     });
 
     form.addEventListener("submit", async (event) => {
@@ -220,8 +249,13 @@ function initForms(openedAt) {
       status.classList.remove("form-card__status--error");
 
       const invalid = required.filter((field) => !isFieldValid(field));
-      required.forEach((field) => setFieldError(field, invalid.includes(field)));
-      if (invalid.length) { invalid[0].focus(); return; }
+      required.forEach((field) =>
+        setFieldError(field, invalid.includes(field)),
+      );
+      if (invalid.length) {
+        invalid[0].focus();
+        return;
+      }
 
       const originalLabel = label.textContent;
       submit.disabled = true;
@@ -241,7 +275,6 @@ function initForms(openedAt) {
     });
   });
 }
-
 
 /* 7. RECETAS (carrusel, modal y aparición al scroll) ---------------------- */
 
@@ -283,10 +316,16 @@ function initRecipesCarousel() {
   };
 
   prevBtn?.addEventListener("click", () => {
-    track.scrollBy({ left: -step(), behavior: prefersReducedMotion() ? "auto" : "smooth" });
+    track.scrollBy({
+      left: -step(),
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
   });
   nextBtn?.addEventListener("click", () => {
-    track.scrollBy({ left: step(), behavior: prefersReducedMotion() ? "auto" : "smooth" });
+    track.scrollBy({
+      left: step(),
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
   });
 
   track.addEventListener("scroll", updateButtons, { passive: true });
@@ -314,7 +353,7 @@ function initRecipesCarousel() {
 
   /* Avance automático: una tarjeta cada 4s, se pausa ante cualquier interacción
      y se reanuda unos segundos después de que termina (ver blockers más abajo). */
-  const AUTOPLAY_INTERVAL = 4000;
+  const AUTOPLAY_INTERVAL = 2000;
   const RESUME_DELAY = 3000;
   let autoplayTimer = null;
   let resumeTimer = null;
@@ -326,10 +365,19 @@ function initRecipesCarousel() {
     autoplayBtn.setAttribute("aria-pressed", String(!userWantsAutoplay));
     autoplayBtn.setAttribute(
       "aria-label",
-      userWantsAutoplay ? "Pausar avance automático" : "Reanudar avance automático",
+      userWantsAutoplay
+        ? "Pausar avance automático"
+        : "Reanudar avance automático",
     );
-    autoplayBtn.classList.toggle("is-playing", userWantsAutoplay && blockers.size === 0);
-    if (autoplayIcon) autoplayIcon.setAttribute("href", userWantsAutoplay ? "#i-pause" : "#i-play");
+    autoplayBtn.classList.toggle(
+      "is-playing",
+      userWantsAutoplay && blockers.size === 0,
+    );
+    if (autoplayIcon)
+      autoplayIcon.setAttribute(
+        "href",
+        userWantsAutoplay ? "#i-pause" : "#i-play",
+      );
   };
 
   const stopTimer = () => {
@@ -386,7 +434,8 @@ function initRecipesCarousel() {
   track.addEventListener("focusin", () => pause("focus"));
   track.addEventListener("focusout", () => {
     requestAnimationFrame(() => {
-      if (!track.contains(document.activeElement)) resume("focus", RESUME_DELAY);
+      if (!track.contains(document.activeElement))
+        resume("focus", RESUME_DELAY);
     });
   });
   track.addEventListener("pointerdown", () => pause("touch"));
@@ -467,7 +516,9 @@ function initRecipeModal() {
   };
 
   $$("[data-recipe-open]").forEach((button) => {
-    button.addEventListener("click", () => openRecipe(button.dataset.recipeOpen, button));
+    button.addEventListener("click", () =>
+      openRecipe(button.dataset.recipeOpen, button),
+    );
   });
 
   closeBtn?.addEventListener("click", () => dialog.close());
@@ -510,7 +561,6 @@ function initRecipeReveal() {
   );
   cards.forEach((card) => observer.observe(card));
 }
-
 
 /* 8. INICIO --------------------------------------------------------------- */
 
