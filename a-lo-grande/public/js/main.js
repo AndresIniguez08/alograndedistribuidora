@@ -354,7 +354,7 @@ function initRecipesCarousel() {
   /* Avance automático: una tarjeta cada 4s, se pausa ante cualquier interacción
      y se reanuda unos segundos después de que termina (ver blockers más abajo). */
   const AUTOPLAY_INTERVAL = 2000;
-  const RESUME_DELAY = 3000;
+  const RESUME_DELAY = 2000;
   let autoplayTimer = null;
   let resumeTimer = null;
   let userWantsAutoplay = !prefersReducedMotion();
