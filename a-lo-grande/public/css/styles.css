@@ -52,6 +52,14 @@
   font-display: swap;
   src: url("../assets/fonts/inter-600.woff2") format("woff2");
 }
+/* Excepción puntual a "solo Sora e Inter": título cursivo de la sección Recetas (ver CLAUDE.md) */
+@font-face {
+  font-family: "Fraunces";
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+  src: url("../assets/fonts/fraunces-italic-400.woff2") format("woff2");
+}
 
 /* 2. TOKENS DE DISEÑO ----------------------------------------------------- */
 
@@ -86,6 +94,7 @@
   /* Tipografía */
   --font-head: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-script: "Fraunces", Georgia, serif;
   --text-hero: clamp(2.2rem, 1.1rem + 3.9vw, 3.7rem);
   --text-h2: clamp(1.9rem, 1.2rem + 2.4vw, 2.8rem);
   --text-h3: clamp(1.6rem, 1.2rem + 1.4vw, 2.1rem);
@@ -127,8 +136,11 @@
   --recipe-reveal-distance: 18px;
   --recipe-reveal-duration: 0.5s;
   --recipe-reveal-ease: ease-out;
+  --recipes-intro-width: 55ch;
   --modal-max-width: 640px;
   --modal-max-height: min(86vh, 760px);
+  --modal-media-height: 360px;
+  --modal-media-height-mobile: 40vh;
   --modal-ease: 0.25s ease;
 }
 
@@ -237,6 +249,10 @@ svg {
   stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+.icon--solid {
+  fill: currentColor;
+  stroke: none;
 }
 
 /* Etiqueta superior de cada sección */
@@ -660,15 +676,29 @@ textarea.field__control {
 /* ---- Recetas ---- */
 .recipes__head {
   max-width: 40em;
+  margin-inline: auto;
+  text-align: center;
+}
+.recipes__head .section-title {
+  font-family: var(--font-script);
+  font-style: italic;
+  font-weight: 400;
 }
 .recipes__intro {
+  max-width: var(--recipes-intro-width);
   margin-top: var(--space-2);
+  margin-inline: auto;
   color: var(--color-muted);
 }
 
 .carousel {
-  position: relative;
   margin-top: var(--space-5);
+}
+.carousel__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
 }
 .carousel__track {
   display: flex;
@@ -677,15 +707,17 @@ textarea.field__control {
   scroll-snap-type: x mandatory;
   scroll-padding-inline: var(--gutter);
   padding-block: var(--space-1);
+  scrollbar-width: none;
+}
+.carousel__track::-webkit-scrollbar {
+  display: none;
 }
 .carousel__item {
   flex: 0 0 var(--recipe-card-width);
   scroll-snap-align: start;
 }
 .carousel__btn {
-  position: absolute;
-  top: 50%;
-  z-index: 2;
+  flex: none;
   width: 44px;
   height: 44px;
   border: 0;
@@ -696,14 +728,9 @@ textarea.field__control {
   display: grid;
   place-items: center;
   cursor: pointer;
-  transform: translateY(-50%);
-  transition: opacity var(--ease);
 }
-.carousel__btn--prev {
-  left: 0;
-}
-.carousel__btn--next {
-  right: 0;
+.carousel__btn--autoplay.is-playing {
+  color: var(--color-cobalt);
 }
 .carousel__btn:disabled {
   opacity: 0.35;
@@ -837,7 +864,7 @@ textarea.field__control {
 .recipe-modal__media {
   display: block;
   width: 100%;
-  aspect-ratio: var(--recipe-media-ratio);
+  height: var(--modal-media-height);
   object-fit: cover;
 }
 .recipe-modal__body {
@@ -1238,6 +1265,7 @@ a.contact-list__value:hover {
 @media (max-width: 560px) {
   :root {
     --gutter: 18px;
+    --modal-media-height: var(--modal-media-height-mobile);
   }
   .form-card {
     padding: 24px 20px;

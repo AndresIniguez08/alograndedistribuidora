@@ -31,9 +31,9 @@ Como el script no recorta, cada foto conserva su proporción real (horizontal, v
 
 Sin modificador, el marco es 16:10 con `object-fit: cover` centrado — sirve para fotos horizontales o que encuadran bien centradas.
 
-## Fotos para recetas (pendientes)
+## Fotos de recetas
 
-La sección "Recetas" usa por ahora un marco ilustrado (`assets/img/receta-placeholder.svg`, mismo estilo que las ilustraciones de productos) en las 6 tarjetas y en el modal. Cuando haya fotos reales, uno por receta, con relación 4:5 (vertical) aproximada:
+Cada receta tiene su foto en la tarjeta (`.recipe-card__media img`, relación 4:5 aproximada) con nombre `<id>.jpg` en `images-src/`:
 
 - `tortilla-papas.jpg`
 - `huevos-rellenos.jpg`
@@ -42,4 +42,6 @@ La sección "Recetas" usa por ahora un marco ilustrado (`assets/img/receta-place
 - `huevos-horno-verduras.jpg`
 - `mayonesa-casera.jpg`
 
-Mismo flujo que el resto: copiar a `images-src/`, `npm run images`, y reemplazar el `src`/`srcset` de la tarjeta y del `<template>` correspondiente en `index.html` (ver `README.md`, "Agregar una receta nueva"). El marco de la tarjeta y del modal ya usan `--recipe-media-ratio: 4 / 5`, así que una foto cercana a esa proporción no necesita modificador adicional.
+**El modal no tiene foto propia.** Al abrir una receta, el JS toma el `src`/`srcset`/`width`/`height`/`alt` del `<img>` de la tarjeta que se clickeó y los copia al único `<img data-recipe-media>` del `<dialog>` (ajustando `sizes` al ancho del modal). Por eso alcanza con actualizar la foto en la tarjeta — no hay que tocar nada en el `<template>` de esa receta.
+
+Mismo flujo que el resto: copiar a `images-src/` con el nombre de arriba, `npm run images`, y usar el `srcset` generado (`assets/img/<id>-800.webp`, `-1200.webp`, `-1600.webp`) en el `src`/`srcset` de la tarjeta en `index.html` (ver `README.md`, "Agregar una receta nueva"). Si el original es muy horizontal, revisar el recorte dentro del marco 4:5 y, si hace falta, agregar un modificador como los de `.product__media`.

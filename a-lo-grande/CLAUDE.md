@@ -30,7 +30,8 @@ Objetivo: captar consultas con un formulario simple y aparecer en Google.
 ## Restricciones al aplicar mejoras visuales
 - Mantener la paleta de marca: navy `#12182B`, cobalto `#2646C8`, ámbar `#F0B429`, hueso `#F3F0E9`.
   Cualquier cambio de color se hace en los tokens y con justificación.
-- Mantener las tipografías Sora e Inter autoalojadas.
+- Mantener las tipografías Sora e Inter autoalojadas. Única excepción: Fraunces Italic (autoalojada, ~23 KB, token `--font-script`),
+  solo para el título cursivo de la sección "Recetas" (`.recipes__head .section-title`). No usarla en otro lado sin motivo concreto.
 - Mantener el orden de secciones y la estructura del wireframe aprobado: inicio con formulario, productos, recetas, zonas, nosotros y contacto.
 - Rendimiento: sin imágenes pesadas, sin librerías de animación. Las animaciones son CSS y respetan `prefers-reduced-motion`.
 - No agregar chatbots.

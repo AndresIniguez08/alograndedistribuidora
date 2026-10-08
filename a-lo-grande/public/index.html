@@ -135,6 +135,16 @@
         <symbol id="i-chevron-right" viewBox="0 0 24 24">
           <path d="M9 6l6 6-6 6" />
         </symbol>
+        <symbol id="i-play" viewBox="0 0 24 24">
+          <path d="M8 5l11 7-11 7V5z" fill="currentColor" stroke="none" />
+        </symbol>
+        <symbol id="i-pause" viewBox="0 0 24 24">
+          <path
+            d="M7 5h4v14H7zM13 5h4v14h-4z"
+            fill="currentColor"
+            stroke="none"
+          />
+        </symbol>
       </defs>
     </svg>
 
@@ -423,16 +433,39 @@
           </div>
 
           <div class="carousel" data-carousel>
-            <button
-              class="carousel__btn carousel__btn--prev"
-              type="button"
-              aria-label="Receta anterior"
-              data-carousel-prev
-            >
-              <svg class="icon" aria-hidden="true">
-                <use href="#i-chevron-left" />
-              </svg>
-            </button>
+            <div class="carousel__controls">
+              <button
+                class="carousel__btn carousel__btn--prev"
+                type="button"
+                aria-label="Receta anterior"
+                data-carousel-prev
+              >
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-chevron-left" />
+                </svg>
+              </button>
+              <button
+                class="carousel__btn carousel__btn--autoplay"
+                type="button"
+                aria-pressed="false"
+                aria-label="Pausar avance automático"
+                data-carousel-autoplay
+              >
+                <svg class="icon icon--solid" aria-hidden="true">
+                  <use href="#i-pause" data-autoplay-icon />
+                </svg>
+              </button>
+              <button
+                class="carousel__btn carousel__btn--next"
+                type="button"
+                aria-label="Receta siguiente"
+                data-carousel-next
+              >
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-chevron-right" />
+                </svg>
+              </button>
+            </div>
 
             <ul
               class="carousel__track"
@@ -449,9 +482,15 @@
                 >
                   <span class="recipe-card__media">
                     <img
-                      src="assets/img/receta-placeholder.svg"
-                      width="480"
-                      height="600"
+                      src="assets/img/tortilla-papas-1200.webp"
+                      srcset="
+                        assets/img/tortilla-papas-800.webp   800w,
+                        assets/img/tortilla-papas-1200.webp 1200w,
+                        assets/img/tortilla-papas-1600.webp 1600w
+                      "
+                      sizes="(max-width: 1000px) 78vw, 280px"
+                      width="1200"
+                      height="1500"
                       loading="lazy"
                       decoding="async"
                       alt="Tortilla de papas cortada en porciones, servida en un plato"
@@ -470,9 +509,15 @@
                 >
                   <span class="recipe-card__media">
                     <img
-                      src="assets/img/receta-placeholder.svg"
-                      width="480"
-                      height="600"
+                      src="assets/img/huevos-rellenos-1200.webp"
+                      srcset="
+                        assets/img/huevos-rellenos-800.webp   800w,
+                        assets/img/huevos-rellenos-1200.webp 1200w,
+                        assets/img/huevos-rellenos-1600.webp 1600w
+                      "
+                      sizes="(max-width: 1000px) 78vw, 280px"
+                      width="1200"
+                      height="798"
                       loading="lazy"
                       decoding="async"
                       alt="Mitades de huevos rellenos con pimentón espolvoreado"
@@ -491,9 +536,15 @@
                 >
                   <span class="recipe-card__media">
                     <img
-                      src="assets/img/receta-placeholder.svg"
-                      width="480"
-                      height="600"
+                      src="assets/img/panqueques-1200.webp"
+                      srcset="
+                        assets/img/panqueques-800.webp   800w,
+                        assets/img/panqueques-1200.webp 1200w,
+                        assets/img/panqueques-1600.webp 1600w
+                      "
+                      sizes="(max-width: 1000px) 78vw, 280px"
+                      width="1200"
+                      height="1598"
                       loading="lazy"
                       decoding="async"
                       alt="Panqueques apilados"
@@ -512,16 +563,24 @@
                 >
                   <span class="recipe-card__media">
                     <img
-                      src="assets/img/receta-placeholder.svg"
-                      width="480"
-                      height="600"
+                      src="assets/img/budin-pan-1200.webp"
+                      srcset="
+                        assets/img/budin-pan-800.webp   800w,
+                        assets/img/budin-pan-1200.webp 1200w,
+                        assets/img/budin-pan-1600.webp 1600w
+                      "
+                      sizes="(max-width: 1000px) 78vw, 280px"
+                      width="1200"
+                      height="1800"
                       loading="lazy"
                       decoding="async"
                       alt="Budín de pan cortado en porciones"
                     />
                   </span>
                   <span class="recipe-card__title">Budín de pan</span>
-                  <span class="recipe-card__meta">1 h 10 min · 8 porciones</span>
+                  <span class="recipe-card__meta"
+                    >1 h 10 min · 8 porciones</span
+                  >
                 </button>
               </li>
 
@@ -533,9 +592,15 @@
                 >
                   <span class="recipe-card__media">
                     <img
-                      src="assets/img/receta-placeholder.svg"
-                      width="480"
-                      height="600"
+                      src="assets/img/huevos-horno-verduras-1200.webp"
+                      srcset="
+                        assets/img/huevos-horno-verduras-800.webp   800w,
+                        assets/img/huevos-horno-verduras-1200.webp 1200w,
+                        assets/img/huevos-horno-verduras-1600.webp 1600w
+                      "
+                      sizes="(max-width: 1000px) 78vw, 280px"
+                      width="1200"
+                      height="1600"
                       loading="lazy"
                       decoding="async"
                       alt="Huevos al horno sobre verduras salteadas"
@@ -556,9 +621,15 @@
                 >
                   <span class="recipe-card__media">
                     <img
-                      src="assets/img/receta-placeholder.svg"
-                      width="480"
-                      height="600"
+                      src="assets/img/mayonesa-casera-1200.webp"
+                      srcset="
+                        assets/img/mayonesa-casera-800.webp   800w,
+                        assets/img/mayonesa-casera-1200.webp 1200w,
+                        assets/img/mayonesa-casera-1600.webp 1600w
+                      "
+                      sizes="(max-width: 1000px) 78vw, 280px"
+                      width="1200"
+                      height="1799"
                       loading="lazy"
                       decoding="async"
                       alt="Mayonesa casera en un bol"
@@ -569,30 +640,10 @@
                 </button>
               </li>
             </ul>
-
-            <button
-              class="carousel__btn carousel__btn--next"
-              type="button"
-              aria-label="Receta siguiente"
-              data-carousel-next
-            >
-              <svg class="icon" aria-hidden="true">
-                <use href="#i-chevron-right" />
-              </svg>
-            </button>
           </div>
         </div>
 
         <template id="receta-tortilla-papas">
-          <img
-            class="recipe-modal__media"
-            src="assets/img/receta-placeholder.svg"
-            width="480"
-            height="600"
-            loading="lazy"
-            decoding="async"
-            alt="Tortilla de papas cortada en porciones, servida en un plato"
-          />
           <div class="recipe-modal__body">
             <h3 class="recipe-modal__title" id="receta-tortilla-papas-titulo">
               Tortilla de papas
@@ -618,12 +669,12 @@
                 transparente.
               </li>
               <li>
-                Batí los huevos con sal y pimienta, y mezclalos con las papas
-                y la cebolla.
+                Batí los huevos con sal y pimienta, y mezclalos con las papas y
+                la cebolla.
               </li>
               <li>
-                Volcá todo en una sartén caliente con un poco de aceite y
-                cociná 5 minutos a fuego medio.
+                Volcá todo en una sartén caliente con un poco de aceite y cociná
+                5 minutos a fuego medio.
               </li>
               <li>
                 Ayudate con un plato para darla vuelta y cociná 5 minutos más
@@ -634,20 +685,8 @@
         </template>
 
         <template id="receta-huevos-rellenos">
-          <img
-            class="recipe-modal__media"
-            src="assets/img/receta-placeholder.svg"
-            width="480"
-            height="600"
-            loading="lazy"
-            decoding="async"
-            alt="Mitades de huevos rellenos con pimentón espolvoreado"
-          />
           <div class="recipe-modal__body">
-            <h3
-              class="recipe-modal__title"
-              id="receta-huevos-rellenos-titulo"
-            >
+            <h3 class="recipe-modal__title" id="receta-huevos-rellenos-titulo">
               Huevos rellenos
             </h3>
             <p class="recipe-modal__meta">25 min · 4 porciones (12 mitades)</p>
@@ -670,30 +709,20 @@
                 Retirá las yemas con cuidado y reservá las claras enteras.
               </li>
               <li>
-                Pisá las yemas con la mayonesa, la mostaza y la sal hasta
-                formar una pasta lisa.
+                Pisá las yemas con la mayonesa, la mostaza y la sal hasta formar
+                una pasta lisa.
               </li>
               <li>
                 Rellená las claras con la mezcla, con una cuchara o una manga.
               </li>
               <li>
-                Espolvoreá con pimentón y refrigerá hasta el momento de
-                servir.
+                Espolvoreá con pimentón y refrigerá hasta el momento de servir.
               </li>
             </ol>
           </div>
         </template>
 
         <template id="receta-panqueques">
-          <img
-            class="recipe-modal__media"
-            src="assets/img/receta-placeholder.svg"
-            width="480"
-            height="600"
-            loading="lazy"
-            decoding="async"
-            alt="Panqueques apilados"
-          />
           <div class="recipe-modal__body">
             <h3 class="recipe-modal__title" id="receta-panqueques-titulo">
               Panqueques
@@ -711,8 +740,8 @@
             <ol class="recipe-modal__steps">
               <li>Batí los huevos con la leche.</li>
               <li>
-                Incorporá la harina tamizada de a poco, batiendo para que no
-                se formen grumos.
+                Incorporá la harina tamizada de a poco, batiendo para que no se
+                formen grumos.
               </li>
               <li>Agregá la manteca derretida y la sal, y mezclá bien.</li>
               <li>Dejá descansar la mezcla 10 minutos.</li>
@@ -726,15 +755,6 @@
         </template>
 
         <template id="receta-budin-pan">
-          <img
-            class="recipe-modal__media"
-            src="assets/img/receta-placeholder.svg"
-            width="480"
-            height="600"
-            loading="lazy"
-            decoding="async"
-            alt="Budín de pan cortado en porciones"
-          />
           <div class="recipe-modal__body">
             <h3 class="recipe-modal__title" id="receta-budin-pan-titulo">
               Budín de pan
@@ -771,15 +791,6 @@
         </template>
 
         <template id="receta-huevos-horno-verduras">
-          <img
-            class="recipe-modal__media"
-            src="assets/img/receta-placeholder.svg"
-            width="480"
-            height="600"
-            loading="lazy"
-            decoding="async"
-            alt="Huevos al horno sobre verduras salteadas"
-          />
           <div class="recipe-modal__body">
             <h3
               class="recipe-modal__title"
@@ -810,8 +821,8 @@
               </li>
               <li>Cascá los huevos encima y salpimentá.</li>
               <li>
-                Horneá a 180 °C durante 10 a 12 minutos, hasta que la clara
-                esté cocida y la yema al punto que prefieras.
+                Horneá a 180 °C durante 10 a 12 minutos, hasta que la clara esté
+                cocida y la yema al punto que prefieras.
               </li>
               <li>Espolvoreá con perejil antes de servir.</li>
             </ol>
@@ -819,20 +830,8 @@
         </template>
 
         <template id="receta-mayonesa-casera">
-          <img
-            class="recipe-modal__media"
-            src="assets/img/receta-placeholder.svg"
-            width="480"
-            height="600"
-            loading="lazy"
-            decoding="async"
-            alt="Mayonesa casera en un bol"
-          />
           <div class="recipe-modal__body">
-            <h3
-              class="recipe-modal__title"
-              id="receta-mayonesa-casera-titulo"
-            >
+            <h3 class="recipe-modal__title" id="receta-mayonesa-casera-titulo">
               Mayonesa casera
             </h3>
             <p class="recipe-modal__meta">10 min · aprox. 250 g</p>
@@ -863,8 +862,8 @@
             </ol>
             <p class="recipe-modal__tip">
               Esta receta lleva huevo crudo: usá huevos frescos y en buen
-              estado, conservá la mayonesa en la heladera y consumila el
-              mismo día o al día siguiente.
+              estado, conservá la mayonesa en la heladera y consumila el mismo
+              día o al día siguiente.
             </p>
           </div>
         </template>
@@ -1161,6 +1160,7 @@
         <svg class="icon" aria-hidden="true"><use href="#i-close" /></svg>
       </button>
       <div class="recipe-modal__panel">
+        <img class="recipe-modal__media" data-recipe-media alt="" />
         <div data-recipe-content></div>
       </div>
     </dialog>

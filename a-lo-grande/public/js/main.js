@@ -256,6 +256,8 @@ function initRecipesCarousel() {
   const track = $("[data-carousel-track]", root);
   const prevBtn = $("[data-carousel-prev]", root);
   const nextBtn = $("[data-carousel-next]", root);
+  const autoplayBtn = $("[data-carousel-autoplay]", root);
+  const autoplayIcon = $("[data-autoplay-icon]", root);
   const cards = $$(".recipe-card", track);
   if (!track || cards.length === 0) return;
 
@@ -277,6 +279,7 @@ function initRecipesCarousel() {
       nextBtn.hidden = !overflowing;
       nextBtn.disabled = track.scrollLeft >= maxScroll - 1;
     }
+    if (autoplayBtn) autoplayBtn.hidden = !overflowing;
   };
 
   prevBtn?.addEventListener("click", () => {
@@ -308,19 +311,148 @@ function initRecipesCarousel() {
       block: "nearest",
     });
   });
+
+  /* Avance automático: una tarjeta cada 4s, se pausa ante cualquier interacción
+     y se reanuda unos segundos después de que termina (ver blockers más abajo). */
+  const AUTOPLAY_INTERVAL = 4000;
+  const RESUME_DELAY = 3000;
+  let autoplayTimer = null;
+  let resumeTimer = null;
+  let userWantsAutoplay = !prefersReducedMotion();
+  const blockers = new Set();
+
+  const updateAutoplayButton = () => {
+    if (!autoplayBtn) return;
+    autoplayBtn.setAttribute("aria-pressed", String(!userWantsAutoplay));
+    autoplayBtn.setAttribute(
+      "aria-label",
+      userWantsAutoplay ? "Pausar avance automático" : "Reanudar avance automático",
+    );
+    autoplayBtn.classList.toggle("is-playing", userWantsAutoplay && blockers.size === 0);
+    if (autoplayIcon) autoplayIcon.setAttribute("href", userWantsAutoplay ? "#i-pause" : "#i-play");
+  };
+
+  const stopTimer = () => {
+    if (autoplayTimer) {
+      clearInterval(autoplayTimer);
+      autoplayTimer = null;
+    }
+  };
+
+  const tick = () => {
+    const maxScroll = track.scrollWidth - track.clientWidth;
+    if (maxScroll <= 1) return;
+    const atEnd = track.scrollLeft >= maxScroll - 1;
+    track.scrollTo({
+      left: atEnd ? 0 : track.scrollLeft + step(),
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
+  };
+
+  const startTimer = () => {
+    stopTimer();
+    if (!userWantsAutoplay || blockers.size > 0) return;
+    autoplayTimer = setInterval(tick, AUTOPLAY_INTERVAL);
+  };
+
+  const pause = (reason) => {
+    blockers.add(reason);
+    clearTimeout(resumeTimer);
+    stopTimer();
+    updateAutoplayButton();
+  };
+
+  const resume = (reason, delay = 0) => {
+    blockers.delete(reason);
+    clearTimeout(resumeTimer);
+    if (blockers.size > 0) {
+      updateAutoplayButton();
+      return;
+    }
+    if (delay > 0) {
+      resumeTimer = setTimeout(() => {
+        if (blockers.size === 0) startTimer();
+      }, delay);
+    } else {
+      startTimer();
+    }
+    updateAutoplayButton();
+  };
+
+  // Hover, foco y touch se escuchan en la pista (las tarjetas), no en los controles:
+  // si no, el propio botón de play quedaría pausándose a sí mismo apenas se lo toca o enfoca.
+  track.addEventListener("mouseenter", () => pause("hover"));
+  track.addEventListener("mouseleave", () => resume("hover", RESUME_DELAY));
+  track.addEventListener("focusin", () => pause("focus"));
+  track.addEventListener("focusout", () => {
+    requestAnimationFrame(() => {
+      if (!track.contains(document.activeElement)) resume("focus", RESUME_DELAY);
+    });
+  });
+  track.addEventListener("pointerdown", () => pause("touch"));
+  window.addEventListener("pointerup", () => resume("touch", RESUME_DELAY));
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) pause("hidden");
+    else resume("hidden");
+  });
+
+  document.addEventListener("recipe-modal:open", () => pause("modal"));
+  document.addEventListener("recipe-modal:close", () => resume("modal"));
+
+  if ("IntersectionObserver" in window) {
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) resume("offscreen");
+          else pause("offscreen");
+        });
+      },
+      { threshold: 0.3 },
+    );
+    sectionObserver.observe(root.closest("section") || root);
+  }
+
+  autoplayBtn?.addEventListener("click", () => {
+    userWantsAutoplay = !userWantsAutoplay;
+    if (userWantsAutoplay) startTimer();
+    else stopTimer();
+    updateAutoplayButton();
+  });
+
+  updateAutoplayButton();
+  startTimer();
 }
+
+const MODAL_MEDIA_SIZES = "(max-width: 700px) 100vw, 640px";
 
 function initRecipeModal() {
   const dialog = $("[data-recipe-modal]");
   if (!dialog) return;
 
+  const media = $("[data-recipe-media]", dialog);
   const content = $("[data-recipe-content]", dialog);
   const closeBtn = $("[data-recipe-close]", dialog);
   let lastTrigger = null;
 
+  const applyMedia = (cardImg) => {
+    if (!media || !cardImg) return;
+    media.src = cardImg.getAttribute("src") || "";
+    const srcset = cardImg.getAttribute("srcset");
+    if (srcset) media.setAttribute("srcset", srcset);
+    else media.removeAttribute("srcset");
+    media.sizes = MODAL_MEDIA_SIZES;
+    media.width = cardImg.getAttribute("width") || cardImg.naturalWidth;
+    media.height = cardImg.getAttribute("height") || cardImg.naturalHeight;
+    media.alt = cardImg.getAttribute("alt") || "";
+  };
+
   const openRecipe = (id, trigger) => {
     const template = document.getElementById(`receta-${id}`);
     if (!template) return;
+
+    const cardImg = $(".recipe-card__media img", trigger);
+    applyMedia(cardImg);
 
     content.innerHTML = "";
     content.appendChild(template.content.cloneNode(true));
@@ -330,6 +462,7 @@ function initRecipeModal() {
 
     lastTrigger = trigger;
     document.body.style.overflow = "hidden";
+    document.dispatchEvent(new CustomEvent("recipe-modal:open"));
     dialog.showModal();
   };
 
@@ -346,6 +479,11 @@ function initRecipeModal() {
   dialog.addEventListener("close", () => {
     document.body.style.overflow = "";
     content.innerHTML = "";
+    if (media) {
+      media.removeAttribute("src");
+      media.removeAttribute("srcset");
+    }
+    document.dispatchEvent(new CustomEvent("recipe-modal:close"));
     lastTrigger?.focus();
     lastTrigger = null;
   });

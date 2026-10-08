@@ -43,10 +43,11 @@ Lo que quede vacío no se muestra en el sitio.
 
 En `public/index.html`, dentro de `<section id="recetas">`:
 
-1. Copiar un `<li class="carousel__item">` entero (con su `<button class="recipe-card" data-recipe-open="ID">`) y pegarlo al final de la lista `.carousel__track`. Cambiar el `ID`, la foto, el `alt`, el título y el tiempo/porciones.
-2. Copiar el `<template id="receta-ID">` de esa misma receta y pegarlo al final de la sección, antes de `</section>`. Cambiar el `id` del `<template>` (y el de su `<h3 id="receta-ID-titulo">`) para que coincida con el `ID` nuevo del paso 1, y completar foto, título, tiempo/porciones, ingredientes y preparación.
+1. Copiar un `<li class="carousel__item">` entero (con su `<button class="recipe-card" data-recipe-open="ID">`) y pegarlo al final de la lista `.carousel__track`. Cambiar el `ID`, la foto (`src`/`srcset`/`width`/`height`), el `alt`, el título y el tiempo/porciones.
+   El modal no tiene foto propia: toma automáticamente la de la tarjeta, así que alcanza con poner la foto acá.
+2. Copiar el `<template id="receta-ID">` de esa misma receta y pegarlo al final de la sección, antes de `</section>`. Cambiar el `id` del `<template>` (y el de su `<h3 id="receta-ID-titulo">`) para que coincida con el `ID` nuevo del paso 1, y completar título, tiempo/porciones, ingredientes y preparación.
 3. Si la receta usa huevo crudo o tiene algún otro punto de seguridad alimentaria, sumar un `<p class="recipe-modal__tip">` al final del `<template>` (ver el de "Mayonesa casera").
-4. Cuando haya foto real, seguir `docs/IMAGENES.md`.
+4. Para la foto real, seguir `docs/IMAGENES.md`.
 
 ## Publicar
 
