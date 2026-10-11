@@ -699,9 +699,30 @@ function initProvinceCards() {
           point.dataset.province === province,
         ),
       );
+      // El mapa decide si puede mostrar los nombres de esa provincia (initCoverageMap)
+      map.dispatchEvent(
+        new CustomEvent("coverage-map:highlight", { detail: { province } }),
+      );
     });
   });
 }
+
+/* Rectángulos en px de pantalla */
+const rectsTouch = (a, b, gap = 0) =>
+  a.left < b.right + gap &&
+  a.right > b.left - gap &&
+  a.top < b.bottom + gap &&
+  a.bottom > b.top - gap;
+
+// Orden en que se prueban los lados: preferido (data-label-pos), contrario,
+// perpendiculares y, si nada entra, las diagonales
+const TAG_DIAGONALS = ["top-right", "bottom-right", "top-left", "bottom-left"];
+const TAG_SIDES = Object.freeze({
+  top: ["top", "bottom", "right", "left", ...TAG_DIAGONALS],
+  bottom: ["bottom", "top", "right", "left", ...TAG_DIAGONALS],
+  left: ["left", "right", "top", "bottom", ...TAG_DIAGONALS],
+  right: ["right", "left", "top", "bottom", ...TAG_DIAGONALS],
+});
 
 function initCoverageMap() {
   const map = $("[data-coverage-map]");
@@ -712,6 +733,113 @@ function initCoverageMap() {
   const points = new Map(
     $$("[data-place]", map).map((point) => [point.dataset.place, point]),
   );
+
+  /* --- Nombres de localidad (píldoras) --------------------------------- */
+  // El nombre sale solo de data-name. Pigüé, Neuquén y Mercedes no llevan píldora:
+  // ya tienen su etiqueta permanente con el rol.
+  const tagged = [...points.values()].filter(
+    (point) => point.dataset.role === "localidad",
+  );
+  const tags = new Map(
+    tagged.map((point) => {
+      const tag = document.createElement("span");
+      tag.className = "coverage-map__tag";
+      tag.setAttribute("aria-hidden", "true");
+      tag.textContent = point.dataset.name;
+      point.setAttribute("aria-label", point.dataset.name);
+      point.append(tag);
+      return [point, tag];
+    }),
+  );
+  const permanentLabels = $$(".coverage-map__label", map);
+  const tagGap = () => parseFloat(readToken("--map-tag-margin")) || 6;
+  const tagRiseOf = () => parseFloat(readToken("--map-tag-rise")) || 6;
+  // Rectángulo que ocupa la píldora en toda su animación: entra desde abajo (rise)
+  // y sale subiendo media rise
+  const travelRect = (rect) => {
+    const rise = tagRiseOf();
+    return {
+      left: rect.left,
+      right: rect.right,
+      top: rect.top - rise / 2,
+      bottom: rect.bottom + rise,
+    };
+  };
+
+  // Prueba los lados en orden (preferido, contrario, perpendiculares) y devuelve los que
+  // entran en el mapa sin pisar etiquetas permanentes, con su rectángulo medido.
+  const tagOptions = (point) => {
+    const tag = tags.get(point);
+    const box = map.getBoundingClientRect();
+    const margin = tagGap();
+    const avoid = permanentLabels.map((label) => label.getBoundingClientRect());
+    if (replay && !replay.hidden) avoid.push(replay.getBoundingClientRect());
+    const current = tag.dataset.side;
+
+    tag.classList.add("is-measuring");
+    const options = [];
+    for (const side of TAG_SIDES[point.dataset.labelPos] || TAG_SIDES.top) {
+      tag.dataset.side = side;
+      tag.className = `coverage-map__tag coverage-map__tag--${side} is-measuring`;
+      const rect = travelRect(tag.getBoundingClientRect());
+      const inside =
+        rect.left >= box.left + margin &&
+        rect.right <= box.right - margin &&
+        rect.top >= box.top + margin &&
+        rect.bottom <= box.bottom - margin;
+      if (inside && !avoid.some((other) => rectsTouch(rect, other, 2))) {
+        options.push({ side, rect });
+      }
+    }
+    if (current) setSide(point, current);
+    tag.classList.remove("is-measuring");
+    return options;
+  };
+
+  const setSide = (point, side) => {
+    const tag = tags.get(point);
+    tag.dataset.side = side;
+    tag.className = `coverage-map__tag coverage-map__tag--${side}`;
+  };
+
+  // Ubicación para hover o foco: el primer lado que entra
+  const placeForHover = (point) => {
+    if (point.classList.contains("is-tagged")) return;
+    const [best] = tagOptions(point);
+    setSide(point, best ? best.side : point.dataset.labelPos || "top");
+  };
+  tags.forEach((_, point) => {
+    placeForHover(point);
+    point.addEventListener("pointerenter", () => placeForHover(point));
+    point.addEventListener("focus", () => placeForHover(point));
+  });
+
+  // Provincia activa: se muestran sus nombres solo si ninguno se pisa con otro
+  let activeProvince = null;
+  const showProvinceTags = () => {
+    tags.forEach((_, point) => point.classList.remove("is-tagged"));
+    if (!activeProvince) return;
+    const group = tagged.filter(
+      (point) => point.dataset.province === activeProvince,
+    );
+    const placed = [];
+    for (const point of group) {
+      const option = tagOptions(point).find(
+        ({ rect }) => !placed.some((other) => rectsTouch(rect, other, tagGap())),
+      );
+      if (!option) return; // hay riesgo de superposición: solo hover y foco
+      placed.push(option.rect);
+      setSide(point, option.side);
+    }
+    group.forEach((point) => point.classList.add("is-tagged"));
+  };
+  map.addEventListener("coverage-map:highlight", (event) => {
+    activeProvince = event.detail.province;
+    showProvinceTags();
+  });
+  window.addEventListener("resize", showProvinceTags);
+
+  /* --- Geometría de rutas ----------------------------------------------- */
 
   // Posición de cada punto en coordenadas del viewBox, a partir de --x / --y del CSS
   const positionOf = (place) => {
@@ -754,13 +882,22 @@ function initCoverageMap() {
   const layer = svgEl("g", {});
   fx.append(layer);
 
+  // Animaciones creadas con WAAPI (no las de CSS, como la pulsación de provincia)
+  const scriptedAnimations = () =>
+    map
+      .getAnimations({ subtree: true })
+      .filter((anim) => anim.constructor === Animation);
+
   const showFinalState = () => {
-    fx.getAnimations({ subtree: true }).forEach((anim) => anim.cancel());
+    scriptedAnimations().forEach((anim) => anim.cancel());
     layer.replaceChildren();
-    points.forEach((point) => point.classList.remove("is-pending"));
+    points.forEach((point) =>
+      point.classList.remove("is-pending", "is-announcing"),
+    );
     map.classList.remove("is-staged");
   };
 
+  // Sin movimiento: no hay secuencia ni nombres automáticos; solo hover y foco
   if (prefersReducedMotion() || !("IntersectionObserver" in window)) {
     showFinalState();
     return;
@@ -771,7 +908,13 @@ function initCoverageMap() {
     spread: readTime("--map-spread-duration"),
     stagger: readTime("--map-spread-stagger"),
     ripple: readTime("--map-ripple-duration"),
+    tagIn: readTime("--map-tag-in"),
+    tagHold: readTime("--map-tag-hold"),
+    tagOut: readTime("--map-tag-out"),
   };
+  timing.tag = timing.tagIn + timing.tagHold + timing.tagOut;
+  const tagEase = readToken("--map-tag-ease") || "ease-out";
+  const tagRise = tagRiseOf();
   const routeOpacity = parseFloat(readToken("--map-route-opacity")) || 0.5;
   // Tamaños en px de pantalla, pasados a unidades del viewBox según el ancho actual
   const toUnits = (token) =>
@@ -784,10 +927,11 @@ function initCoverageMap() {
     if (document.hidden) anim.pause();
     return anim;
   };
-  const done = (anim) => anim.finished.then(
-    () => true,
-    () => false, // cancelada (por "Ver de nuevo")
-  );
+  const done = (anim) =>
+    anim.finished.then(
+      () => true,
+      () => false, // cancelada (por "Ver de nuevo")
+    );
 
   // Punto que viaja por una curva (getPointAtLength), animando solo transform y opacity
   const travel = (d, { duration, delay = 0, size }) => {
@@ -843,6 +987,74 @@ function initCoverageMap() {
     return done(anim).then(() => ring.remove());
   };
 
+  // Nombre que aparece al llegar el puntito: sube con fade, queda y se desvanece.
+  // Sin fill: al terminar vuelve al estado de CSS (oculto, o visible si hay hover/foco).
+  const announce = (point) => {
+    const tag = tags.get(point);
+    point.classList.add("is-announcing");
+    const anim = animate(
+      tag,
+      [
+        { opacity: 0, transform: `translateY(${tagRise}px)`, easing: tagEase },
+        { opacity: 1, transform: "none", offset: timing.tagIn / timing.tag },
+        {
+          opacity: 1,
+          transform: "none",
+          offset: (timing.tagIn + timing.tagHold) / timing.tag,
+          easing: "ease-in",
+        },
+        { opacity: 0, transform: `translateY(${-tagRise / 2}px)` },
+      ],
+      { duration: timing.tag, fill: "none" },
+    );
+    return done(anim).then(() => point.classList.remove("is-announcing"));
+  };
+
+  /* Escalonado de llegadas: cada nombre ocupa una ventana [llegada, llegada + tag].
+     Si en el lado elegido se pisaría con otro nombre visible en ese momento, se prueba
+     otro lado; si ninguno sirve, se corre la llegada (y la salida del puntito) justo
+     hasta que el otro nombre terminó. Se calcula con las medidas del ancho actual. */
+  const scheduleTags = (plan) => {
+    const booked = [];
+    const margin = tagGap();
+    const clashAt = (rect, start) =>
+      booked.find(
+        (other) =>
+          rectsTouch(rect, other.rect, margin) &&
+          start < other.end &&
+          other.start < start + timing.tag,
+      );
+    [...plan]
+      .sort((a, b) => a.arrival - b.arrival)
+      .forEach((item) => {
+        const options = tagOptions(item.point);
+        if (options.length === 0) {
+          const rect = travelRect(tags.get(item.point).getBoundingClientRect());
+          options.push({ side: item.point.dataset.labelPos, rect });
+        }
+        // Para cada lado posible, el primer momento libre; gana el que aparece antes
+        let choice = null;
+        let start = Infinity;
+        options.forEach((option) => {
+          let at = item.arrival;
+          let clash = clashAt(option.rect, at);
+          while (clash) {
+            at = clash.end;
+            clash = clashAt(option.rect, at);
+          }
+          if (at < start) {
+            start = at;
+            choice = option;
+          }
+        });
+        item.delay += start - item.arrival;
+        item.arrival = start;
+        item.side = choice.side;
+        booked.push({ rect: choice.rect, start, end: start + timing.tag });
+      });
+    return plan;
+  };
+
   const light = (place) => points.get(place).classList.remove("is-pending");
 
   let runId = 0;
@@ -856,6 +1068,7 @@ function initCoverageMap() {
     points.forEach((point, place) =>
       point.classList.toggle("is-pending", place !== MAP_SEQUENCE[0].from),
     );
+    const endings = []; // nombres y ondas: el estado final espera a que terminen
 
     for (const [index, step] of MAP_SEQUENCE.entries()) {
       const hub = positionOf(step.to);
@@ -874,6 +1087,7 @@ function initCoverageMap() {
       });
       if (!arrived || !alive()) return;
 
+      // La base solo hace su onda: su etiqueta permanente ya dice el rol
       light(step.to);
       ripple(step.to, { size: "--map-ripple-size", duration: timing.ripple });
       ripple(step.to, {
@@ -883,62 +1097,70 @@ function initCoverageMap() {
       });
 
       // 2 y 4. Desde la base se desparraman puntitos a cada localidad, de la más cercana a la más lejana
-      const targets = [...points.values()]
-        .filter(
-          (point) =>
-            point.dataset.role === "localidad" &&
-            step.provinces.includes(point.dataset.province),
-        )
+      const plan = tagged
+        .filter((point) => step.provinces.includes(point.dataset.province))
         .map((point) => {
           const place = point.dataset.place;
           const target = positionOf(place);
           return {
+            point,
             place,
             target,
             distance: Math.hypot(target.x - hub.x, target.y - hub.y),
           };
         })
-        .sort((a, b) => a.distance - b.distance);
-
-      await Promise.all(
-        targets.map(({ place, target, distance }, order) => {
-          // Más lejos, más tiempo de viaje; el retraso combina orden y distancia,
-          // así cada localidad tiene el suyo
+        .sort((a, b) => a.distance - b.distance)
+        .map((item, order) => {
+          // Más lejos, más tiempo de viaje; el retraso combina orden y distancia
           const duration = Math.min(
-            Math.max(timing.spread * (0.55 + distance / 500), timing.spread * 0.6),
+            Math.max(
+              timing.spread * (0.55 + item.distance / 500),
+              timing.spread * 0.6,
+            ),
             timing.spread * 1.8,
           );
           const delay =
             timing.ripple * 0.25 +
             order * timing.stagger +
-            ((distance * 7) % timing.stagger);
+            ((item.distance * 7) % timing.stagger);
+          return { ...item, order, duration, delay, arrival: delay + duration };
+        });
+      scheduleTags(plan);
+
+      await Promise.all(
+        plan.map(({ point, place, target, order, duration, delay, side }) => {
+          setSide(point, side);
           return travel(curve(hub, target, 0.22, order % 2 ? 1 : -1), {
             duration,
             delay,
             size: "--map-fx-spark-size",
           }).then((finished) => {
             if (!finished || !alive()) return;
+            // Llegada: se enciende el punto, pulsa y aparece su nombre, todo a la vez
             light(place);
-            ripple(place, {
-              size: "--map-pulse-size",
-              duration: timing.ripple * 0.7,
-            });
+            endings.push(
+              ripple(place, {
+                size: "--map-pulse-size",
+                duration: timing.ripple * 0.7,
+              }),
+              announce(point),
+            );
           });
         }),
       );
       if (!alive()) return;
     }
 
-    // 5. Estado final: todo encendido y rutas tenues
-    await new Promise((resolve) => setTimeout(resolve, timing.ripple));
+    // 5. Estado final: cuando terminaron los últimos nombres, todo encendido y rutas tenues
+    await Promise.all(endings);
     if (!alive()) return;
     showFinalState();
     if (replay) replay.hidden = false;
   };
 
-  // Pestaña oculta: se pausa todo lo que está corriendo y se retoma al volver
+  // Pestaña oculta: se pausa todo lo que está corriendo (puntitos, ondas y nombres)
   document.addEventListener("visibilitychange", () => {
-    fx.getAnimations({ subtree: true }).forEach((anim) => {
+    scriptedAnimations().forEach((anim) => {
       if (document.hidden && anim.playState === "running") anim.pause();
       else if (!document.hidden && anim.playState === "paused") anim.play();
     });

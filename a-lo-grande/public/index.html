@@ -916,10 +916,11 @@
           </div>
 
           <div class="zones__stage">
-            <!-- Para lectores de pantalla el mapa es una imagen; la versión navegable son las tarjetas de provincia -->
+            <!-- Grupo con nombre: cada localidad es enfocable y se anuncia por su data-name (aria-label lo pone main.js).
+                 La versión navegable completa son las tarjetas de provincia. -->
             <figure
               class="coverage-map"
-              role="img"
+              role="group"
               aria-label="Mapa de zonas de reparto: sede principal en Pigüé, depósito en Neuquén y punto de carga en Mercedes, con localidades de Buenos Aires, Neuquén, Río Negro y Chubut"
               data-coverage-map
             >
@@ -944,96 +945,157 @@
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--bahia-blanca"
                   data-place="bahia-blanca"
+                  data-name="Bahía Blanca"
+                  data-label-pos="left"
+                  role="img"
+                  tabindex="0"
                   data-province="buenos-aires"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--punta-alta"
                   data-place="punta-alta"
+                  data-name="Punta Alta"
+                  data-label-pos="bottom"
+                  role="img"
+                  tabindex="0"
                   data-province="buenos-aires"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--bolivar"
                   data-place="bolivar"
+                  data-name="Bolívar"
+                  data-label-pos="right"
+                  role="img"
+                  tabindex="0"
                   data-province="buenos-aires"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--trenque-lauquen"
                   data-place="trenque-lauquen"
+                  data-name="Trenque Lauquen"
+                  data-label-pos="left"
+                  role="img"
+                  tabindex="0"
                   data-province="buenos-aires"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--carhue"
                   data-place="carhue"
+                  data-name="Carhué"
+                  data-label-pos="left"
+                  role="img"
+                  tabindex="0"
                   data-province="buenos-aires"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--san-martin-de-los-andes"
                   data-place="san-martin-de-los-andes"
+                  data-name="San Martín de los Andes"
+                  data-label-pos="right"
+                  role="img"
+                  tabindex="0"
                   data-province="neuquen"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--villa-la-angostura"
                   data-place="villa-la-angostura"
+                  data-name="Villa La Angostura"
+                  data-label-pos="left"
+                  role="img"
+                  tabindex="0"
                   data-province="neuquen"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--cipolletti"
                   data-place="cipolletti"
+                  data-name="Cipolletti"
+                  data-label-pos="top"
+                  role="img"
+                  tabindex="0"
                   data-province="rio-negro"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--allen"
                   data-place="allen"
+                  data-name="Allen"
+                  data-label-pos="bottom"
+                  role="img"
+                  tabindex="0"
                   data-province="rio-negro"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--villa-regina"
                   data-place="villa-regina"
+                  data-name="Villa Regina"
+                  data-label-pos="top"
+                  role="img"
+                  tabindex="0"
                   data-province="rio-negro"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--choele-choel"
                   data-place="choele-choel"
+                  data-name="Choele Choel"
+                  data-label-pos="bottom"
+                  role="img"
+                  tabindex="0"
                   data-province="rio-negro"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--rio-colorado"
                   data-place="rio-colorado"
+                  data-name="Río Colorado"
+                  data-label-pos="top"
+                  role="img"
+                  tabindex="0"
                   data-province="rio-negro"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--viedma"
                   data-place="viedma"
+                  data-name="Viedma"
+                  data-label-pos="right"
+                  role="img"
+                  tabindex="0"
                   data-province="rio-negro"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--bariloche"
                   data-place="bariloche"
+                  data-name="Bariloche"
+                  data-label-pos="bottom"
+                  role="img"
+                  tabindex="0"
                   data-province="rio-negro"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--minor coverage-map__point--comodoro-rivadavia"
                   data-place="comodoro-rivadavia"
+                  data-name="Comodoro Rivadavia"
+                  data-label-pos="top"
+                  role="img"
+                  tabindex="0"
                   data-province="chubut"
                   data-role="localidad"
                 ></li>
                 <li
                   class="coverage-map__point coverage-map__point--base coverage-map__point--pigue"
                   data-place="pigue"
+                  data-name="Pigüé"
                   data-province="buenos-aires"
                   data-role="sede"
                 >
@@ -1044,6 +1106,7 @@
                 <li
                   class="coverage-map__point coverage-map__point--neuquen coverage-map__point--left"
                   data-place="neuquen"
+                  data-name="Neuquén"
                   data-province="neuquen"
                   data-role="deposito"
                 >
@@ -1054,6 +1117,7 @@
                 <li
                   class="coverage-map__point coverage-map__point--mercedes"
                   data-place="mercedes"
+                  data-name="Mercedes"
                   data-province="buenos-aires"
                   data-role="carga"
                 >

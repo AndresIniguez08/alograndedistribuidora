@@ -186,6 +186,20 @@
   --map-ripple-duration: 0.9s;
   --map-pulse-duration: 1.2s;
   --map-light-duration: 0.35s;
+  /* Nombre de localidad al llegar cada puntito (píldora) */
+  --text-map-tag: clamp(12px, 0.7rem + 0.25vw, 13px);
+  --color-map-tag-bg: rgb(18 24 43 / 0.9);
+  --color-map-tag-border: rgb(255 255 255 / 0.22);
+  --map-tag-in: 0.3s;
+  --map-tag-hold: 1.4s;
+  --map-tag-out: 0.4s;
+  --map-tag-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --map-tag-rise: 6px;
+  --map-tag-gap: 8px;
+  --map-tag-gap-diagonal: 4px;
+  --map-tag-margin: 6px;
+  --map-tag-padding: 3px 9px;
+  --map-hit-size: 24px;
   --color-card-dark: rgb(255 255 255 / 0.04);
   --color-card-dark-hover: rgb(255 255 255 / 0.08);
   --color-card-dark-border: rgb(255 255 255 / 0.14);
@@ -1154,8 +1168,24 @@ textarea.field__control {
   background: var(--color-map-dot-minor);
   box-shadow: none;
 }
+/* Área de toque invisible (hover y clic) alrededor del punto chico */
 .coverage-map__point--minor::after {
-  display: none;
+  z-index: auto;
+  width: var(--map-hit-size);
+  height: var(--map-hit-size);
+  background: none;
+  opacity: 1;
+}
+.coverage-map__point--minor {
+  cursor: default;
+}
+.coverage-map__point--minor:focus {
+  outline: none;
+}
+.coverage-map__point--minor:focus-visible::before {
+  box-shadow:
+    0 0 0 3px var(--color-slate),
+    0 0 0 5px var(--color-amber);
 }
 
 .coverage-map__label {
@@ -1180,6 +1210,75 @@ textarea.field__control {
   right: 16px;
   left: auto;
   text-align: right;
+}
+
+/* Nombre de la localidad (píldora). La posición respecto del punto la elige main.js
+   (data-label-pos y, si no entra, el lado contrario) con un modificador --top/--bottom/--left/--right.
+   La ubicación usa la propiedad translate; la animación de aparición, transform. */
+.coverage-map__tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  padding: var(--map-tag-padding);
+  border: 1px solid var(--color-map-tag-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-map-tag-bg);
+  box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.6);
+  color: var(--color-white);
+  font: 500 var(--text-map-tag) / 1.3 var(--font-body);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(var(--map-tag-rise));
+  transition:
+    opacity var(--map-tag-in) var(--map-tag-ease),
+    transform var(--map-tag-in) var(--map-tag-ease);
+}
+.coverage-map__tag--top {
+  translate: -50% calc(-100% - var(--map-tag-gap));
+}
+.coverage-map__tag--bottom {
+  translate: -50% var(--map-tag-gap);
+}
+.coverage-map__tag--left {
+  translate: calc(-100% - var(--map-tag-gap)) -50%;
+}
+.coverage-map__tag--right {
+  translate: var(--map-tag-gap) -50%;
+}
+/* Diagonales: solo si ningún lado recto entra */
+.coverage-map__tag--top-right {
+  translate: var(--map-tag-gap-diagonal) calc(-100% - var(--map-tag-gap-diagonal));
+}
+.coverage-map__tag--top-left {
+  translate: calc(-100% - var(--map-tag-gap-diagonal))
+    calc(-100% - var(--map-tag-gap-diagonal));
+}
+.coverage-map__tag--bottom-right {
+  translate: var(--map-tag-gap-diagonal) var(--map-tag-gap-diagonal);
+}
+.coverage-map__tag--bottom-left {
+  translate: calc(-100% - var(--map-tag-gap-diagonal)) var(--map-tag-gap-diagonal);
+}
+/* Visible con hover, foco o provincia activa (las de la secuencia las anima main.js) */
+.coverage-map__point:hover .coverage-map__tag,
+.coverage-map__point:focus-visible .coverage-map__tag,
+.coverage-map__point.is-tagged .coverage-map__tag {
+  opacity: 1;
+  transform: none;
+}
+/* Para medir la ubicación sin el desplazamiento de entrada */
+.coverage-map__tag.is-measuring {
+  transform: none;
+  transition: none;
+}
+/* El punto con etiqueta visible queda por encima de los demás puntos */
+.coverage-map__point:hover,
+.coverage-map__point:focus-visible,
+.coverage-map__point.is-tagged,
+.coverage-map__point.is-announcing {
+  z-index: 2;
 }
 
 /* Capa de animación (initCoverageMap): mismo viewBox que la imagen base */
@@ -1230,6 +1329,11 @@ textarea.field__control {
   opacity: var(--map-dim-opacity);
 }
 .coverage-map__point.is-highlighted {
+  opacity: 1;
+}
+/* Hover o foco: el punto se ve entero aunque esté atenuado o esperando la animación */
+.coverage-map.has-highlight .coverage-map__point--minor:is(:hover, :focus-visible),
+.coverage-map .coverage-map__point--minor.is-pending:is(:hover, :focus-visible) {
   opacity: 1;
 }
 .coverage-map__point.is-highlighted::before {
@@ -1902,6 +2006,11 @@ a.contact-list__value:hover {
 @media (max-width: 560px) {
   :root {
     --gutter: 18px;
+    /* Mapa chico: las localidades cercanas encadenan sus nombres; el mínimo acorta la secuencia */
+    --map-tag-hold: 1.2s;
+    --map-tag-padding: 2px 7px;
+    --map-tag-gap: 6px;
+    --map-tag-margin: 3px;
     --modal-media-height: var(--modal-media-height-mobile);
   }
   .form-card {
