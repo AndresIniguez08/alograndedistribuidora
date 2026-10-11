@@ -175,7 +175,10 @@
   --map-stage-padding: clamp(6px, 1vw, 14px);
   --map-dim-opacity: 0.2;
   --map-pending-opacity: 0.18;
-  --map-route-opacity: 0.5;
+  --map-route-clearance: 8px;
+  --map-trail-dots: 6;
+  --map-trail-gap: 28ms;
+  --map-trail-opacity: 0.55;
   --map-fx-dot-size: 10px;
   --map-fx-spark-size: 6px;
   --map-ripple-size: 40px;
@@ -1045,6 +1048,7 @@ textarea.field__control {
 .coverage-map__base {
   width: 100%;
   height: 100%;
+  object-fit: fill; /* misma proporción que el contenedor: nunca se recorta */
 }
 .coverage-map__points {
   position: absolute;
@@ -1281,7 +1285,9 @@ textarea.field__control {
   z-index: 2;
 }
 
-/* Capa de animación (initCoverageMap): mismo viewBox que la imagen base */
+/* Capa de animación (initCoverageMap): mismo viewBox que la imagen base.
+   El contenedor tiene siempre 16:10, igual que la imagen (object-fit: fill) y el viewBox,
+   así que imagen, capa SVG y puntos en % comparten el mismo sistema de coordenadas. */
 .coverage-map__fx {
   position: absolute;
   inset: 0;
@@ -1290,20 +1296,10 @@ textarea.field__control {
   overflow: visible;
   pointer-events: none;
 }
-.coverage-map__route {
-  fill: none;
-  stroke: var(--color-amber);
-  stroke-width: 1.6;
-  stroke-dasharray: 2 7;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-  opacity: var(--map-route-opacity);
-}
-/* Mientras espera la animación, las rutas no se ven (las revela la secuencia) */
-.coverage-map.is-staged .coverage-map__route {
-  opacity: 0;
-}
-.coverage-map__traveler {
+/* El ámbar queda solo para lo que se mueve: puntito, su estela y las ondas de llegada.
+   Las rutas no quedan dibujadas. */
+.coverage-map__traveler,
+.coverage-map__trail {
   fill: var(--color-amber);
 }
 .coverage-map__ripple {
@@ -2011,6 +2007,8 @@ a.contact-list__value:hover {
     --map-tag-padding: 2px 7px;
     --map-tag-gap: 6px;
     --map-tag-margin: 3px;
+    /* Mapa sin marco interno: gana ancho sin recortar la geografía */
+    --map-stage-padding: 0px;
     --modal-media-height: var(--modal-media-height-mobile);
   }
   .form-card {

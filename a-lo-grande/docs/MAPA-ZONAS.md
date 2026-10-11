@@ -4,10 +4,18 @@ El mapa de la sección "Zonas de reparto" se arma con dos capas:
 - **La geografía** es una imagen liviana (`public/assets/img/mapa-zonas.svg`, unos 24 KB, 8 KB con gzip) con las provincias. No trae rutas dibujadas.
 - **Los puntos y sus nombres** son HTML encima de la imagen. Así usan las tipografías del sitio y se editan sin tocar la imagen.
 - **La animación** (`initCoverageMap` en `public/js/main.js`) usa una capa SVG con el mismo viewBox (1600 × 1000).
-  Calcula las rutas desde las `--x`/`--y` de cada punto, así que no repite coordenadas:
+  Imagen base (`object-fit: fill`), capa SVG (`preserveAspectRatio="none"`) y puntos en % viven en el mismo contenedor
+  16:10, así que comparten el sistema de coordenadas en cualquier ancho y nada se recorta. En móvil el marco pierde su
+  padding interno para ganar ancho.
+  Las rutas se calculan desde las `--x`/`--y` de cada punto (no repiten coordenadas) y no se dibujan: solo guían el
+  movimiento. Son curvas cuyo punto de control se corre una fracción de la distancia entre los dos puntos
+  (`MAP_ROUTE_BENDS`, hacia el sur; `MAP_SPREAD_BENDS` para el reparto). Antes de cada viaje se mide, en el ancho actual,
+  que la curva pase a 8 px o más (`--map-route-clearance`) de las etiquetas permanentes; si ninguna fracción hacia el sur
+  sirve, se prueba el norte (pasa con Mercedes → Pigüé en escritorio). Cada puntito deja una estela corta que se desvanece
+  (`--map-trail-*`). La secuencia:
   1. Desde Mercedes viaja un punto hasta Pigüé, que hace una onda; de ahí se reparte a las localidades de Buenos Aires.
   2. Desde Mercedes viaja otro punto hasta Neuquén, que hace una onda; de ahí se reparte a las de Neuquén, Río Negro y Chubut.
-  3. Al final quedan todos los puntos encendidos y las dos rutas desde Mercedes en punteado tenue.
+  3. Al final quedan todos los puntos encendidos. No queda ninguna línea: el ámbar es solo para puntitos, estelas y ondas.
   Se reproduce una vez al entrar en pantalla, se repite con "Ver de nuevo", se pausa si la pestaña se oculta
   y con `prefers-reduced-motion` muestra directamente el estado final. Los tiempos y tamaños son tokens `--map-*` de `:root`.
 - **Las tarjetas de provincia** (`initProvinceCards`) resaltan en el mapa los puntos de esa provincia.

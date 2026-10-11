@@ -668,14 +668,23 @@ const SVG_NS = "http://www.w3.org/2000/svg";
 /* Secuencia del mapa: desde Mercedes (carga) hasta cada base, y desde la base
    se reparte a las localidades de las provincias indicadas (por data-province). */
 const MAP_SEQUENCE = Object.freeze([
-  { from: "mercedes", to: "pigue", bend: 0.2, provinces: ["buenos-aires"] },
+  { from: "mercedes", to: "pigue", provinces: ["buenos-aires"] },
   {
     from: "mercedes",
     to: "neuquen",
-    bend: 0.26,
     provinces: ["neuquen", "rio-negro", "chubut"],
   },
 ]);
+
+/* Curvatura de las rutas: el punto de control se corre una fracción de la distancia
+   entre los dos puntos. Se prueban en orden y gana la primera que no pasa cerca de
+   ninguna etiqueta permanente (Pigüé, Neuquén, Mercedes). Las rutas desde Mercedes van
+   hacia el sur; solo si ninguna fracción sirve se prueba el norte (pasa con Pigüé en
+   escritorio, donde su etiqueta queda justo en el camino del arco sur). */
+const MAP_ROUTE_BENDS = Object.freeze([0.18, 0.15, 0.12]);
+// Reparto desde cada base: las curvas más marcadas sirven para salir por debajo de la
+// etiqueta de la base (por ejemplo, de Neuquén hacia la cordillera)
+const MAP_SPREAD_BENDS = Object.freeze([0.22, 0.15, 0.08, 0.35, 0.5, 0.65]);
 
 function initProvinceCards() {
   const map = $("[data-coverage-map]");
@@ -825,7 +834,8 @@ function initCoverageMap() {
     const placed = [];
     for (const point of group) {
       const option = tagOptions(point).find(
-        ({ rect }) => !placed.some((other) => rectsTouch(rect, other, tagGap())),
+        ({ rect }) =>
+          !placed.some((other) => rectsTouch(rect, other, tagGap())),
       );
       if (!option) return; // hay riesgo de superposición: solo hover y foco
       placed.push(option.rect);
@@ -850,35 +860,78 @@ function initCoverageMap() {
     };
   };
 
-  // Curva cuadrática: el punto de control se corre en perpendicular al tramo.
-  // side = 1 arquea hacia el norte; -1, hacia el sur.
+  // Curva cuadrática en coordenadas del viewBox (las mismas de la imagen base y de los
+  // puntos en %). El control se corre en perpendicular, bend = fracción de la distancia.
+  // side = 1 arquea hacia el sur; -1, hacia el norte.
   const curve = (a, b, bend, side = 1) => {
-    let nx = b.y - a.y;
-    let ny = a.x - b.x;
-    if (ny > 0) {
+    let nx = a.y - b.y;
+    let ny = b.x - a.x;
+    if (ny < 0) {
       nx = -nx;
       ny = -ny;
     }
-    const cx = (a.x + b.x) / 2 + nx * bend * side;
-    const cy = (a.y + b.y) / 2 + ny * bend * side;
-    return `M${a.x} ${a.y} Q${cx} ${cy} ${b.x} ${b.y}`;
+    return {
+      a,
+      b,
+      c: {
+        x: (a.x + b.x) / 2 + nx * bend * side,
+        y: (a.y + b.y) / 2 + ny * bend * side,
+      },
+    };
+  };
+  const pathOf = ({ a, b, c }) => `M${a.x} ${a.y} Q${c.x} ${c.y} ${b.x} ${b.y}`;
+
+  // Distancia mínima (en px de pantalla) entre una curva y las etiquetas permanentes
+  const clearance = ({ a, b, c }) => {
+    const box = map.getBoundingClientRect();
+    const scale = MAP_SIZE.width / box.width; // px de pantalla -> unidades del viewBox
+    const labels = $$(".coverage-map__label", map).map((label) => {
+      const r = label.getBoundingClientRect();
+      return {
+        left: (r.left - box.left) * scale,
+        right: (r.right - box.left) * scale,
+        top: (r.top - box.top) * scale,
+        bottom: (r.bottom - box.top) * scale,
+      };
+    });
+    let min = Infinity;
+    for (let i = 0; i <= 96; i++) {
+      const t = i / 96;
+      const x = (1 - t) ** 2 * a.x + 2 * (1 - t) * t * c.x + t ** 2 * b.x;
+      const y = (1 - t) ** 2 * a.y + 2 * (1 - t) * t * c.y + t ** 2 * b.y;
+      labels.forEach((r) => {
+        const dx = Math.max(r.left - x, 0, x - r.right);
+        const dy = Math.max(r.top - y, 0, y - r.bottom);
+        min = Math.min(min, Math.hypot(dx, dy) / scale);
+      });
+    }
+    return min;
+  };
+
+  // Primera curva (por lado y fracción) que deja el margen libre; si ninguna, la que más se aleja
+  const safeCurve = (a, b, bends, sides) => {
+    const margin = parseFloat(readToken("--map-route-clearance")) || 8;
+    let best = null;
+    for (const side of sides) {
+      for (const bend of bends) {
+        const candidate = curve(a, b, bend, side);
+        const free = clearance(candidate);
+        if (free >= margin) return candidate;
+        if (!best || free > best.free) best = { candidate, free };
+      }
+    }
+    return best.candidate;
   };
 
   const svgEl = (tag, attrs) => {
     const el = document.createElementNS(SVG_NS, tag);
-    Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+    Object.entries(attrs).forEach(([key, value]) =>
+      el.setAttribute(key, value),
+    );
     return el;
   };
 
-  // Rutas principales: quedan dibujadas (punteado tenue) al final
-  const routes = MAP_SEQUENCE.map((step) => {
-    const route = svgEl("path", {
-      class: "coverage-map__route",
-      d: curve(positionOf(step.from), positionOf(step.to), step.bend),
-    });
-    fx.append(route);
-    return route;
-  });
+  // Capa de puntitos, estelas y ondas. Las rutas no se dibujan: solo se calcula su trazado.
   const layer = svgEl("g", {});
   fx.append(layer);
 
@@ -915,7 +968,11 @@ function initCoverageMap() {
   timing.tag = timing.tagIn + timing.tagHold + timing.tagOut;
   const tagEase = readToken("--map-tag-ease") || "ease-out";
   const tagRise = tagRiseOf();
-  const routeOpacity = parseFloat(readToken("--map-route-opacity")) || 0.5;
+  const trail = {
+    dots: Math.round(parseFloat(readToken("--map-trail-dots")) || 6),
+    gap: readTime("--map-trail-gap"),
+    opacity: parseFloat(readToken("--map-trail-opacity")) || 0.5,
+  };
   // Tamaños en px de pantalla, pasados a unidades del viewBox según el ancho actual
   const toUnits = (token) =>
     (parseFloat(readToken(token)) * MAP_SIZE.width) /
@@ -948,17 +1005,36 @@ function initCoverageMap() {
     });
     path.remove();
 
-    const dot = svgEl("circle", {
-      class: "coverage-map__traveler",
-      r: toUnits(size) / 2,
-    });
+    const radius = toUnits(size) / 2;
+    const easing = "cubic-bezier(0.45, 0, 0.25, 1)";
+
+    // Estela: circulitos que siguen la misma trayectoria un poco más tarde,
+    // cada uno más chico y más tenue; se van solos al terminar
+    for (let k = trail.dots; k >= 1; k--) {
+      const fade = 1 - k / (trail.dots + 1);
+      const ghost = svgEl("circle", {
+        class: "coverage-map__trail",
+        r: radius * (0.35 + 0.5 * fade),
+      });
+      ghost.style.willChange = "transform, opacity";
+      layer.append(ghost);
+      const ghostFrames = frames.map((frame) => ({
+        ...frame,
+        opacity: frame.opacity * trail.opacity * fade,
+      }));
+      done(
+        animate(ghost, ghostFrames, {
+          duration,
+          delay: delay + k * trail.gap,
+          easing,
+        }),
+      ).then(() => ghost.remove());
+    }
+
+    const dot = svgEl("circle", { class: "coverage-map__traveler", r: radius });
     dot.style.willChange = "transform, opacity";
     layer.append(dot);
-    const anim = animate(dot, frames, {
-      duration,
-      delay,
-      easing: "cubic-bezier(0.45, 0, 0.25, 1)",
-    });
+    const anim = animate(dot, frames, { duration, delay, easing });
     return done(anim).then((finished) => {
       dot.remove();
       return finished;
@@ -1074,13 +1150,14 @@ function initCoverageMap() {
       const hub = positionOf(step.to);
       const pause = index === 0 ? 0 : timing.stagger * 3;
 
-      // 1 y 3. Desde Mercedes hasta la base; la ruta aparece mientras pasa el punto
-      animate(routes[index], [{ opacity: 0 }, { opacity: routeOpacity }], {
-        duration: timing.travel,
-        delay: pause,
-        easing: "ease-in",
-      });
-      const arrived = await travel(routes[index].getAttribute("d"), {
+      // 1 y 3. Desde Mercedes hasta la base, por una curva hacia el sur que esquiva las etiquetas
+      const route = safeCurve(
+        positionOf(step.from),
+        hub,
+        MAP_ROUTE_BENDS,
+        [1, -1],
+      );
+      const arrived = await travel(pathOf(route), {
         duration: timing.travel,
         delay: pause,
         size: "--map-fx-dot-size",
@@ -1130,7 +1207,12 @@ function initCoverageMap() {
       await Promise.all(
         plan.map(({ point, place, target, order, duration, delay, side }) => {
           setSide(point, side);
-          return travel(curve(hub, target, 0.22, order % 2 ? 1 : -1), {
+          const arcSide = order % 2 ? 1 : -1;
+          const spread = safeCurve(hub, target, MAP_SPREAD_BENDS, [
+            arcSide,
+            -arcSide,
+          ]);
+          return travel(pathOf(spread), {
             duration,
             delay,
             size: "--map-fx-spark-size",
