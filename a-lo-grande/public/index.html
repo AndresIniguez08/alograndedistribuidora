@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>A lo grande | Huevos para negocios en Pigüé y Neuquén</title>
+    <title>A lo grande Mayorista | Distribuidora de huevos en Pigüé y Neuquén</title>
     <meta
       name="description"
-      content="Distribuidora de huevos para negocios con base en Pigüé y clientes en Neuquén y alrededores. Pedí tu cotización y coordinamos tu abastecimiento."
+      content="Distribuidora de huevos para mayoristas, con sede en Pigüé y depósito en Neuquén. Repartimos en Buenos Aires, Neuquén, Río Negro y Chubut."
     />
     <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#12182B" />
@@ -15,14 +15,14 @@
     <!-- Redes sociales -->
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_AR" />
-    <meta property="og:site_name" content="A lo grande" />
+    <meta property="og:site_name" content="A lo grande Mayorista" />
     <meta
       property="og:title"
-      content="A lo grande | Huevos para negocios en Pigüé y Neuquén"
+      content="A lo grande Mayorista | Distribuidora de huevos en Pigüé y Neuquén"
     />
     <meta
       property="og:description"
-      content="Abastecé tu negocio con una atención cercana y simple. Pedí tu cotización."
+      content="Abastecemos de huevos a mayoristas desde Pigüé y Neuquén. Pedí tu cotización."
     />
     <meta property="og:url" content="https://alograndedistribuidora.com.ar/" />
     <meta
@@ -31,6 +31,10 @@
     />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="A lo grande Mayorista, distribuidora de huevos en Pigüé y Neuquén"
+    />
     <meta name="twitter:card" content="summary_large_image" />
 
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
@@ -55,14 +59,17 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "LocalBusiness",
-        "name": "A lo grande",
+        "@type": "Organization",
+        "name": "A lo grande Mayorista",
         "url": "https://alograndedistribuidora.com.ar/",
-        "description": "Distribuidora de huevos para negocios con base en Pigüé y clientes en Neuquén y alrededores.",
+        "description": "Distribuidora de huevos para mayoristas, con sede en Pigüé y depósito en Neuquén.",
+        "foundingDate": "2020",
         "email": "contacto@alograndedistribuidora.com.ar",
         "areaServed": [
-          { "@type": "City", "name": "Pigüé" },
-          { "@type": "City", "name": "Neuquén" }
+          { "@type": "State", "name": "Provincia de Buenos Aires" },
+          { "@type": "State", "name": "Provincia de Neuquén" },
+          { "@type": "State", "name": "Provincia de Río Negro" },
+          { "@type": "State", "name": "Provincia de Chubut" }
         ]
       }
     </script>
@@ -129,6 +136,19 @@
             d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 .8a4 4 0 01-2-2l.8-1-1-2z"
           />
         </symbol>
+        <symbol id="i-warehouse" viewBox="0 0 24 24">
+          <path d="M3 9.5L12 4l9 5.5V20H3z" />
+          <path d="M7.5 20v-7h9v7M7.5 16.5h9" />
+        </symbol>
+        <symbol id="i-people" viewBox="0 0 24 24">
+          <circle cx="9" cy="8" r="3.5" />
+          <path d="M2.5 20a6.5 6.5 0 0113 0" />
+          <path d="M15.5 4.7a3.5 3.5 0 010 6.6M17.5 14a6.5 6.5 0 014 6" />
+        </symbol>
+        <symbol id="i-replay" viewBox="0 0 24 24">
+          <path d="M4 12a8 8 0 102.3-5.6" />
+          <path d="M4 4v4.5h4.5" />
+        </symbol>
         <symbol id="i-chevron-left" viewBox="0 0 24 24">
           <path d="M15 6l-6 6 6 6" />
         </symbol>
@@ -153,8 +173,11 @@
     <!-- ======================= ENCABEZADO ======================= -->
     <header class="site-header">
       <div class="container site-header__bar">
-        <a class="brand" href="#inicio" aria-label="A lo grande, ir al inicio"
-          >A lo grande</a
+        <a
+          class="brand"
+          href="#inicio"
+          aria-label="A lo grande Mayorista, ir al inicio"
+          >A lo grande <span class="brand__tag">Mayorista</span></a
         >
 
         <nav class="nav" id="site-nav" aria-label="Principal" data-nav>
@@ -423,9 +446,11 @@
       <!-- ======================= RECETAS ======================= -->
       <section class="section recipes" id="recetas">
         <div class="container">
-          <div class="recipes__head">
+          <div class="section-head">
             <p class="eyebrow">Recetas</p>
-            <h2 class="section-title">Ideas para cocinar con huevo</h2>
+            <h2 class="section-title section-title--script">
+              Ideas para cocinar con huevo
+            </h2>
             <p class="recipes__intro">
               Algunas recetas clásicas para aprovechar los huevos en casa o en
               el local. Tocá una tarjeta para ver la receta completa.
@@ -478,6 +503,7 @@
                 <button
                   class="recipe-card"
                   type="button"
+                  data-reveal
                   data-recipe-open="tortilla-papas"
                 >
                   <span class="recipe-card__media">
@@ -505,6 +531,7 @@
                 <button
                   class="recipe-card"
                   type="button"
+                  data-reveal
                   data-recipe-open="huevos-rellenos"
                 >
                   <span class="recipe-card__media">
@@ -532,6 +559,7 @@
                 <button
                   class="recipe-card"
                   type="button"
+                  data-reveal
                   data-recipe-open="panqueques"
                 >
                   <span class="recipe-card__media">
@@ -559,6 +587,7 @@
                 <button
                   class="recipe-card"
                   type="button"
+                  data-reveal
                   data-recipe-open="budin-pan"
                 >
                   <span class="recipe-card__media">
@@ -588,6 +617,7 @@
                 <button
                   class="recipe-card"
                   type="button"
+                  data-reveal
                   data-recipe-open="huevos-horno-verduras"
                 >
                   <span class="recipe-card__media">
@@ -617,6 +647,7 @@
                 <button
                   class="recipe-card"
                   type="button"
+                  data-reveal
                   data-recipe-open="mayonesa-casera"
                 >
                   <span class="recipe-card__media">
@@ -871,59 +902,245 @@
 
       <!-- ======================= ZONAS DE REPARTO ======================= -->
       <section class="section section--dark zones" id="zonas">
-        <div class="container zones__grid">
-          <figure class="coverage-map">
-            <img
-              class="coverage-map__base"
-              src="assets/img/mapa-zonas.svg"
-              width="1600"
-              height="1000"
-              loading="lazy"
-              decoding="async"
-              alt=""
-            />
-            <ul
-              class="coverage-map__points"
-              aria-label="Zonas de reparto en el mapa"
-            >
-              <li
-                class="coverage-map__point coverage-map__point--base coverage-map__point--pigue"
-              >
-                <span class="coverage-map__label"
-                  >Pigüé<small>Nuestra base</small></span
-                >
-              </li>
-              <li
-                class="coverage-map__point coverage-map__point--neuquen coverage-map__point--left"
-              >
-                <span class="coverage-map__label"
-                  >Neuquén<small>Zona principal</small></span
-                >
-              </li>
-              <li class="coverage-map__point coverage-map__point--cipolletti">
-                <span class="coverage-map__label">Cipolletti</span>
-              </li>
-              <li
-                class="coverage-map__point coverage-map__point--mercedes coverage-map__point--left"
-              >
-                <span class="coverage-map__label">Mercedes</span>
-              </li>
-            </ul>
-          </figure>
-
-          <div>
+        <div class="container">
+          <div class="section-head zones__head">
             <p class="eyebrow">Zonas de reparto</p>
-            <h2 class="section-title">Desde Pigüé,<br />hasta tu negocio</h2>
+            <h2 class="section-title section-title--script">
+              Desde Pigüé, hasta tu negocio
+            </h2>
             <p class="zones__text">
-              Nuestra base está en Pigüé y la mayor parte de nuestros clientes,
-              en Neuquén.
+              Nuestra sede principal está en Pigüé, tenemos un depósito en
+              Neuquén y cargamos mercadería en Mercedes. Desde estos puntos
+              armamos y distribuimos a distintas localidades.
             </p>
-            <ul class="chips">
-              <li class="chip">Pigüé y zona</li>
-              <li class="chip">Neuquén y Cipolletti</li>
-              <li class="chip">Mercedes</li>
-              <li class="chip">Otras localidades</li>
-            </ul>
+          </div>
+
+          <div class="zones__stage">
+            <!-- Para lectores de pantalla el mapa es una imagen; la versión navegable son las tarjetas de provincia -->
+            <figure
+              class="coverage-map"
+              role="img"
+              aria-label="Mapa de zonas de reparto: sede principal en Pigüé, depósito en Neuquén y punto de carga en Mercedes, con localidades de Buenos Aires, Neuquén, Río Negro y Chubut"
+              data-coverage-map
+            >
+              <img
+                class="coverage-map__base"
+                src="assets/img/mapa-zonas.svg"
+                width="1600"
+                height="1000"
+                loading="lazy"
+                decoding="async"
+                alt=""
+              />
+              <!-- Capa de animación: rutas y puntos viajeros (los arma main.js) -->
+              <svg
+                class="coverage-map__fx"
+                viewBox="0 0 1600 1000"
+                aria-hidden="true"
+                focusable="false"
+                data-map-fx
+              ></svg>
+              <ul class="coverage-map__points">
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--bahia-blanca"
+                  data-place="bahia-blanca"
+                  data-province="buenos-aires"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--punta-alta"
+                  data-place="punta-alta"
+                  data-province="buenos-aires"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--bolivar"
+                  data-place="bolivar"
+                  data-province="buenos-aires"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--trenque-lauquen"
+                  data-place="trenque-lauquen"
+                  data-province="buenos-aires"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--carhue"
+                  data-place="carhue"
+                  data-province="buenos-aires"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--san-martin-de-los-andes"
+                  data-place="san-martin-de-los-andes"
+                  data-province="neuquen"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--villa-la-angostura"
+                  data-place="villa-la-angostura"
+                  data-province="neuquen"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--cipolletti"
+                  data-place="cipolletti"
+                  data-province="rio-negro"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--allen"
+                  data-place="allen"
+                  data-province="rio-negro"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--villa-regina"
+                  data-place="villa-regina"
+                  data-province="rio-negro"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--choele-choel"
+                  data-place="choele-choel"
+                  data-province="rio-negro"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--rio-colorado"
+                  data-place="rio-colorado"
+                  data-province="rio-negro"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--viedma"
+                  data-place="viedma"
+                  data-province="rio-negro"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--bariloche"
+                  data-place="bariloche"
+                  data-province="rio-negro"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--minor coverage-map__point--comodoro-rivadavia"
+                  data-place="comodoro-rivadavia"
+                  data-province="chubut"
+                  data-role="localidad"
+                ></li>
+                <li
+                  class="coverage-map__point coverage-map__point--base coverage-map__point--pigue"
+                  data-place="pigue"
+                  data-province="buenos-aires"
+                  data-role="sede"
+                >
+                  <span class="coverage-map__label"
+                    >Pigüé<small>Sede principal</small></span
+                  >
+                </li>
+                <li
+                  class="coverage-map__point coverage-map__point--neuquen coverage-map__point--left"
+                  data-place="neuquen"
+                  data-province="neuquen"
+                  data-role="deposito"
+                >
+                  <span class="coverage-map__label"
+                    >Neuquén<small>Depósito</small></span
+                  >
+                </li>
+                <li
+                  class="coverage-map__point coverage-map__point--mercedes"
+                  data-place="mercedes"
+                  data-province="buenos-aires"
+                  data-role="carga"
+                >
+                  <span class="coverage-map__label"
+                    >Mercedes<small>Punto de carga</small></span
+                  >
+                </li>
+              </ul>
+            </figure>
+            <button
+              class="coverage-map__replay"
+              type="button"
+              aria-label="Ver de nuevo la animación del mapa"
+              data-map-replay
+              hidden
+            >
+              <svg class="icon" aria-hidden="true"><use href="#i-replay" /></svg
+              >Ver de nuevo
+            </button>
+          </div>
+
+          <p class="visually-hidden" id="province-hint">
+            Al activar una provincia se resaltan sus localidades en el mapa.
+          </p>
+          <ul class="province-cards" aria-label="Provincias y localidades">
+            <li>
+              <button
+                class="province-card"
+                type="button"
+                aria-pressed="false"
+                aria-describedby="province-hint"
+                data-province-toggle="buenos-aires"
+              >
+                <span class="province-card__name">Buenos Aires</span>
+                <span class="province-card__places">
+                  Mercedes, Pigüé, Bahía Blanca, Punta Alta, Bolívar, Trenque
+                  Lauquen y Carhué.
+                </span>
+              </button>
+            </li>
+            <li>
+              <button
+                class="province-card"
+                type="button"
+                aria-pressed="false"
+                aria-describedby="province-hint"
+                data-province-toggle="neuquen"
+              >
+                <span class="province-card__name">Neuquén</span>
+                <span class="province-card__places">
+                  Neuquén, San Martín de los Andes y Villa La Angostura.
+                </span>
+              </button>
+            </li>
+            <li>
+              <button
+                class="province-card"
+                type="button"
+                aria-pressed="false"
+                aria-describedby="province-hint"
+                data-province-toggle="rio-negro"
+              >
+                <span class="province-card__name">Río Negro</span>
+                <span class="province-card__places">
+                  Cipolletti, Allen, Villa Regina, Choele Choel, Río Colorado,
+                  Viedma y Bariloche.
+                </span>
+              </button>
+            </li>
+            <li>
+              <button
+                class="province-card"
+                type="button"
+                aria-pressed="false"
+                aria-describedby="province-hint"
+                data-province-toggle="chubut"
+              >
+                <span class="province-card__name">Chubut</span>
+                <span class="province-card__places">
+                  Comodoro Rivadavia.
+                </span>
+              </button>
+            </li>
+          </ul>
+
+          <div class="zones__foot">
+            <p class="zones__more">…y otras localidades.</p>
             <a class="ask-link" href="#contacto"
               ><svg class="icon" aria-hidden="true"><use href="#i-chat" /></svg
               ><span>¿No ves tu zona? <u>Consultanos</u></span></a
@@ -935,39 +1152,262 @@
       <!-- ======================= NOSOTROS ======================= -->
       <section class="section about" id="nosotros">
         <div class="container">
-          <p class="eyebrow">Nosotros</p>
-          <h2 class="section-title">
-            Creemos en las relaciones que hacen crecer tu negocio.
-          </h2>
-          <p class="about__text">
-            Somos A lo grande, un distribuidor de huevos para negocios con base
-            en Pigüé. Acompañamos a comerciantes y equipos gastronómicos con una
-            atención cercana, coordinando cada pedido y entrega según lo que
-            necesitan.
-          </p>
-          <ul class="values">
-            <li class="value">
-              <svg class="icon" aria-hidden="true"><use href="#i-box" /></svg>
-              <h3 class="value__title">Venta mayorista</h3>
-              <p class="value__text">
-                Para almacenes, autoservicios, cocinas y gastronomía.
-              </p>
-            </li>
-            <li class="value">
-              <svg class="icon" aria-hidden="true"><use href="#i-truck" /></svg>
-              <h3 class="value__title">Reparto coordinado</h3>
-              <p class="value__text">
-                Coordinamos cada pedido y entrega según lo que necesitás.
-              </p>
-            </li>
-            <li class="value">
-              <svg class="icon" aria-hidden="true"><use href="#i-chat" /></svg>
-              <h3 class="value__title">Atención directa</h3>
-              <p class="value__text">
-                Una atención cercana y simple, de punta a punta.
-              </p>
-            </li>
-          </ul>
+          <div class="section-head">
+            <p class="eyebrow">Nosotros</p>
+            <h2 class="section-title section-title--script">
+              Creemos en las relaciones que hacen crecer tu negocio.
+            </h2>
+          </div>
+
+          <!-- Capítulos: patrón WAI-ARIA tabs. Los 4 paneles están en el HTML; el JS marca los inactivos con inert -->
+          <div class="chapters" data-chapters data-reveal>
+            <div
+              class="chapters__tabs"
+              role="tablist"
+              aria-label="Nosotros"
+              aria-orientation="vertical"
+              data-chapters-tablist
+            >
+              <button
+                class="chapters__tab"
+                type="button"
+                role="tab"
+                id="capitulo-historia-tab"
+                aria-controls="capitulo-historia"
+                aria-selected="true"
+                tabindex="0"
+                data-chapter-tab
+              >
+                <span class="chapters__num">01</span>
+                <span class="chapters__name">Nuestra historia</span>
+              </button>
+              <button
+                class="chapters__tab"
+                type="button"
+                role="tab"
+                id="capitulo-que-hacemos-tab"
+                aria-controls="capitulo-que-hacemos"
+                aria-selected="false"
+                tabindex="-1"
+                data-chapter-tab
+              >
+                <span class="chapters__num">02</span>
+                <span class="chapters__name">Qué hacemos</span>
+              </button>
+              <button
+                class="chapters__tab"
+                type="button"
+                role="tab"
+                id="capitulo-como-trabajamos-tab"
+                aria-controls="capitulo-como-trabajamos"
+                aria-selected="false"
+                tabindex="-1"
+                data-chapter-tab
+              >
+                <span class="chapters__num">03</span>
+                <span class="chapters__name">Cómo trabajamos</span>
+              </button>
+              <button
+                class="chapters__tab"
+                type="button"
+                role="tab"
+                id="capitulo-donde-estamos-tab"
+                aria-controls="capitulo-donde-estamos"
+                aria-selected="false"
+                tabindex="-1"
+                data-chapter-tab
+              >
+                <span class="chapters__num">04</span>
+                <span class="chapters__name">Dónde estamos</span>
+              </button>
+            </div>
+            <div class="chapters__panels">
+              <div
+                class="chapters__panel is-active"
+                role="tabpanel"
+                id="capitulo-historia"
+                aria-labelledby="capitulo-historia-tab"
+                tabindex="0"
+                data-chapter-panel
+              >
+                <span class="chapters__ghost" aria-hidden="true">01</span>
+                <h3 class="visually-hidden">Nuestra historia</h3>
+                <p class="chapters__figure" aria-hidden="true">2020</p>
+                <p class="chapters__lead">
+                  A lo grande Mayorista nació en 2020, como muchas de las
+                  empresas que surgieron durante la pandemia.
+                </p>
+                <p class="chapters__text">
+                  La complejidad de ese contexto nos llevó a incursionar en
+                  nuevos negocios.
+                </p>
+              </div>
+              <div
+                class="chapters__panel"
+                role="tabpanel"
+                id="capitulo-que-hacemos"
+                aria-labelledby="capitulo-que-hacemos-tab"
+                tabindex="0"
+                data-chapter-panel
+              >
+                <span class="chapters__ghost" aria-hidden="true">02</span>
+                <h3 class="visually-hidden">Qué hacemos</h3>
+                <p class="chapters__lead">
+                  Somos una empresa dedicada a resolver las necesidades y
+                  abastecer de huevos a los grandes mayoristas del país.
+                </p>
+                <p class="chapters__text">
+                  Compramos, acopiamos y distribuimos huevos de distintas
+                  granjas, analizando el perfil de cada cliente y de cada zona
+                  para cumplir con sus necesidades de la forma más ordenada
+                  posible.
+                </p>
+              </div>
+              <div
+                class="chapters__panel"
+                role="tabpanel"
+                id="capitulo-como-trabajamos"
+                aria-labelledby="capitulo-como-trabajamos-tab"
+                tabindex="0"
+                data-chapter-panel
+              >
+                <span class="chapters__ghost" aria-hidden="true">03</span>
+                <h3 class="visually-hidden">Cómo trabajamos</h3>
+                <ul class="chapters__features">
+                  <li class="chapters__feature">
+                    <span class="chapters__feature-icon"
+                      ><svg class="icon" aria-hidden="true">
+                        <use href="#i-warehouse" /></svg
+                    ></span>
+                    <span>Contamos con centros de acopio propios,</span>
+                  </li>
+                  <li class="chapters__feature">
+                    <span class="chapters__feature-icon"
+                      ><svg class="icon" aria-hidden="true">
+                        <use href="#i-truck" /></svg
+                    ></span>
+                    <span
+                      >movilidad adaptada a las necesidades de cada cliente y
+                      logística propia.</span
+                    >
+                  </li>
+                  <li class="chapters__feature">
+                    <span class="chapters__feature-icon"
+                      ><svg class="icon" aria-hidden="true">
+                        <use href="#i-people" /></svg
+                    ></span>
+                    <span
+                      >Nuestro personal está preparado para cumplir con las
+                      obligaciones y responsabilidades que cada cliente nos
+                      exige.</span
+                    >
+                  </li>
+                </ul>
+                <p
+                  class="chapters__figure chapters__figure--words"
+                  aria-hidden="true"
+                >
+                  seis años
+                </p>
+                <p class="chapters__text">
+                  Desde hace seis años sumamos nuevos amigos y acompañamos el
+                  día a día de las empresas que confían en nosotros para
+                  abastecerse.
+                </p>
+              </div>
+              <div
+                class="chapters__panel"
+                role="tabpanel"
+                id="capitulo-donde-estamos"
+                aria-labelledby="capitulo-donde-estamos-tab"
+                tabindex="0"
+                data-chapter-panel
+              >
+                <span class="chapters__ghost" aria-hidden="true">04</span>
+                <h3 class="visually-hidden">Dónde estamos</h3>
+                <p class="chapters__lead">
+                  Nuestra sede principal está en Pigüé (Buenos Aires) y contamos
+                  con un depósito en Neuquén.
+                </p>
+                <p class="chapters__text">
+                  Además cargamos mercadería en Mercedes (Buenos Aires).
+                </p>
+                <!-- Resumen visual del párrafo anterior: oculto para lectores de pantalla, que ya lo leyeron -->
+                <ul class="hubs" aria-hidden="true">
+                  <li class="hub hub--main">
+                    <span class="hub__place">Pigüé</span
+                    ><span class="hub__role">Sede principal</span>
+                  </li>
+                  <li class="hub">
+                    <span class="hub__place">Neuquén</span
+                    ><span class="hub__role">Depósito</span>
+                  </li>
+                  <li class="hub">
+                    <span class="hub__place">Mercedes</span
+                    ><span class="hub__role">Carga</span>
+                  </li>
+                </ul>
+                <p class="chapters__text">
+                  Desde estos puntos armamos y distribuimos a distintas
+                  localidades.
+                </p>
+                <div class="chapters__places">
+                  <p class="chapters__text">
+                    Estamos presentes en localidades como:
+                  </p>
+                  <ul class="chapters__provinces">
+                    <li class="province-chips">
+                      <span class="province-chips__name"
+                        >Buenos Aires<span class="visually-hidden">:</span></span
+                      >
+                      <p class="province-chips__list">
+                        <span class="place-chip">Mercedes<span class="visually-hidden">,</span></span>
+                        <span class="place-chip">Pigüé<span class="visually-hidden">,</span></span>
+                        <span class="place-chip">Bahía Blanca<span class="visually-hidden">,</span></span>
+                        <span class="place-chip">Punta Alta<span class="visually-hidden">,</span></span>
+                        <span class="place-chip">Bolívar<span class="visually-hidden">,</span></span>
+                        <span class="place-chip">Trenque Lauquen<span class="visually-hidden"> y</span></span>
+                        <span class="place-chip">Carhué<span class="visually-hidden">.</span></span>
+                      </p>
+                    </li>
+                    <li class="province-chips">
+                      <span class="province-chips__name"
+                        >Neuquén<span class="visually-hidden">:</span></span
+                      >
+                      <p class="province-chips__list">
+                        <span class="place-chip">Neuquén<span class="visually-hidden">,</span></span>
+                        <span class="place-chip">San Martín de los Andes<span class="visually-hidden"> y</span></span>
+                        <span class="place-chip">Villa La Angostura<span class="visually-hidden">.</span></span>
+                      </p>
+                    </li>
+                    <li class="province-chips">
+                      <span class="province-chips__name"
+                        >Río Negro<span class="visually-hidden">:</span></span
+                      >
+                      <p class="province-chips__list">
+                        <span class="place-chip">Cipolletti<span class="visually-hidden">,</span></span>
+                        <span class="place-chip">Allen<span class="visually-hidden">,</span></span>
+                        <span class="place-chip">Villa Regina<span class="visually-hidden">,</span></span>
+                        <span class="place-chip">Choele Choel<span class="visually-hidden">,</span></span>
+                        <span class="place-chip">Río Colorado<span class="visually-hidden">,</span></span>
+                        <span class="place-chip">Viedma<span class="visually-hidden"> y</span></span>
+                        <span class="place-chip">Bariloche<span class="visually-hidden">.</span></span>
+                      </p>
+                    </li>
+                    <li class="province-chips">
+                      <span class="province-chips__name"
+                        >Chubut<span class="visually-hidden">:</span></span
+                      >
+                      <p class="province-chips__list">
+                        <span class="place-chip">Comodoro Rivadavia<span class="visually-hidden">.</span></span>
+                      </p>
+                    </li>
+                  </ul>
+                  <p class="chapters__text">…y otras.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1169,7 +1609,9 @@
     <footer class="site-footer">
       <div class="container">
         <div class="site-footer__top">
-          <a class="brand" href="#inicio">A lo grande</a>
+          <a class="brand" href="#inicio"
+            >A lo grande <span class="brand__tag">Mayorista</span></a
+          >
           <nav aria-label="Pie de página">
             <ul class="site-footer__nav">
               <li><a href="#inicio">Inicio</a></li>
@@ -1184,7 +1626,7 @@
             class="site-footer__social"
             href="#"
             rel="noopener"
-            aria-label="Instagram de A lo grande"
+            aria-label="Instagram de A lo grande Mayorista"
             data-social="instagram"
             hidden
           >
@@ -1194,8 +1636,8 @@
           </a>
         </div>
         <p class="site-footer__legal">
-          © <span data-year>2026</span> A lo grande. Todos los derechos
-          reservados.
+          © <span data-year>2026</span> A lo grande Mayorista. Todos los
+          derechos reservados.
         </p>
       </div>
     </footer>

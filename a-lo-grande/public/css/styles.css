@@ -1,5 +1,5 @@
 /* ==========================================================================
-   A lo grande · Hoja de estilos
+   A lo grande Mayorista · Hoja de estilos
 
    Índice
    1. Tipografías
@@ -83,6 +83,7 @@
   --color-on-dark-soft: rgb(255 255 255 / 0.6);
   --color-hairline-dark: rgb(255 255 255 / 0.12);
   --color-map-dot: #7c93ff;
+  --color-map-dot-minor: rgb(124 147 255 / 0.85);
 
   /* Encuadre de fotos de producto (object-position) */
   --image-position-top: top;
@@ -103,11 +104,13 @@
   --text-sm: 0.9rem;
   --text-xs: 0.8rem;
   --text-map-label: clamp(0.8rem, 0.6rem + 0.7vw, 1.2rem);
+  --text-brand-tag: 10.5px;
 
   /* Espaciado y layout */
   --container: 1200px;
   --gutter: 24px;
   --header-height: 72px;
+  --nav-gap: clamp(20px, 2.4vw, 30px);
   --section-padding: clamp(4.5rem, 3rem + 4vw, 6.5rem);
   --grid-gap: clamp(2.75rem, 1rem + 4.5vw, 4.5rem);
   --space-1: 0.5rem;
@@ -142,6 +145,50 @@
   --modal-media-height: 360px;
   --modal-media-height-mobile: 40vh;
   --modal-ease: 0.25s ease;
+
+  /* Aparición al hacer scroll (bloques con data-reveal) */
+  --reveal-distance: 24px;
+  --reveal-duration: 0.7s;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Elevación en hover y foco (chips y tarjetas) */
+  --lift-sm: -3px;
+  --shadow-lift: 0 14px 28px -16px rgb(18 24 43 / 0.5);
+  --shadow-lift-dark: 0 18px 36px -18px rgb(0 0 0 / 0.7);
+
+  /* Nosotros: capítulos */
+  --chapters-tabs-width: clamp(250px, 27vw, 340px);
+  --text-chapter-name: clamp(1.35rem, 1rem + 1.1vw, 1.95rem);
+  --text-chapter-lead: clamp(1.12rem, 1rem + 0.45vw, 1.38rem);
+  --text-figure: clamp(3rem, 2rem + 3.6vw, 4.8rem);
+  --text-ghost-num: clamp(8rem, 5rem + 10vw, 15rem);
+  --color-ghost: rgb(18 24 43 / 0.05);
+  --shadow-panel: 0 30px 60px -40px rgb(18 24 43 / 0.45);
+  --chapter-duration: 0.5s;
+  --chapter-shift: 14px;
+  --chapter-stagger: 70ms;
+  --chapter-child-shift: 10px;
+
+  /* Mapa de zonas */
+  --map-dot-minor-size: 7px;
+  --map-stage-max: 1000px;
+  --map-stage-padding: clamp(6px, 1vw, 14px);
+  --map-dim-opacity: 0.2;
+  --map-pending-opacity: 0.18;
+  --map-route-opacity: 0.5;
+  --map-fx-dot-size: 10px;
+  --map-fx-spark-size: 6px;
+  --map-ripple-size: 40px;
+  --map-pulse-size: 24px;
+  --map-travel-duration: 1.6s;
+  --map-spread-duration: 0.8s;
+  --map-spread-stagger: 110ms;
+  --map-ripple-duration: 0.9s;
+  --map-pulse-duration: 1.2s;
+  --map-light-duration: 0.35s;
+  --color-card-dark: rgb(255 255 255 / 0.04);
+  --color-card-dark-hover: rgb(255 255 255 / 0.08);
+  --color-card-dark-border: rgb(255 255 255 / 0.14);
 }
 
 /* 3. BASE ----------------------------------------------------------------- */
@@ -209,6 +256,33 @@ svg {
 
 .sprite {
   position: absolute;
+}
+
+/* Texto solo para lectores de pantalla */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Bloques que aparecen una vez al entrar en pantalla (initReveal en main.js).
+   Solo se ocultan si hay JS, para no esconder contenido si el script no carga. */
+.has-js [data-reveal]:not(.recipe-card) {
+  opacity: 0;
+  transform: translateY(var(--reveal-distance));
+  transition:
+    opacity var(--reveal-duration) ease,
+    transform var(--reveal-duration) var(--ease-out-expo);
+}
+.has-js [data-reveal].is-visible:not(.recipe-card) {
+  opacity: 1;
+  transform: none;
 }
 
 .skip-link {
@@ -284,6 +358,24 @@ svg {
   font-weight: 600;
   font-size: var(--text-h2);
   line-height: 1.12;
+}
+/* Variante cursiva (Fraunces): títulos de Recetas, Zonas y Nosotros.
+   El padding inferior evita que se corten los trazos descendentes (g, p). */
+.section-title--script {
+  padding-bottom: 0.08em;
+  font-family: var(--font-script);
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Encabezado centrado: etiqueta + título (+ bajada opcional) */
+.section-head {
+  max-width: 40em;
+  margin-inline: auto;
+  text-align: center;
+}
+.section-head .eyebrow {
+  justify-content: center;
 }
 
 /* Botones */
@@ -459,17 +551,28 @@ textarea.field__control {
 }
 .site-header__cta {
   padding: 13px 20px;
+  white-space: nowrap;
 }
 
 .brand {
+  display: inline-flex;
+  flex-direction: column;
   font: 700 22px / 1 var(--font-head);
   letter-spacing: -0.03em;
   text-decoration: none;
+  white-space: nowrap;
+}
+/* "Mayorista" como bajada del nombre: mantiene el ancho de la marca en la cabecera */
+.brand__tag {
+  margin-top: 4px;
+  font: 600 var(--text-brand-tag) / 1 var(--font-body);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
 }
 
 .nav__list {
   display: flex;
-  gap: 30px;
+  gap: var(--nav-gap);
 }
 .nav__link {
   position: relative;
@@ -477,6 +580,7 @@ textarea.field__control {
   color: rgb(18 24 43 / 0.78);
   font: 500 15px / 1 var(--font-body);
   text-decoration: none;
+  white-space: nowrap;
   transition: color var(--ease);
 }
 .nav__link:hover,
@@ -674,16 +778,6 @@ textarea.field__control {
 }
 
 /* ---- Recetas ---- */
-.recipes__head {
-  max-width: 40em;
-  margin-inline: auto;
-  text-align: center;
-}
-.recipes__head .section-title {
-  font-family: var(--font-script);
-  font-style: italic;
-  font-weight: 400;
-}
 .recipes__intro {
   max-width: var(--recipes-intro-width);
   margin-top: var(--space-2);
@@ -904,21 +998,29 @@ textarea.field__control {
 }
 
 /* ---- Zonas de reparto ---- */
-.zones__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--grid-gap);
-  align-items: center;
+.zones__head {
+  max-width: 44em;
 }
 .zones__text {
-  max-width: 30em;
-  margin-top: 18px;
+  max-width: 38em;
+  margin: var(--space-3) auto 0;
   color: var(--color-on-dark);
+}
+
+/* Escenario del mapa: marco redondeado centrado */
+.zones__stage {
+  position: relative;
+  max-width: var(--map-stage-max);
+  margin: var(--space-5) auto 0;
+  padding: var(--map-stage-padding);
+  border: 1px solid var(--color-card-dark-border);
+  border-radius: calc(var(--radius-md) + var(--map-stage-padding));
+  background: var(--color-card-dark);
 }
 
 /* Mapa: la geografía es una imagen (assets/img/mapa-zonas.svg) y los puntos son HTML encima.
    Para agregar una zona: un <li> nuevo en el HTML y su posición en % acá abajo.
-   Las posiciones salen de la misma proyección del SVG (ver MAPA-ZONAS.md). */
+   Las posiciones salen de la misma proyección del SVG (ver docs/MAPA-ZONAS.md). */
 .coverage-map {
   position: relative;
   aspect-ratio: 16 / 10;
@@ -940,21 +1042,78 @@ textarea.field__control {
   left: var(--x);
 }
 
+/* Posiciones para styles.css (salen de scripts/generar-mapa.py) */
+.coverage-map__point--mercedes {
+  --x: 72.50%;
+  --y: 8.87%;
+}
 .coverage-map__point--pigue {
-  --x: 64.96%;
-  --y: 55.8%;
+  --x: 61.56%;
+  --y: 30.39%;
+}
+.coverage-map__point--bahia-blanca {
+  --x: 62.07%;
+  --y: 38.71%;
+}
+.coverage-map__point--punta-alta {
+  --x: 62.77%;
+  --y: 39.91%;
+}
+.coverage-map__point--bolivar {
+  --x: 66.31%;
+  --y: 20.26%;
+}
+.coverage-map__point--trenque-lauquen {
+  --x: 60.35%;
+  --y: 18.38%;
+}
+.coverage-map__point--carhue {
+  --x: 60.26%;
+  --y: 27.22%;
 }
 .coverage-map__point--neuquen {
-  --x: 24.58%;
-  --y: 75.43%;
+  --x: 40.78%;
+  --y: 40.47%;
+}
+.coverage-map__point--san-martin-de-los-andes {
+  --x: 28.66%;
+  --y: 49.67%;
+}
+.coverage-map__point--villa-la-angostura {
+  --x: 27.59%;
+  --y: 54.35%;
 }
 .coverage-map__point--cipolletti {
-  --x: 25.07%;
-  --y: 75.17%;
+  --x: 41.03%;
+  --y: 40.34%;
 }
-.coverage-map__point--mercedes {
-  --x: 86.21%;
-  --y: 14.03%;
+.coverage-map__point--allen {
+  --x: 41.63%;
+  --y: 40.67%;
+}
+.coverage-map__point--villa-regina {
+  --x: 44.36%;
+  --y: 41.56%;
+}
+.coverage-map__point--choele-choel {
+  --x: 49.59%;
+  --y: 43.03%;
+}
+.coverage-map__point--rio-colorado {
+  --x: 55.35%;
+  --y: 40.77%;
+}
+.coverage-map__point--viedma {
+  --x: 59.39%;
+  --y: 54.75%;
+}
+.coverage-map__point--bariloche {
+  --x: 28.82%;
+  --y: 57.24%;
+}
+.coverage-map__point--comodoro-rivadavia {
+  --x: 42.84%;
+  --y: 95.63%;
 }
 
 .coverage-map__point::before,
@@ -988,6 +1147,16 @@ textarea.field__control {
   background: var(--color-amber);
   opacity: 0.22;
 }
+/* Localidades sin etiqueta: punto chico, sin halo */
+.coverage-map__point--minor::before {
+  width: var(--map-dot-minor-size);
+  height: var(--map-dot-minor-size);
+  background: var(--color-map-dot-minor);
+  box-shadow: none;
+}
+.coverage-map__point--minor::after {
+  display: none;
+}
 
 .coverage-map__label {
   position: absolute;
@@ -1013,17 +1182,196 @@ textarea.field__control {
   text-align: right;
 }
 
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: var(--space-4) 0 22px;
+/* Capa de animación (initCoverageMap): mismo viewBox que la imagen base */
+.coverage-map__fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
 }
-.chip {
-  padding: 9px 18px;
-  border: 1px solid rgb(255 255 255 / 0.38);
+.coverage-map__route {
+  fill: none;
+  stroke: var(--color-amber);
+  stroke-width: 1.6;
+  stroke-dasharray: 2 7;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: var(--map-route-opacity);
+}
+/* Mientras espera la animación, las rutas no se ven (las revela la secuencia) */
+.coverage-map.is-staged .coverage-map__route {
+  opacity: 0;
+}
+.coverage-map__traveler {
+  fill: var(--color-amber);
+}
+.coverage-map__ripple {
+  fill: none;
+  stroke: var(--color-amber);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+}
+
+/* Antes de la animación, los puntos esperan apagados; se encienden al llegar cada viajero */
+.coverage-map__point {
+  transition: opacity var(--map-light-duration) ease;
+}
+.coverage-map__point.is-pending {
+  opacity: var(--map-pending-opacity);
+}
+
+/* Provincia activa (tarjetas): se atenúa el resto y pulsan en ámbar sus puntos */
+.coverage-map.has-highlight .coverage-map__point:not(.is-highlighted) {
+  opacity: var(--map-dim-opacity);
+}
+.coverage-map__point.is-highlighted {
+  opacity: 1;
+}
+.coverage-map__point.is-highlighted::before {
+  background: var(--color-amber);
+}
+.coverage-map__point.is-highlighted::after {
+  display: block;
+  width: var(--map-pulse-size);
+  height: var(--map-pulse-size);
+  border: 2px solid var(--color-amber);
+  background: none;
+  opacity: 0;
+  animation: map-pulse var(--map-pulse-duration) ease-out 3;
+}
+@keyframes map-pulse {
+  from {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.8);
+  }
+}
+
+/* Botón "Ver de nuevo": esquina inferior derecha, sobre el océano */
+.coverage-map__replay {
+  position: absolute;
+  right: calc(var(--map-stage-padding) + var(--space-2));
+  bottom: calc(var(--map-stage-padding) + var(--space-2));
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-card-dark-border);
   border-radius: var(--radius-pill);
-  font-size: 14px;
+  background: rgb(18 24 43 / 0.78);
+  color: var(--color-white);
+  font: 600 var(--text-xs) / 1 var(--font-body);
+  cursor: pointer;
+  transition:
+    background var(--ease),
+    border-color var(--ease),
+    transform var(--ease);
+}
+.coverage-map__replay[hidden] {
+  display: none;
+}
+.coverage-map__replay .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-amber);
+}
+.coverage-map__replay:hover {
+  border-color: var(--color-amber);
+  background: var(--color-navy);
+}
+.coverage-map__replay:active {
+  transform: scale(0.97);
+}
+
+/* Tarjetas de provincia: versión navegable del mapa (initProvinceCards) */
+.province-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+  max-width: var(--map-stage-max);
+  margin: var(--space-4) auto 0;
+}
+.province-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  height: 100%;
+  padding: var(--space-4) 20px 22px;
+  overflow: hidden;
+  border: 1px solid var(--color-card-dark-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card-dark);
+  color: var(--color-white);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform var(--ease),
+    background var(--ease),
+    border-color var(--ease),
+    box-shadow var(--ease);
+}
+/* Línea superior que se dibuja al activar la tarjeta */
+.province-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--color-amber);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--chapter-duration) var(--ease-out-expo);
+}
+.province-card:hover,
+.province-card:focus-visible {
+  transform: translateY(var(--lift-sm));
+  border-color: rgb(255 255 255 / 0.32);
+  background: var(--color-card-dark-hover);
+  box-shadow: var(--shadow-lift-dark);
+}
+.province-card:active {
+  transform: translateY(0) scale(0.99);
+}
+.province-card[aria-pressed="true"] {
+  border-color: var(--color-amber);
+  background: var(--color-card-dark-hover);
+}
+.province-card[aria-pressed="true"]::before {
+  transform: scaleX(1);
+}
+.province-card__name {
+  font: 600 1.05rem / 1.25 var(--font-head);
+  letter-spacing: -0.01em;
+}
+.province-card[aria-pressed="true"] .province-card__name {
+  color: var(--color-amber);
+}
+.province-card__places {
+  color: var(--color-on-dark);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.zones__foot {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  text-align: center;
+}
+.zones__more {
+  color: var(--color-on-dark);
+  font-size: var(--text-sm);
 }
 .ask-link {
   display: inline-flex;
@@ -1043,50 +1391,306 @@ textarea.field__control {
   text-decoration-thickness: 2px;
 }
 
-/* ---- Nosotros ---- */
-.about {
-  text-align: center;
+/* ---- Nosotros: capítulos (patrón WAI-ARIA tabs, initChapters en main.js) ---- */
+.chapters {
+  display: grid;
+  grid-template-columns: var(--chapters-tabs-width) 1fr;
+  gap: var(--grid-gap);
+  align-items: start;
+  margin-top: var(--space-6);
 }
-.about .eyebrow {
+
+/* Pestañas */
+.chapters__tabs {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.chapters__tab {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.4em 1fr;
+  align-items: baseline;
+  padding: var(--space-3) 0 var(--space-3) 2px;
+  border: 0;
+  border-bottom: 1px solid var(--color-line);
+  background: none;
+  color: var(--color-muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--ease);
+}
+/* Línea que se dibuja debajo de la pestaña activa */
+.chapters__tab::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--color-cobalt);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--chapter-duration) var(--ease-out-expo);
+}
+.chapters__tab:hover {
+  color: var(--color-text);
+}
+.chapters__tab[aria-selected="true"] {
+  color: var(--color-cobalt);
+}
+.chapters__tab[aria-selected="true"]::after {
+  transform: scaleX(1);
+}
+.chapters__tab:focus-visible {
+  outline-offset: -3px;
+}
+.chapters__num {
+  font: 600 var(--text-sm) / 1 var(--font-head);
+  letter-spacing: 0.04em;
+}
+.chapters__name {
+  padding-bottom: 0.08em;
+  font: italic 400 var(--text-chapter-name) / 1.15 var(--font-script);
+  transition: transform var(--chapter-duration) var(--ease-out-expo);
+}
+.chapters__tab[aria-selected="true"] .chapters__name {
+  transform: translateX(6px);
+}
+
+/* Paneles: sin JS se ven uno debajo del otro; con JS se apilan en la misma celda
+   (la altura la marca el panel más alto, así no salta al cambiar de pestaña) */
+.chapters__panels {
+  display: grid;
+  gap: var(--space-4);
+}
+.chapters__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
+  overflow: hidden;
+  padding: clamp(28px, 1.2rem + 2.6vw, 56px);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: var(--shadow-panel);
 }
-.about .section-title {
-  max-width: 19em;
-  margin: 18px auto 22px;
+.chapters__panel > * {
+  position: relative;
 }
-.about__text {
-  max-width: 44em;
-  margin-inline: auto;
+.chapters.is-ready .chapters__panel {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transform: translateY(var(--chapter-shift));
+  visibility: hidden;
+  transition:
+    opacity var(--chapter-duration) ease,
+    transform var(--chapter-duration) var(--ease-out-expo),
+    visibility 0s linear var(--chapter-duration);
+}
+.chapters.is-ready .chapters__panel.is-active {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition-delay: 0s;
+}
+.chapters.is-ready .chapters__panel.is-leaving {
+  transform: translateY(calc(var(--chapter-shift) * -0.6));
+}
+
+/* Contenido del panel: entra escalonado */
+.chapters.is-ready .chapters__panel > :not(.chapters__ghost) {
+  opacity: 0;
+  transform: translateY(var(--chapter-child-shift));
+  transition:
+    opacity var(--chapter-duration) ease,
+    transform var(--chapter-duration) var(--ease-out-expo);
+}
+.chapters.is-ready .chapters__panel.is-active > :not(.chapters__ghost) {
+  opacity: 1;
+  transform: none;
+}
+.chapters.is-ready .chapters__panel.is-active > :not(.chapters__ghost):nth-child(4) {
+  transition-delay: calc(var(--chapter-stagger) * 1);
+}
+.chapters.is-ready .chapters__panel.is-active > :not(.chapters__ghost):nth-child(5) {
+  transition-delay: calc(var(--chapter-stagger) * 2);
+}
+.chapters.is-ready .chapters__panel.is-active > :not(.chapters__ghost):nth-child(6) {
+  transition-delay: calc(var(--chapter-stagger) * 3);
+}
+.chapters.is-ready .chapters__panel.is-active > :not(.chapters__ghost):nth-child(7) {
+  transition-delay: calc(var(--chapter-stagger) * 4);
+}
+.chapters.is-ready .chapters__panel.is-active > :not(.chapters__ghost):nth-child(n + 8) {
+  transition-delay: calc(var(--chapter-stagger) * 5);
+}
+
+/* Número gigante de fondo (decorativo) */
+.chapters__ghost {
+  position: absolute;
+  top: -0.18em;
+  right: 0.06em;
+  color: var(--color-ghost);
+  font: italic 400 var(--text-ghost-num) / 1 var(--font-script);
+  pointer-events: none;
+  user-select: none;
+  transition: transform calc(var(--chapter-duration) * 2) var(--ease-out-expo);
+}
+.chapters.is-ready .chapters__panel:not(.is-active) .chapters__ghost {
+  transform: translateX(0.12em);
+}
+
+/* Jerarquía tipográfica dentro del panel */
+.chapters__figure {
+  margin-bottom: var(--space-2);
+  padding-bottom: 0.06em;
+  color: var(--color-cobalt);
+  font: italic 400 var(--text-figure) / 1.05 var(--font-script);
+}
+.chapters__figure--words {
+  margin-top: var(--space-5);
+}
+.chapters__lead {
+  max-width: 32em;
+  color: var(--color-text);
+  font: 500 var(--text-chapter-lead) / 1.45 var(--font-body);
+  letter-spacing: -0.01em;
+}
+.chapters__text {
+  max-width: 38em;
+  margin-top: var(--space-3);
   color: var(--color-muted);
 }
 
-.values {
+.chapters__features {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  max-width: 960px;
-  margin: var(--space-6) auto 0;
-  text-align: left;
+  gap: var(--space-3);
+  max-width: 36em;
 }
-.value {
-  padding: 28px 26px;
-  border-radius: var(--radius-md);
+.chapters__feature {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: var(--space-3);
+  align-items: center;
+  color: var(--color-text);
+  font: 500 var(--text-base) / 1.5 var(--font-body);
+}
+.chapters__feature-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
   background: var(--color-cool);
-}
-.value .icon {
-  width: 26px;
-  height: 26px;
-  margin-bottom: var(--space-3);
   color: var(--color-cobalt);
 }
-.value__title {
-  margin-bottom: 6px;
-  font-weight: 600;
-  font-size: 1.1rem;
+
+/* Sede, depósito y carga */
+.hubs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin-top: var(--space-4);
 }
-.value__text {
-  color: var(--color-muted);
-  font-size: 14.5px;
+.hub {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-bone);
+}
+.hub__place {
+  font: 600 1.05rem / 1.2 var(--font-head);
+}
+.hub__role {
+  color: var(--color-cobalt);
+  font: 600 var(--text-xs) / 1.2 var(--font-body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.hub--main {
+  border-color: var(--color-navy);
+  background: var(--color-navy);
+  color: var(--color-white);
+}
+.hub--main .hub__role {
+  color: var(--color-amber);
+}
+
+/* Localidades por provincia */
+.chapters__places {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-line);
+}
+.chapters__places > .chapters__text:first-child {
+  margin-top: 0;
+}
+.chapters__provinces {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+.province-chips__name {
+  display: block;
+  margin-bottom: var(--space-1);
+  color: var(--color-text);
+  font: 600 var(--text-sm) / 1.2 var(--font-head);
+}
+.province-chips__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.place-chip {
+  padding: 6px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-pill);
+  background: var(--color-bone);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  line-height: 1.3;
+  transition:
+    transform var(--ease),
+    background var(--ease),
+    border-color var(--ease),
+    color var(--ease),
+    box-shadow var(--ease);
+}
+.place-chip:hover {
+  transform: translateY(var(--lift-sm));
+  border-color: var(--color-cobalt);
+  background: var(--color-cobalt);
+  color: var(--color-white);
+  box-shadow: var(--shadow-lift);
+}
+
+/* Aparición del bloque: las pestañas entran escalonadas */
+.has-js .chapters[data-reveal] .chapters__tab {
+  opacity: 0;
+  transform: translateX(-12px);
+  transition:
+    opacity var(--reveal-duration) ease,
+    transform var(--reveal-duration) var(--ease-out-expo),
+    color var(--ease);
+}
+.has-js .chapters[data-reveal].is-visible .chapters__tab {
+  opacity: 1;
+  transform: none;
+}
+.has-js .chapters.is-visible .chapters__tab:nth-child(2) {
+  transition-delay: calc(var(--chapter-stagger) * 1), calc(var(--chapter-stagger) * 1), 0s;
+}
+.has-js .chapters.is-visible .chapters__tab:nth-child(3) {
+  transition-delay: calc(var(--chapter-stagger) * 2), calc(var(--chapter-stagger) * 2), 0s;
+}
+.has-js .chapters.is-visible .chapters__tab:nth-child(4) {
+  transition-delay: calc(var(--chapter-stagger) * 3), calc(var(--chapter-stagger) * 3), 0s;
 }
 
 /* ---- Contacto ---- */
@@ -1200,7 +1804,6 @@ a.contact-list__value:hover {
 
 @media (max-width: 1000px) {
   .hero__grid,
-  .zones__grid,
   .contact__grid,
   .product {
     grid-template-columns: 1fr;
@@ -1212,8 +1815,42 @@ a.contact-list__value:hover {
   .product--reverse .product__media {
     order: 0;
   }
-  .values {
+  .province-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Capítulos: las pestañas pasan a una fila con scroll horizontal propio */
+  .chapters {
     grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  .chapters__tabs {
+    flex-direction: row;
+    gap: var(--space-4);
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    overflow-x: auto;
+    border-bottom: 1px solid var(--color-line);
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+  .chapters__tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .chapters__tab {
+    flex: none;
+    grid-template-columns: auto auto;
+    gap: 8px;
+    padding: var(--space-2) 2px var(--space-3);
+    border-bottom: 0;
+    scroll-snap-align: start;
+  }
+  .chapters__tab[aria-selected="true"] .chapters__name {
+    transform: none;
+  }
+  .has-js .chapters[data-reveal] .chapters__tab {
+    transform: translateY(8px);
   }
   .products__note {
     text-align: left;
@@ -1270,6 +1907,32 @@ a.contact-list__value:hover {
   .form-card {
     padding: 24px 20px;
   }
+  .province-cards,
+  .chapters__provinces {
+    grid-template-columns: 1fr;
+  }
+  .hub {
+    gap: 4px;
+    padding: 10px;
+  }
+  .hub__place {
+    font-size: var(--text-sm);
+  }
+  .hub__role {
+    font-size: 0.68rem;
+    letter-spacing: 0.03em;
+  }
+  .chapters__panel {
+    justify-content: flex-start;
+    padding: 26px 20px;
+  }
+  .chapters__provinces {
+    gap: var(--space-3);
+  }
+  .place-chip {
+    padding: 4px 10px;
+    font-size: var(--text-xs);
+  }
   .coverage-map__point:not(.coverage-map__point--base)
     .coverage-map__label
     small {
@@ -1297,8 +1960,27 @@ a.contact-list__value:hover {
   }
 
   .recipe-card,
-  .recipe-card.is-visible {
+  .recipe-card.is-visible,
+  .has-js [data-reveal]:not(.recipe-card),
+  .has-js .chapters[data-reveal] .chapters__tab,
+  .chapters.is-ready .chapters__panel > :not(.chapters__ghost) {
     opacity: 1;
+    transform: none;
+  }
+  .chapters.is-ready .chapters__panel,
+  .chapters__ghost,
+  .chapters__tab[aria-selected="true"] .chapters__name {
+    transform: none;
+  }
+  .chapters.is-ready .chapters__panel:not(.is-active) .chapters__ghost {
+    transform: none;
+  }
+  .coverage-map__point.is-highlighted::after {
+    animation: none;
+  }
+  .place-chip:hover,
+  .province-card:hover,
+  .province-card:focus-visible {
     transform: none;
   }
   .recipe-card:hover .recipe-card__media img,

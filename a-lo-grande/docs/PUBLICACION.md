@@ -56,7 +56,7 @@ Alternativa sin Git, desde la terminal: `npm install` y después `npm run deploy
 4. En el proyecto de Pages: **Settings → Variables and Secrets** (en Production y en Preview) y cargá:
    - `RESEND_API_KEY`: la clave, como secreto.
    - `CONTACT_TO`: `contacto@alograndedistribuidora.com.ar`
-   - `CONTACT_FROM`: `A lo grande <consultas@alograndedistribuidora.com.ar>`
+   - `CONTACT_FROM`: `A lo grande Mayorista <consultas@alograndedistribuidora.com.ar>`
 5. Hacé un nuevo deploy para que tome las variables.
 6. Revisá los límites del plan gratuito de Resend antes de depender de él.
 

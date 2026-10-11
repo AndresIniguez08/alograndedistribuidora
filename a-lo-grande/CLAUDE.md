@@ -1,7 +1,8 @@
-# A lo grande · Guía para Claude Code
+# A lo grande Mayorista · Guía para Claude Code
 
 ## Qué es
-Sitio institucional estático de un distribuidor de huevos (base en Pigüé, clientes sobre todo en Neuquén).
+Sitio institucional estático de A lo grande Mayorista, distribuidora de huevos para mayoristas
+(sede principal en Pigüé, depósito en Neuquén y punto de carga en Mercedes).
 Objetivo: captar consultas con un formulario simple y aparecer en Google.
 
 ## Estructura del front: tres archivos
@@ -25,13 +26,16 @@ Objetivo: captar consultas con un formulario simple y aparecer en Google.
   direcciones, teléfonos ni horarios. Si falta un dato, queda oculto vía `SITE_CONFIG`.
 - No publicar precios: es una decisión del cliente.
 - No poner créditos ni menciones de quien desarrolló el sitio.
+- No nombrar granjas ni proveedores en ningún lugar del repo (HTML, JS, CSS, comentarios, docs, mensajes de commit).
 - Las cotizaciones y las ventas las atiende el cliente. El sitio solo capta y deriva consultas.
 
 ## Restricciones al aplicar mejoras visuales
 - Mantener la paleta de marca: navy `#12182B`, cobalto `#2646C8`, ámbar `#F0B429`, hueso `#F3F0E9`.
   Cualquier cambio de color se hace en los tokens y con justificación.
 - Mantener las tipografías Sora e Inter autoalojadas. Única excepción: Fraunces Italic (autoalojada, ~23 KB, token `--font-script`),
-  solo para el título cursivo de la sección "Recetas" (`.recipes__head .section-title`). No usarla en otro lado sin motivo concreto.
+  solo para los títulos cursivos de "Recetas", "Zonas de reparto" y "Nosotros" (clase compartida `.section-title--script`)
+  y para los elementos tipográficos del componente de capítulos de "Nosotros" (nombres de pestaña, número de fondo, "2020" y "seis años").
+  No usarla en otro lado sin motivo concreto.
 - Mantener el orden de secciones y la estructura del wireframe aprobado: inicio con formulario, productos, recetas, zonas, nosotros y contacto.
 - Rendimiento: sin imágenes pesadas, sin librerías de animación. Las animaciones son CSS y respetan `prefers-reduced-motion`.
 - No agregar chatbots.

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   A lo grande · Comportamiento del sitio
+   A lo grande Mayorista · Comportamiento del sitio
 
    Índice
    1. Configuración (lo único que se edita para cambiar datos)
@@ -8,11 +8,16 @@
    4. Navegación (menú móvil y sección activa)
    5. Botones "Consultar"
    6. Formularios
-   7. Recetas (carrusel, modal y aparición al scroll)
-   8. Inicio
+   7. Recetas (carrusel y modal)
+   8. Nosotros: capítulos (tabs)
+   9. Zonas de reparto (mapa animado y tarjetas de provincia)
+   10. Inicio
    ========================================================================== */
 
 "use strict";
+
+// Marca que hay JS: el CSS solo oculta lo que aparece al scroll si esta clase existe
+document.documentElement.classList.add("has-js");
 
 /* 1. CONFIGURACIÓN -------------------------------------------------------- */
 /* Los campos vacíos no se muestran en el sitio. */
@@ -42,6 +47,42 @@ const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) =>
   Array.from(root.querySelectorAll(selector));
 const digitsOnly = (value) => value.replace(/\D/g, "");
+
+// Lee un token de :root (los tiempos y tamaños de las animaciones salen de ahí)
+const readToken = (name) =>
+  getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+// Tiempo de un token ("0.5s" o "110ms") en milisegundos
+const readTime = (name) => {
+  const value = readToken(name);
+  return value.endsWith("ms") ? parseFloat(value) : parseFloat(value) * 1000;
+};
+
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+// Aparición única al entrar en pantalla, para todo elemento con data-reveal
+function initReveal() {
+  const items = $$("[data-reveal]");
+  if (items.length === 0) return;
+
+  if (!("IntersectionObserver" in window)) {
+    items.forEach((item) => item.classList.add("is-visible"));
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries, obs) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        obs.unobserve(entry.target);
+      });
+    },
+    { threshold: 0.15 },
+  );
+  items.forEach((item) => observer.observe(item));
+}
 
 /* 3. DATOS DE CONTACTO ---------------------------------------------------- */
 
@@ -276,11 +317,7 @@ function initForms(openedAt) {
   });
 }
 
-/* 7. RECETAS (carrusel, modal y aparición al scroll) ---------------------- */
-
-function prefersReducedMotion() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
+/* 7. RECETAS (carrusel y modal) ------------------------------------------ */
 
 function initRecipesCarousel() {
   const root = $("[data-carousel]");
@@ -540,29 +577,392 @@ function initRecipeModal() {
   });
 }
 
-function initRecipeReveal() {
-  const cards = $$(".recipe-card");
-  if (cards.length === 0) return;
+/* 8. NOSOTROS: CAPÍTULOS (patrón WAI-ARIA tabs) --------------------------- */
+/* Los 4 paneles están en el HTML (contenido indexable). Los inactivos quedan con
+   inert y apilados en la misma celda del grid, así la altura no salta. */
 
-  if (!("IntersectionObserver" in window)) {
-    cards.forEach((card) => card.classList.add("is-visible"));
+function initChapters() {
+  const root = $("[data-chapters]");
+  if (!root) return;
+
+  const tablist = $("[data-chapters-tablist]", root);
+  const tabs = $$("[data-chapter-tab]", root);
+  const panels = tabs.map((tab) =>
+    document.getElementById(tab.getAttribute("aria-controls")),
+  );
+  if (!tablist || panels.includes(null)) return;
+
+  const horizontal = window.matchMedia("(max-width: 1000px)");
+  const leaveTime = readTime("--chapter-duration");
+  let current = Math.max(
+    tabs.findIndex((tab) => tab.getAttribute("aria-selected") === "true"),
+    0,
+  );
+
+  const syncOrientation = () =>
+    tablist.setAttribute(
+      "aria-orientation",
+      horizontal.matches ? "horizontal" : "vertical",
+    );
+
+  // En móvil la fila de pestañas tiene scroll propio: se acomoda sin mover la página
+  const scrollTabIntoRow = (tab) => {
+    if (!horizontal.matches) return;
+    const padding = parseFloat(getComputedStyle(tablist).paddingLeft) || 0;
+    tablist.scrollTo({
+      left: tab.offsetLeft - padding,
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
+  };
+
+  const select = (index, moveFocus) => {
+    if (index !== current) {
+      const previous = panels[current];
+      previous.classList.add("is-leaving");
+      setTimeout(() => previous.classList.remove("is-leaving"), leaveTime);
+      current = index;
+    }
+    tabs.forEach((tab, i) => {
+      const active = i === index;
+      tab.setAttribute("aria-selected", String(active));
+      tab.tabIndex = active ? 0 : -1;
+    });
+    panels.forEach((panel, i) => {
+      panel.classList.toggle("is-active", i === index);
+      panel.inert = i !== index;
+    });
+    if (moveFocus) tabs[index].focus();
+    scrollTabIntoRow(tabs[index]);
+  };
+
+  tabs.forEach((tab, i) => tab.addEventListener("click", () => select(i)));
+
+  tablist.addEventListener("keydown", (event) => {
+    const last = tabs.length - 1;
+    const keys = {
+      ArrowRight: current === last ? 0 : current + 1,
+      ArrowDown: current === last ? 0 : current + 1,
+      ArrowLeft: current === 0 ? last : current - 1,
+      ArrowUp: current === 0 ? last : current - 1,
+      Home: 0,
+      End: last,
+    };
+    if (!(event.key in keys)) return;
+    event.preventDefault();
+    select(keys[event.key], true);
+  });
+
+  horizontal.addEventListener("change", syncOrientation);
+  syncOrientation();
+  panels.forEach((panel, i) => {
+    panel.inert = i !== current;
+  });
+  root.classList.add("is-ready");
+}
+
+/* 9. ZONAS DE REPARTO (mapa animado y tarjetas de provincia) -------------- */
+
+const MAP_SIZE = Object.freeze({ width: 1600, height: 1000 }); // viewBox de mapa-zonas.svg
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+/* Secuencia del mapa: desde Mercedes (carga) hasta cada base, y desde la base
+   se reparte a las localidades de las provincias indicadas (por data-province). */
+const MAP_SEQUENCE = Object.freeze([
+  { from: "mercedes", to: "pigue", bend: 0.2, provinces: ["buenos-aires"] },
+  {
+    from: "mercedes",
+    to: "neuquen",
+    bend: 0.26,
+    provinces: ["neuquen", "rio-negro", "chubut"],
+  },
+]);
+
+function initProvinceCards() {
+  const map = $("[data-coverage-map]");
+  const cards = $$("[data-province-toggle]");
+  if (!map || cards.length === 0) return;
+
+  const points = $$("[data-province]", map);
+
+  cards.forEach((card) => {
+    card.addEventListener("click", () => {
+      const turnOn = card.getAttribute("aria-pressed") !== "true";
+      const province = turnOn ? card.dataset.provinceToggle : null;
+
+      cards.forEach((other) =>
+        other.setAttribute("aria-pressed", String(turnOn && other === card)),
+      );
+      map.classList.toggle("has-highlight", Boolean(province));
+      points.forEach((point) =>
+        point.classList.toggle(
+          "is-highlighted",
+          point.dataset.province === province,
+        ),
+      );
+    });
+  });
+}
+
+function initCoverageMap() {
+  const map = $("[data-coverage-map]");
+  const fx = $("[data-map-fx]", map || document);
+  const replay = $("[data-map-replay]");
+  if (!map || !fx) return;
+
+  const points = new Map(
+    $$("[data-place]", map).map((point) => [point.dataset.place, point]),
+  );
+
+  // Posición de cada punto en coordenadas del viewBox, a partir de --x / --y del CSS
+  const positionOf = (place) => {
+    const style = getComputedStyle(points.get(place));
+    return {
+      x: (parseFloat(style.getPropertyValue("--x")) / 100) * MAP_SIZE.width,
+      y: (parseFloat(style.getPropertyValue("--y")) / 100) * MAP_SIZE.height,
+    };
+  };
+
+  // Curva cuadrática: el punto de control se corre en perpendicular al tramo.
+  // side = 1 arquea hacia el norte; -1, hacia el sur.
+  const curve = (a, b, bend, side = 1) => {
+    let nx = b.y - a.y;
+    let ny = a.x - b.x;
+    if (ny > 0) {
+      nx = -nx;
+      ny = -ny;
+    }
+    const cx = (a.x + b.x) / 2 + nx * bend * side;
+    const cy = (a.y + b.y) / 2 + ny * bend * side;
+    return `M${a.x} ${a.y} Q${cx} ${cy} ${b.x} ${b.y}`;
+  };
+
+  const svgEl = (tag, attrs) => {
+    const el = document.createElementNS(SVG_NS, tag);
+    Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+    return el;
+  };
+
+  // Rutas principales: quedan dibujadas (punteado tenue) al final
+  const routes = MAP_SEQUENCE.map((step) => {
+    const route = svgEl("path", {
+      class: "coverage-map__route",
+      d: curve(positionOf(step.from), positionOf(step.to), step.bend),
+    });
+    fx.append(route);
+    return route;
+  });
+  const layer = svgEl("g", {});
+  fx.append(layer);
+
+  const showFinalState = () => {
+    fx.getAnimations({ subtree: true }).forEach((anim) => anim.cancel());
+    layer.replaceChildren();
+    points.forEach((point) => point.classList.remove("is-pending"));
+    map.classList.remove("is-staged");
+  };
+
+  if (prefersReducedMotion() || !("IntersectionObserver" in window)) {
+    showFinalState();
     return;
   }
 
-  const observer = new IntersectionObserver(
-    (entries, obs) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-visible");
-        obs.unobserve(entry.target);
-      });
-    },
-    { threshold: 0.2 },
+  const timing = {
+    travel: readTime("--map-travel-duration"),
+    spread: readTime("--map-spread-duration"),
+    stagger: readTime("--map-spread-stagger"),
+    ripple: readTime("--map-ripple-duration"),
+  };
+  const routeOpacity = parseFloat(readToken("--map-route-opacity")) || 0.5;
+  // Tamaños en px de pantalla, pasados a unidades del viewBox según el ancho actual
+  const toUnits = (token) =>
+    (parseFloat(readToken(token)) * MAP_SIZE.width) /
+    map.getBoundingClientRect().width;
+
+  // Toda animación pasa por acá: si la pestaña está oculta, arranca en pausa
+  const animate = (el, keyframes, options) => {
+    const anim = el.animate(keyframes, { fill: "both", ...options });
+    if (document.hidden) anim.pause();
+    return anim;
+  };
+  const done = (anim) => anim.finished.then(
+    () => true,
+    () => false, // cancelada (por "Ver de nuevo")
   );
-  cards.forEach((card) => observer.observe(card));
+
+  // Punto que viaja por una curva (getPointAtLength), animando solo transform y opacity
+  const travel = (d, { duration, delay = 0, size }) => {
+    const path = svgEl("path", { d, fill: "none", visibility: "hidden" });
+    layer.append(path);
+    const length = path.getTotalLength();
+    const steps = 36;
+    const frames = Array.from({ length: steps + 1 }, (_, i) => {
+      const { x, y } = path.getPointAtLength((length * i) / steps);
+      return {
+        transform: `translate(${x}px, ${y}px)`,
+        opacity: i === 0 || i === steps ? 0 : 1,
+      };
+    });
+    path.remove();
+
+    const dot = svgEl("circle", {
+      class: "coverage-map__traveler",
+      r: toUnits(size) / 2,
+    });
+    dot.style.willChange = "transform, opacity";
+    layer.append(dot);
+    const anim = animate(dot, frames, {
+      duration,
+      delay,
+      easing: "cubic-bezier(0.45, 0, 0.25, 1)",
+    });
+    return done(anim).then((finished) => {
+      dot.remove();
+      return finished;
+    });
+  };
+
+  // Onda que se expande desde un punto
+  const ripple = (place, { size, duration, delay = 0 }) => {
+    const { x, y } = positionOf(place);
+    const ring = svgEl("circle", {
+      class: "coverage-map__ripple",
+      cx: x,
+      cy: y,
+      r: toUnits(size) / 2,
+    });
+    ring.style.willChange = "transform, opacity";
+    layer.append(ring);
+    const anim = animate(
+      ring,
+      [
+        { transform: "scale(0.15)", opacity: 0.95 },
+        { transform: "scale(1)", opacity: 0 },
+      ],
+      { duration, delay, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+    );
+    return done(anim).then(() => ring.remove());
+  };
+
+  const light = (place) => points.get(place).classList.remove("is-pending");
+
+  let runId = 0;
+
+  const play = async () => {
+    const id = ++runId;
+    const alive = () => id === runId;
+
+    showFinalState();
+    map.classList.add("is-staged");
+    points.forEach((point, place) =>
+      point.classList.toggle("is-pending", place !== MAP_SEQUENCE[0].from),
+    );
+
+    for (const [index, step] of MAP_SEQUENCE.entries()) {
+      const hub = positionOf(step.to);
+      const pause = index === 0 ? 0 : timing.stagger * 3;
+
+      // 1 y 3. Desde Mercedes hasta la base; la ruta aparece mientras pasa el punto
+      animate(routes[index], [{ opacity: 0 }, { opacity: routeOpacity }], {
+        duration: timing.travel,
+        delay: pause,
+        easing: "ease-in",
+      });
+      const arrived = await travel(routes[index].getAttribute("d"), {
+        duration: timing.travel,
+        delay: pause,
+        size: "--map-fx-dot-size",
+      });
+      if (!arrived || !alive()) return;
+
+      light(step.to);
+      ripple(step.to, { size: "--map-ripple-size", duration: timing.ripple });
+      ripple(step.to, {
+        size: "--map-ripple-size",
+        duration: timing.ripple,
+        delay: timing.stagger * 2,
+      });
+
+      // 2 y 4. Desde la base se desparraman puntitos a cada localidad, de la más cercana a la más lejana
+      const targets = [...points.values()]
+        .filter(
+          (point) =>
+            point.dataset.role === "localidad" &&
+            step.provinces.includes(point.dataset.province),
+        )
+        .map((point) => {
+          const place = point.dataset.place;
+          const target = positionOf(place);
+          return {
+            place,
+            target,
+            distance: Math.hypot(target.x - hub.x, target.y - hub.y),
+          };
+        })
+        .sort((a, b) => a.distance - b.distance);
+
+      await Promise.all(
+        targets.map(({ place, target, distance }, order) => {
+          // Más lejos, más tiempo de viaje; el retraso combina orden y distancia,
+          // así cada localidad tiene el suyo
+          const duration = Math.min(
+            Math.max(timing.spread * (0.55 + distance / 500), timing.spread * 0.6),
+            timing.spread * 1.8,
+          );
+          const delay =
+            timing.ripple * 0.25 +
+            order * timing.stagger +
+            ((distance * 7) % timing.stagger);
+          return travel(curve(hub, target, 0.22, order % 2 ? 1 : -1), {
+            duration,
+            delay,
+            size: "--map-fx-spark-size",
+          }).then((finished) => {
+            if (!finished || !alive()) return;
+            light(place);
+            ripple(place, {
+              size: "--map-pulse-size",
+              duration: timing.ripple * 0.7,
+            });
+          });
+        }),
+      );
+      if (!alive()) return;
+    }
+
+    // 5. Estado final: todo encendido y rutas tenues
+    await new Promise((resolve) => setTimeout(resolve, timing.ripple));
+    if (!alive()) return;
+    showFinalState();
+    if (replay) replay.hidden = false;
+  };
+
+  // Pestaña oculta: se pausa todo lo que está corriendo y se retoma al volver
+  document.addEventListener("visibilitychange", () => {
+    fx.getAnimations({ subtree: true }).forEach((anim) => {
+      if (document.hidden && anim.playState === "running") anim.pause();
+      else if (!document.hidden && anim.playState === "paused") anim.play();
+    });
+  });
+
+  replay?.addEventListener("click", play);
+
+  // Arranca apagado y se reproduce una sola vez, al entrar el mapa en pantalla
+  map.classList.add("is-staged");
+  points.forEach((point, place) =>
+    point.classList.toggle("is-pending", place !== MAP_SEQUENCE[0].from),
+  );
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      play();
+    },
+    { threshold: 0.4 },
+  );
+  observer.observe(map);
 }
 
-/* 8. INICIO --------------------------------------------------------------- */
+/* 10. INICIO -------------------------------------------------------------- */
 
 document.addEventListener("DOMContentLoaded", () => {
   const openedAt = Date.now();
@@ -577,5 +977,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initForms(openedAt);
   initRecipesCarousel();
   initRecipeModal();
-  initRecipeReveal();
+  initReveal();
+  initChapters();
+  initProvinceCards();
+  initCoverageMap();
 });

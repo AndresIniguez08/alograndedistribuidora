@@ -2,7 +2,7 @@
 // Variables de entorno necesarias (Settings > Variables and Secrets en Cloudflare Pages):
 //   RESEND_API_KEY  -> clave de API de Resend (como secreto)
 //   CONTACT_TO      -> casilla que recibe las consultas, ej. contacto@alograndedistribuidora.com.ar
-//   CONTACT_FROM    -> remitente verificado en Resend, ej. "A lo grande <consultas@alograndedistribuidora.com.ar>"
+//   CONTACT_FROM    -> remitente verificado en Resend, ej. "A lo grande Mayorista <consultas@alograndedistribuidora.com.ar>"
 
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });

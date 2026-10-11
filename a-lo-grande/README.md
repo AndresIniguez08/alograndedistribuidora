@@ -1,6 +1,7 @@
-# A lo grande · Sitio institucional
+# A lo grande Mayorista · Sitio institucional
 
-Sitio estático de una sola página para una distribuidora de huevos con base en Pigüé y clientes en Neuquén.
+Sitio estático de una sola página para A lo grande Mayorista, distribuidora de huevos con sede principal en Pigüé,
+depósito en Neuquén y punto de carga en Mercedes.
 Objetivo: captar consultas con un formulario simple y aparecer en Google.
 
 ## Estructura
@@ -13,7 +14,8 @@ public/                  Todo lo que se publica
   assets/                Tipografías, imágenes e ícono
   robots.txt, sitemap.xml, _headers
 functions/api/contact.js Función de Cloudflare Pages que envía el formulario por mail
-docs/                    Guías de publicación y de mejora visual
+docs/                    Guías de publicación, mejora visual, imágenes y mapa de zonas
+scripts/                 Optimización de imágenes y generador del mapa de zonas
 CLAUDE.md                Reglas del proyecto para Claude Code
 ```
 
