@@ -41,6 +41,18 @@ const FIELD_MESSAGES = Object.freeze({
 
 const MIN_PHONE_DIGITS = 8;
 
+// Nosotros: cambio automático de capítulo. Cada capítulo dura según su texto:
+// base + 1 s cada wordsPerExtraSecond palabras, entre minSeconds y maxSeconds.
+const CHAPTER_AUTOPLAY = Object.freeze({
+  baseSeconds: 5,
+  wordsPerExtraSecond: 14,
+  minSeconds: 6,
+  maxSeconds: 14,
+  visibleRatio: 0.5, // parte de la sección (o de la pantalla, si es más alta) que tiene que verse
+});
+// Hasta este ancho los capítulos son acordeón (mismo corte de 1000px que styles.css)
+const CHAPTERS_ACCORDION_QUERY = "(max-width: 1000px)";
+
 /* 2. UTILIDADES ----------------------------------------------------------- */
 
 const $ = (selector, root = document) => root.querySelector(selector);
@@ -577,67 +589,420 @@ function initRecipeModal() {
   });
 }
 
-/* 8. NOSOTROS: CAPÍTULOS (patrón WAI-ARIA tabs) --------------------------- */
-/* Los 4 paneles están en el HTML (contenido indexable). Los inactivos quedan con
-   inert y apilados en la misma celda del grid, así la altura no salta. */
+/* 8. NOSOTROS: CAPÍTULOS (tabs en escritorio, acordeón en móvil) ---------- */
+/* Un solo marcado con dos modos (CHAPTERS_ACCORDION_QUERY):
+   - Escritorio: patrón WAI-ARIA tabs (pestañas a la izquierda, tarjeta a la derecha).
+   - Hasta 1000px: acordeón. Cada panel se mueve debajo de su botón, así el orden del foco
+     coincide con el visual, y los botones pasan a aria-expanded.
+   Los 4 paneles están siempre en el HTML; los inactivos quedan con hidden.
+   La altura se anima con Web Animations API: se mide antes y después del cambio.
+
+   Cambio automático: la línea de progreso del capítulo activo es una animación (scaleX)
+   y al terminar pasa al siguiente. Pausar es pausar esa animación: el progreso queda
+   guardado en ella (currentTime), sin setTimeout que sincronizar. Estado único en `state`:
+   stopped = apagado (se tocó un capítulo, el botón o reduced-motion); holds = pausas
+   temporales (hover, foco, toque, fuera de pantalla, pestaña oculta, selección). */
+
+// Tiempo de lectura de un capítulo, en ms
+function chapterReadingTime(panel) {
+  const { baseSeconds, wordsPerExtraSecond, minSeconds, maxSeconds } =
+    CHAPTER_AUTOPLAY;
+  const words = panel.textContent.trim().split(/\s+/).filter(Boolean).length;
+  const seconds = baseSeconds + words / wordsPerExtraSecond;
+  return Math.min(Math.max(seconds, minSeconds), maxSeconds) * 1000;
+}
+
+function createChaptersAutoplay() {
+  const controls = document.createElement("div");
+  controls.className = "chapters__controls";
+  const button = document.createElement("button");
+  button.className = "chapters__autoplay";
+  button.type = "button";
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("class", "icon icon--solid");
+  svg.setAttribute("aria-hidden", "true");
+  const icon = document.createElementNS(SVG_NS, "use");
+  svg.append(icon);
+  button.append(svg);
+  controls.append(button);
+  return { controls, button, icon };
+}
 
 function initChapters() {
   const root = $("[data-chapters]");
   if (!root) return;
 
   const tablist = $("[data-chapters-tablist]", root);
+  const panelsBox = $("[data-chapters-panels]", root);
   const tabs = $$("[data-chapter-tab]", root);
   const panels = tabs.map((tab) =>
     document.getElementById(tab.getAttribute("aria-controls")),
   );
-  if (!tablist || panels.includes(null)) return;
+  if (!tablist || !panelsBox || panels.includes(null)) return;
 
-  const horizontal = window.matchMedia("(max-width: 1000px)");
-  const leaveTime = readTime("--chapter-duration");
-  let current = Math.max(
-    tabs.findIndex((tab) => tab.getAttribute("aria-selected") === "true"),
-    0,
+  const accordionQuery = window.matchMedia(CHAPTERS_ACCORDION_QUERY);
+  const tablistLabel = tablist.getAttribute("aria-label");
+  const durations = panels.map(chapterReadingTime);
+  const bars = tabs.map((tab) => {
+    const bar = document.createElement("span");
+    bar.className = "chapters__progress";
+    bar.setAttribute("aria-hidden", "true");
+    tab.append(bar);
+    return bar;
+  });
+  const autoplay = createChaptersAutoplay();
+
+  const state = {
+    index: Math.max(
+      tabs.findIndex((tab) => tab.getAttribute("aria-selected") === "true"),
+      0,
+    ),
+    open: true, // en el acordeón se pueden cerrar todos
+    accordion: false,
+    stopped: prefersReducedMotion(),
+    holds: new Set(),
+  };
+  let progress = null; // Animation de la línea del capítulo activo
+  const morphs = new Map(); // elemento -> Animation de altura en curso
+  let leaveTimer = 0;
+  let anchorTimer = 0;
+
+  /* --- Animación de altura --- */
+
+  const motionTime = () =>
+    prefersReducedMotion() ? 0 : readTime("--chapter-duration");
+  const easing = readToken("--ease-out-expo") || "ease-out";
+
+  // Alto y padding vertical tal como se ven ahora (también a mitad de una animación)
+  const measure = (el) => {
+    if (el.hidden) return { height: 0, top: 0, bottom: 0 };
+    const style = getComputedStyle(el);
+    return {
+      height: el.getBoundingClientRect().height,
+      top: parseFloat(style.paddingTop),
+      bottom: parseFloat(style.paddingBottom),
+    };
+  };
+  const frame = ({ height, top, bottom }) => ({
+    height: `${height}px`,
+    paddingTop: `${top}px`,
+    paddingBottom: `${bottom}px`,
+  });
+
+  // Anima el alto de el desde como se ve ahora hasta como queda después de change().
+  // Con collapse termina en 0 y queda hidden. Devuelve la animación (o null).
+  const morph = (el, change, { collapse = false } = {}) => {
+    const from = measure(el);
+    morphs.get(el)?.cancel();
+    morphs.delete(el);
+    change();
+    const to = collapse ? { height: 0, top: 0, bottom: 0 } : measure(el);
+    const duration = motionTime();
+    if (duration === 0 || Math.abs(from.height - to.height) < 1) {
+      if (collapse) el.hidden = true;
+      return null;
+    }
+    const anim = el.animate([frame(from), frame(to)], { duration, easing });
+    morphs.set(el, anim);
+    anim.onfinish = () => {
+      morphs.delete(el);
+      if (collapse) el.hidden = true;
+    };
+    return anim;
+  };
+
+  // Muestra un panel desde opacity 0 para que corra la transición de entrada
+  const reveal = (panel) => {
+    panel.hidden = false;
+    panel.inert = false;
+    void panel.offsetWidth;
+    panel.classList.add("is-active");
+  };
+
+  const flushLeaving = () => {
+    clearTimeout(leaveTimer);
+    panels.forEach((panel) => {
+      if (!panel.classList.contains("is-leaving")) return;
+      panel.classList.remove("is-leaving");
+      panel.hidden = true;
+    });
+  };
+
+  // Pestañas: el panel que sale se desvanece encima mientras la tarjeta cambia de alto
+  const showTab = (next) => {
+    const previous = panels[state.index];
+    morph(panelsBox, () => {
+      flushLeaving();
+      previous.classList.remove("is-active");
+      previous.classList.add("is-leaving");
+      previous.inert = true;
+      reveal(panels[next]);
+    });
+    leaveTimer = setTimeout(flushLeaving, motionTime());
+  };
+
+  // Acordeón: se cierra el abierto y se abre el nuevo, cada uno con su altura
+  const showRow = (next, open) => {
+    const previous = state.open ? panels[state.index] : null;
+    const target = open ? panels[next] : null;
+    if (previous && previous !== target) {
+      morph(
+        previous,
+        () => {
+          previous.classList.remove("is-active");
+          previous.inert = true;
+        },
+        { collapse: true },
+      );
+    }
+    if (!target || target === previous) return null;
+    return morph(target, () => reveal(target));
+  };
+
+  // Al tocar un capítulo: si su título quedó fuera de la pantalla, se acerca lo justo
+  const keepTitleVisible = (tab, anim) => {
+    const check = () => {
+      const rect = tab.getBoundingClientRect();
+      const minTop =
+        parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) ||
+        0;
+      if (rect.top < minTop || rect.bottom > window.innerHeight) {
+        tab.scrollIntoView({
+          block: "nearest",
+          behavior: prefersReducedMotion() ? "auto" : "smooth",
+        });
+      }
+    };
+    if (anim) anim.finished.then(check, () => {});
+    else check();
+  };
+
+  // El cambio automático nunca mueve la página: sin scroll anchoring durante la transición
+  const freezeScrollAnchor = () => {
+    const html = document.documentElement;
+    html.classList.add("is-anchor-frozen");
+    clearTimeout(anchorTimer);
+    anchorTimer = setTimeout(
+      () => html.classList.remove("is-anchor-frozen"),
+      motionTime() + 100,
+    );
+  };
+
+  /* --- Estado y atributos --- */
+
+  const syncAttributes = () => {
+    tabs.forEach((tab, i) => {
+      const active = i === state.index;
+      if (state.accordion) {
+        tab.setAttribute("aria-expanded", String(active && state.open));
+      } else {
+        tab.setAttribute("aria-selected", String(active));
+        tab.tabIndex = active ? 0 : -1;
+      }
+    });
+  };
+
+  const syncAutoplay = () => {
+    const running = !state.stopped && state.holds.size === 0;
+    if (progress) {
+      if (running) progress.play();
+      else progress.pause();
+    }
+    autoplay.button.classList.toggle("is-playing", running);
+    autoplay.button.setAttribute(
+      "aria-label",
+      state.stopped ? "Reanudar cambio automático" : "Pausar cambio automático",
+    );
+    autoplay.icon.setAttribute("href", state.stopped ? "#i-play" : "#i-pause");
+  };
+
+  const stopProgress = () => {
+    progress?.cancel();
+    progress = null;
+  };
+
+  // Crea la línea de progreso del capítulo activo (si no existe). syncAutoplay decide si corre.
+  const startProgress = () => {
+    if (progress || state.stopped || !state.open) return;
+    progress = bars[state.index].animate(
+      [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }],
+      { duration: durations[state.index], easing: "linear" },
+    );
+    progress.onfinish = () => {
+      progress = null;
+      select((state.index + 1) % tabs.length);
+    };
+  };
+
+  // Mismo camino para el cambio manual y el automático
+  const select = (index, { manual = false, focus = false } = {}) => {
+    // En el acordeón, tocar el capítulo abierto lo cierra
+    const open = !(
+      state.accordion &&
+      manual &&
+      index === state.index &&
+      state.open
+    );
+    if (manual) state.stopped = true;
+    else freezeScrollAnchor();
+    stopProgress();
+
+    let opening = null;
+    if (state.accordion) opening = showRow(index, open);
+    else if (index !== state.index) showTab(index);
+    state.index = index;
+    state.open = open;
+    syncAttributes();
+
+    if (focus) tabs[index].focus();
+    if (manual && state.accordion && open) keepTitleVisible(tabs[index], opening);
+    startProgress();
+    syncAutoplay();
+  };
+
+  /* --- Modo: tabs o acordeón --- */
+
+  const applyMode = () => {
+    const accordion = accordionQuery.matches;
+    const focused = root.contains(document.activeElement)
+      ? document.activeElement
+      : null;
+
+    // El cambio de modo es instantáneo: se cierran las transiciones en curso
+    morphs.forEach((anim) => anim.cancel());
+    morphs.clear();
+    flushLeaving();
+    state.accordion = accordion;
+    if (!accordion) state.open = true; // en pestañas siempre hay una activa
+
+    if (accordion) {
+      tablist.removeAttribute("role");
+      tablist.removeAttribute("aria-orientation");
+      tablist.removeAttribute("aria-label");
+      tabs.forEach((tab, i) => {
+        tab.removeAttribute("role");
+        tab.removeAttribute("aria-selected");
+        tab.removeAttribute("tabindex");
+        tab.after(panels[i]);
+        panels[i].setAttribute("role", "region");
+        panels[i].removeAttribute("tabindex");
+      });
+      tablist.before(autoplay.controls);
+    } else {
+      tablist.setAttribute("role", "tablist");
+      tablist.setAttribute("aria-orientation", "vertical");
+      if (tablistLabel) tablist.setAttribute("aria-label", tablistLabel);
+      tabs.forEach((tab) => {
+        tab.setAttribute("role", "tab");
+        tab.removeAttribute("aria-expanded");
+      });
+      panels.forEach((panel) => {
+        panel.setAttribute("role", "tabpanel");
+        panel.tabIndex = 0;
+        panelsBox.append(panel);
+      });
+      tablist.after(autoplay.controls);
+    }
+
+    panels.forEach((panel, i) => {
+      const shown = i === state.index && state.open;
+      panel.hidden = !shown;
+      panel.inert = !shown;
+      panel.classList.toggle("is-active", shown);
+    });
+    syncAttributes();
+    root.classList.toggle("is-accordion", accordion);
+
+    // Mover nodos les saca el foco: se devuelve al mismo elemento o a su pestaña
+    if (focused && document.activeElement !== focused) {
+      focused.focus({ preventScroll: true });
+      if (document.activeElement !== focused)
+        tabs[state.index].focus({ preventScroll: true });
+    }
+  };
+
+  /* --- Pausas temporales --- */
+
+  const setHold = (reason, on) => {
+    if (on === state.holds.has(reason)) return;
+    if (on) state.holds.add(reason);
+    else state.holds.delete(reason);
+    syncAutoplay();
+  };
+  // El botón de pausa no cuenta: si no, "Reanudar" no haría nada hasta salir del componente
+  const pausesAutoplay = (el) =>
+    Boolean(el) && root.contains(el) && !autoplay.controls.contains(el);
+
+  root.addEventListener("pointerover", (event) => {
+    if (event.pointerType === "mouse")
+      setHold("hover", pausesAutoplay(event.target));
+  });
+  root.addEventListener("pointerleave", (event) => {
+    if (event.pointerType === "mouse") setHold("hover", false);
+  });
+  root.addEventListener("pointerdown", (event) => {
+    if (event.pointerType !== "mouse") setHold("touch", true);
+  });
+  const endTouch = () => setHold("touch", false);
+  window.addEventListener("pointerup", endTouch);
+  window.addEventListener("pointercancel", endTouch);
+
+  // Solo el foco de teclado pausa (un clic en el texto no)
+  const syncFocusHold = () => {
+    const el = document.activeElement;
+    let keyboard = true;
+    try {
+      keyboard = el.matches(":focus-visible");
+    } catch {
+      // navegador sin :focus-visible: cuenta cualquier foco
+    }
+    setHold("focus", pausesAutoplay(el) && keyboard);
+  };
+  root.addEventListener("focusin", syncFocusHold);
+  root.addEventListener("focusout", () => requestAnimationFrame(syncFocusHold));
+
+  document.addEventListener("selectionchange", () => {
+    const selection = document.getSelection();
+    setHold(
+      "selection",
+      Boolean(selection) &&
+        !selection.isCollapsed &&
+        selection.containsNode(root, true),
+    );
+  });
+
+  if (document.hidden) state.holds.add("hidden");
+  document.addEventListener("visibilitychange", () =>
+    setHold("hidden", document.hidden),
   );
 
-  const syncOrientation = () =>
-    tablist.setAttribute(
-      "aria-orientation",
-      horizontal.matches ? "horizontal" : "vertical",
+  // Sección visible: la mitad de ella o, si es más alta que la pantalla, la mitad de la pantalla
+  if ("IntersectionObserver" in window) {
+    state.holds.add("offscreen");
+    const { visibleRatio } = CHAPTER_AUTOPLAY;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const viewport = entry.rootBounds?.height || window.innerHeight;
+        const visible =
+          entry.isIntersecting &&
+          (entry.intersectionRatio >= visibleRatio ||
+            entry.intersectionRect.height >= viewport * visibleRatio);
+        setHold("offscreen", !visible);
+      },
+      { threshold: Array.from({ length: 21 }, (_, i) => i / 20) },
     );
+    observer.observe(root.closest("section") || root);
+  }
 
-  // En móvil la fila de pestañas tiene scroll propio: se acomoda sin mover la página
-  const scrollTabIntoRow = (tab) => {
-    if (!horizontal.matches) return;
-    const padding = parseFloat(getComputedStyle(tablist).paddingLeft) || 0;
-    tablist.scrollTo({
-      left: tab.offsetLeft - padding,
-      behavior: prefersReducedMotion() ? "auto" : "smooth",
-    });
-  };
+  /* --- Interacción --- */
 
-  const select = (index, moveFocus) => {
-    if (index !== current) {
-      const previous = panels[current];
-      previous.classList.add("is-leaving");
-      setTimeout(() => previous.classList.remove("is-leaving"), leaveTime);
-      current = index;
-    }
-    tabs.forEach((tab, i) => {
-      const active = i === index;
-      tab.setAttribute("aria-selected", String(active));
-      tab.tabIndex = active ? 0 : -1;
-    });
-    panels.forEach((panel, i) => {
-      panel.classList.toggle("is-active", i === index);
-      panel.inert = i !== index;
-    });
-    if (moveFocus) tabs[index].focus();
-    scrollTabIntoRow(tabs[index]);
-  };
-
-  tabs.forEach((tab, i) => tab.addEventListener("click", () => select(i)));
+  tabs.forEach((tab, i) =>
+    tab.addEventListener("click", () => select(i, { manual: true })),
+  );
 
   tablist.addEventListener("keydown", (event) => {
+    if (state.accordion || !event.target.matches("[data-chapter-tab]")) return;
+    const current = state.index;
     const last = tabs.length - 1;
     const keys = {
       ArrowRight: current === last ? 0 : current + 1,
@@ -649,15 +1014,25 @@ function initChapters() {
     };
     if (!(event.key in keys)) return;
     event.preventDefault();
-    select(keys[event.key], true);
+    select(keys[event.key], { manual: true, focus: true });
   });
 
-  horizontal.addEventListener("change", syncOrientation);
-  syncOrientation();
-  panels.forEach((panel, i) => {
-    panel.inert = i !== current;
+  autoplay.button.addEventListener("click", () => {
+    state.stopped = !state.stopped;
+    // Con todo cerrado en el acordeón, reanudar abre el capítulo actual (sin scroll)
+    if (!state.stopped && !state.open) {
+      select(state.index);
+      return;
+    }
+    startProgress();
+    syncAutoplay();
   });
+
+  applyMode();
+  accordionQuery.addEventListener("change", applyMode);
   root.classList.add("is-ready");
+  startProgress();
+  syncAutoplay();
 }
 
 /* 9. ZONAS DE REPARTO (mapa animado y tarjetas de provincia) -------------- */

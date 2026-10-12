@@ -1224,7 +1224,8 @@
             </h2>
           </div>
 
-          <!-- Capítulos: patrón WAI-ARIA tabs. Los 4 paneles están en el HTML; el JS marca los inactivos con inert -->
+          <!-- Capítulos: patrón WAI-ARIA tabs en escritorio y acordeón hasta 1000px (los arma initChapters).
+               Los 4 paneles están en el HTML; el JS oculta los inactivos con hidden y agrega el botón de pausa -->
           <div class="chapters" data-chapters data-reveal>
             <div
               class="chapters__tabs"
@@ -1286,7 +1287,7 @@
                 <span class="chapters__name">Dónde estamos</span>
               </button>
             </div>
-            <div class="chapters__panels">
+            <div class="chapters__panels" data-chapters-panels>
               <div
                 class="chapters__panel is-active"
                 role="tabpanel"

@@ -162,8 +162,16 @@
   --text-chapter-lead: clamp(1.12rem, 1rem + 0.45vw, 1.38rem);
   --text-figure: clamp(3rem, 2rem + 3.6vw, 4.8rem);
   --text-ghost-num: clamp(8rem, 5rem + 10vw, 15rem);
+  --text-ghost-num-compact: clamp(4rem, 3rem + 5vw, 5.5rem);
   --color-ghost: rgb(18 24 43 / 0.05);
   --shadow-panel: 0 30px 60px -40px rgb(18 24 43 / 0.45);
+  --chapter-panel-padding: clamp(28px, 1.2rem + 2.6vw, 56px);
+  --chapter-panel-padding-compact: var(--space-4) var(--space-3) var(--space-5);
+  --chapter-row-height: 68px;
+  --chapter-chevron-size: 9px;
+  --chapter-control-size: 44px;
+  --chapter-progress-height: 2px;
+  --color-chapter-progress: var(--color-amber);
   --chapter-duration: 0.5s;
   --chapter-shift: 14px;
   --chapter-stagger: 70ms;
@@ -1491,11 +1499,16 @@ textarea.field__control {
   text-decoration-thickness: 2px;
 }
 
-/* ---- Nosotros: capítulos (patrón WAI-ARIA tabs, initChapters en main.js) ---- */
+/* ---- Nosotros: capítulos (initChapters en main.js) ----
+   Escritorio: patrón WAI-ARIA tabs, pestañas a la izquierda y la tarjeta a la derecha.
+   Hasta 1000px (.is-accordion): acordeón; el JS mueve cada panel debajo de su botón.
+   Sin JS: pestañas arriba y los cuatro paneles uno debajo del otro.
+   La altura del cambio de capítulo la anima el JS (Web Animations API). */
 .chapters {
   display: grid;
   grid-template-columns: var(--chapters-tabs-width) 1fr;
-  gap: var(--grid-gap);
+  grid-template-rows: auto 1fr;
+  column-gap: var(--grid-gap);
   align-items: start;
   margin-top: var(--space-6);
 }
@@ -1503,6 +1516,8 @@ textarea.field__control {
 /* Pestañas */
 .chapters__tabs {
   position: relative;
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
 }
@@ -1559,9 +1574,53 @@ textarea.field__control {
   transform: translateX(6px);
 }
 
-/* Paneles: sin JS se ven uno debajo del otro; con JS se apilan en la misma celda
-   (la altura la marca el panel más alto, así no salta al cambiar de pestaña) */
+/* Progreso del cambio automático: el JS anima scaleX de 0 a 1 en el capítulo activo */
+.chapters__progress {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  z-index: 1;
+  height: var(--chapter-progress-height);
+  background: var(--color-chapter-progress);
+  transform: scaleX(0);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+/* Botón de pausa y reanudación (lo agrega el JS) */
+.chapters__controls {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  margin-top: var(--space-4);
+}
+.chapters__autoplay {
+  display: grid;
+  place-items: center;
+  width: var(--chapter-control-size);
+  height: var(--chapter-control-size);
+  border: 1px solid var(--color-line);
+  border-radius: 50%;
+  background: var(--color-white);
+  color: var(--color-muted);
+  cursor: pointer;
+  transition:
+    color var(--ease),
+    border-color var(--ease);
+}
+.chapters__autoplay:hover {
+  border-color: var(--color-muted);
+  color: var(--color-text);
+}
+.chapters__autoplay.is-playing {
+  color: var(--color-cobalt);
+}
+
+/* Paneles: cada uno mide lo que su contenido, alineado arriba */
 .chapters__panels {
+  grid-column: 2;
+  grid-row: 1 / span 2;
   display: grid;
   gap: var(--space-4);
 }
@@ -1569,34 +1628,52 @@ textarea.field__control {
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   overflow: hidden;
-  padding: clamp(28px, 1.2rem + 2.6vw, 56px);
+  padding: var(--chapter-panel-padding);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-lg);
   background: var(--color-white);
   box-shadow: var(--shadow-panel);
 }
+.chapters__panel[hidden] {
+  display: none;
+}
 .chapters__panel > * {
   position: relative;
 }
+
+/* Pestañas con JS: la tarjeta es el contenedor (mide como mínimo lo que la columna de pestañas
+   y su alto se anima); el panel que sale queda encima, alineado arriba, mientras se desvanece */
+.chapters.is-ready:not(.is-accordion) .chapters__panels {
+  position: relative;
+  align-self: stretch;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: var(--shadow-panel);
+}
+.chapters.is-ready:not(.is-accordion) .chapters__panel {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
 .chapters.is-ready .chapters__panel {
-  grid-area: 1 / 1;
   opacity: 0;
   transform: translateY(var(--chapter-shift));
-  visibility: hidden;
   transition:
     opacity var(--chapter-duration) ease,
-    transform var(--chapter-duration) var(--ease-out-expo),
-    visibility 0s linear var(--chapter-duration);
+    transform var(--chapter-duration) var(--ease-out-expo);
 }
 .chapters.is-ready .chapters__panel.is-active {
   opacity: 1;
   transform: none;
-  visibility: visible;
-  transition-delay: 0s;
 }
 .chapters.is-ready .chapters__panel.is-leaving {
+  position: absolute;
+  inset: 0 0 auto;
   transform: translateY(calc(var(--chapter-shift) * -0.6));
 }
 
@@ -1641,6 +1718,74 @@ textarea.field__control {
 }
 .chapters.is-ready .chapters__panel:not(.is-active) .chapters__ghost {
   transform: translateX(0.12em);
+}
+/* Pestañas: el número va abajo y ocupa el espacio que queda si el capítulo es más bajo que la lista */
+.chapters.is-ready:not(.is-accordion) .chapters__ghost {
+  top: auto;
+  bottom: -0.2em;
+}
+
+/* ---- Capítulos en modo acordeón (hasta 1000px, con JS) ---- */
+.chapters.is-accordion .chapters__controls {
+  justify-content: flex-end;
+  margin-top: 0;
+}
+.chapters.is-accordion .chapters__tab {
+  grid-template-columns: 2.4em 1fr auto;
+  align-items: center;
+  min-height: var(--chapter-row-height);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  color: var(--color-text);
+}
+.chapters.is-accordion .chapters__tab:not(:first-child) {
+  margin-top: var(--space-2);
+}
+.chapters.is-accordion .chapters__tab[aria-expanded="true"] {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  color: var(--color-cobalt);
+}
+.chapters.is-accordion .chapters__tab::after {
+  display: none;
+}
+/* Indicador: flecha que gira al abrir */
+.chapters.is-accordion .chapters__tab::before {
+  content: "";
+  order: 1;
+  width: var(--chapter-chevron-size);
+  height: var(--chapter-chevron-size);
+  margin-inline: var(--space-2) 4px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-25%) rotate(45deg);
+  transition: transform var(--chapter-duration) var(--ease-out-expo);
+}
+.chapters.is-accordion .chapters__tab[aria-expanded="true"]::before {
+  transform: translateY(25%) rotate(-135deg);
+}
+.chapters.is-accordion .chapters__panel {
+  padding: var(--chapter-panel-padding-compact);
+  border-top: 0;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  box-shadow: none;
+  opacity: 1;
+  transform: none;
+}
+.chapters.is-accordion .chapters__panels {
+  display: none;
+}
+.chapters.is-accordion .chapters__ghost {
+  top: -0.12em;
+  font-size: var(--text-ghost-num-compact);
+}
+
+/* Mientras el cambio automático anima la altura, el navegador no corrige el scroll
+   (scroll anchoring): la página no se mueve. Lo activa initChapters. */
+.is-anchor-frozen,
+.is-anchor-frozen body {
+  overflow-anchor: none;
 }
 
 /* Jerarquía tipográfica dentro del panel */
@@ -1919,35 +2064,17 @@ a.contact-list__value:hover {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* Capítulos: las pestañas pasan a una fila con scroll horizontal propio */
+  /* Capítulos: una sola columna (con JS es acordeón, ver .chapters.is-accordion) */
   .chapters {
     grid-template-columns: 1fr;
-    gap: var(--space-4);
+    grid-template-rows: none;
+    row-gap: var(--space-3);
   }
-  .chapters__tabs {
-    flex-direction: row;
-    gap: var(--space-4);
-    margin-inline: calc(var(--gutter) * -1);
-    padding-inline: var(--gutter);
-    overflow-x: auto;
-    border-bottom: 1px solid var(--color-line);
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--gutter);
-    scrollbar-width: none;
-  }
-  .chapters__tabs::-webkit-scrollbar {
-    display: none;
-  }
-  .chapters__tab {
-    flex: none;
-    grid-template-columns: auto auto;
-    gap: 8px;
-    padding: var(--space-2) 2px var(--space-3);
-    border-bottom: 0;
-    scroll-snap-align: start;
-  }
-  .chapters__tab[aria-selected="true"] .chapters__name {
-    transform: none;
+  .chapters__tabs,
+  .chapters__controls,
+  .chapters__panels {
+    grid-column: 1;
+    grid-row: auto;
   }
   .has-js .chapters[data-reveal] .chapters__tab {
     transform: translateY(8px);
@@ -2030,8 +2157,7 @@ a.contact-list__value:hover {
     letter-spacing: 0.03em;
   }
   .chapters__panel {
-    justify-content: flex-start;
-    padding: 26px 20px;
+    padding: var(--chapter-panel-padding-compact);
   }
   .chapters__provinces {
     gap: var(--space-3);
@@ -2065,6 +2191,11 @@ a.contact-list__value:hover {
   * {
     transition: none !important;
   }
+  /* "*" no alcanza a los pseudo-elementos: línea de la pestaña y flecha del acordeón */
+  .chapters__tab::before,
+  .chapters__tab::after {
+    transition: none !important;
+  }
 
   .recipe-card,
   .recipe-card.is-visible,
@@ -2075,6 +2206,7 @@ a.contact-list__value:hover {
     transform: none;
   }
   .chapters.is-ready .chapters__panel,
+  .chapters.is-ready .chapters__panel.is-leaving,
   .chapters__ghost,
   .chapters__tab[aria-selected="true"] .chapters__name {
     transform: none;
