@@ -4,5 +4,22 @@
   X-Frame-Options: DENY
   Permissions-Policy: camera=(), microphone=(), geolocation=()
 
+# Caché corto para todo /assets/: archivos con nombre fijo (favicon, og-image, SVG hechos a mano).
 /assets/*
+  Cache-Control: public, max-age=3600, must-revalidate
+
+# Immutable solo para lo que nunca cambia con el mismo nombre. "! Cache-Control" saca el valor de /assets/*
+# (si no, Cloudflare junta los dos con una coma). Ver docs/PUBLICACION.md, "Caché y nombres con hash".
+/assets/fonts/*
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
+
+# Todos los WebP los genera npm run images con hash en el nombre (<nombre>-<ancho>.<hash>.webp)
+/assets/img/*.webp
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable
+
+# El mapa lo genera scripts/generar-mapa.py con hash en el nombre (mapa-zonas.<hash>.svg)
+/assets/img/mapa-zonas.*
+  ! Cache-Control
   Cache-Control: public, max-age=31536000, immutable

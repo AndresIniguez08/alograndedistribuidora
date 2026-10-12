@@ -9,6 +9,10 @@
 ## Qué genera el script
 
 - Nombres normalizados: minúsculas, sin tildes ni espacios (`huevos blanco.jpg` → `huevos-blanco-*.webp`).
+- Hash del contenido en el nombre: `huevos-blanco-800.1a2b3c4d.webp`. Los `.webp` se sirven como `immutable` por un año,
+  así que una foto nueva tiene que tener otra URL. El script borra la versión anterior de cada tamaño y actualiza las
+  referencias que ya existan en `index.html` y `styles.css`. No editar ni reemplazar un `.webp` a mano conservando el nombre
+  (ver `docs/PUBLICACION.md`, "Caché y nombres con hash").
 - Tres anchos por foto — **800, 1200 y 1600px** — salvo que el archivo se llame `hero`, que usa **1280, 1920 y 2560px**.
 - No recorta: solo `.rotate()` (respeta la orientación EXIF del celular) y `resize({ width, withoutEnlargement: true })`, conservando la proporción real de cada foto. No agranda fotos más chicas que el ancho pedido.
 - Calidad WebP 78.
@@ -19,7 +23,7 @@
 
 1. Copiarla a `images-src/` con un nombre descriptivo en minúsculas (ej. `huevos-volumen.jpg`).
 2. Correr `npm run images` y anotar el ancho/alto que imprime para cada tamaño.
-3. Usar el resultado (`assets/img/<nombre>-800.webp`, `-1200.webp`, `-1600.webp`) en el `srcset` del `<img>` en `index.html`, con esos `width`/`height`.
+3. Usar el resultado (`assets/img/<nombre>-800.<hash>.webp`, `-1200.<hash>.webp`, `-1600.<hash>.webp`, tal como los imprime) en el `srcset` del `<img>` en `index.html`, con esos `width`/`height`.
 
 ## Encuadre en CSS
 
@@ -44,4 +48,4 @@ Cada receta tiene su foto en la tarjeta (`.recipe-card__media img`, relación 4:
 
 **El modal no tiene foto propia.** Al abrir una receta, el JS toma el `src`/`srcset`/`width`/`height`/`alt` del `<img>` de la tarjeta que se clickeó y los copia al único `<img data-recipe-media>` del `<dialog>` (ajustando `sizes` al ancho del modal). Por eso alcanza con actualizar la foto en la tarjeta — no hay que tocar nada en el `<template>` de esa receta.
 
-Mismo flujo que el resto: copiar a `images-src/` con el nombre de arriba, `npm run images`, y usar el `srcset` generado (`assets/img/<id>-800.webp`, `-1200.webp`, `-1600.webp`) en el `src`/`srcset` de la tarjeta en `index.html` (ver `README.md`, "Agregar una receta nueva"). Si el original es muy horizontal, revisar el recorte dentro del marco 4:5 y, si hace falta, agregar un modificador como los de `.product__media`.
+Mismo flujo que el resto: copiar a `images-src/` con el nombre de arriba, `npm run images`, y usar el `srcset` generado (`assets/img/<id>-800.<hash>.webp`, `-1200.<hash>.webp`, `-1600.<hash>.webp`) en el `src`/`srcset` de la tarjeta en `index.html` (ver `README.md`, "Agregar una receta nueva"). Si el original es muy horizontal, revisar el recorte dentro del marco 4:5 y, si hace falta, agregar un modificador como los de `.product__media`.

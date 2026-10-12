@@ -1,7 +1,8 @@
 # Mapa de zonas de reparto
 
 El mapa de la sección "Zonas de reparto" se arma con dos capas:
-- **La geografía** es una imagen liviana (`public/assets/img/mapa-zonas.svg`, unos 24 KB, 8 KB con gzip) con las provincias. No trae rutas dibujadas.
+- **La geografía** es una imagen liviana (`public/assets/img/mapa-zonas.<hash>.svg`, unos 24 KB, 8 KB con gzip) con las provincias. No trae rutas dibujadas.
+  El único lugar que la referencia es el `src` de `.coverage-map__base` en `index.html`.
 - **Los puntos y sus nombres** son HTML encima de la imagen. Así usan las tipografías del sitio y se editan sin tocar la imagen.
 - **La animación** (`initCoverageMap` en `public/js/main.js`) usa una capa SVG con el mismo viewBox (1600 × 1000).
   Imagen base (`object-fit: fill`), capa SVG (`preserveAspectRatio="none"`) y puntos en % viven en el mismo contenedor
@@ -76,6 +77,12 @@ Las coordenadas se contrastaron con Natural Earth (lugares poblados): las locali
    La primera vez descarga datos de Natural Earth (dominio público, unos 50 MB) a `.cache/`, que no se sube a Git.
 3. El script regenera el SVG e imprime el bloque de CSS con la posición de cada punto. Reemplazar con él las reglas
    `.coverage-map__point--…` de posición en `public/css/styles.css`.
+
+   **Regla: al regenerar el mapa, subí la versión del nombre.** El SVG se sirve como `immutable` por un año, así que si
+   cambia con el mismo nombre los visitantes siguen viendo el recorte viejo con los puntos nuevos encima (desalineados).
+   El script lo resuelve solo: escribe `mapa-zonas.<hash>.svg` (hash del contenido), borra el anterior, actualiza el `src`
+   en `index.html` e imprime el nombre nuevo. No renombrar ni editar el SVG a mano. Al commitear, incluir el archivo nuevo
+   y el borrado del viejo (`git add -A public/assets/img public/index.html`). Ver `docs/PUBLICACION.md`, "Caché y nombres con hash".
 4. En `public/index.html`, dentro de `.coverage-map__points`:
    - Localidad sin etiqueta: `<li class="coverage-map__point coverage-map__point--minor coverage-map__point--slug" data-place="slug" data-province="rio-negro" data-role="localidad"></li>`,
      antes de los puntos con etiqueta (así estos quedan por encima). Con `data-province` y `data-role="localidad"` entra sola en la animación y en las tarjetas.

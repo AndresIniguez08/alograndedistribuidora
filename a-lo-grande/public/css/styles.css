@@ -1035,7 +1035,7 @@ textarea.field__control {
   background: var(--color-card-dark);
 }
 
-/* Mapa: la geografía es una imagen (assets/img/mapa-zonas.svg) y los puntos son HTML encima.
+/* Mapa: la geografía es una imagen (mapa-zonas.<hash>.svg, ver index.html) y los puntos son HTML encima.
    Para agregar una zona: un <li> nuevo en el HTML y su posición en % acá abajo.
    Las posiciones salen de la misma proyección del SVG (ver docs/MAPA-ZONAS.md). */
 .coverage-map {

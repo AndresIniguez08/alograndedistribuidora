@@ -81,3 +81,40 @@ En `public/js/main.js`, bloque `SITE_CONFIG`: teléfono (solo si el cliente deci
 
 Cada cambio: editar, probar con `npm run dev`, `git commit` y `git push`. Cloudflare publica solo.
 Si algo sale mal, en **Deployments** se puede volver a una versión anterior.
+
+## Caché y nombres con hash
+
+`public/_headers` define cuánto guarda cada archivo el navegador:
+
+| Ruta | Cache-Control | Por qué |
+| --- | --- | --- |
+| `/assets/fonts/*` | `immutable`, 1 año | Las tipografías no cambian. |
+| `/assets/img/*.webp` | `immutable`, 1 año | Los genera `npm run images` con hash en el nombre (`budin-pan-800.1582c871.webp`). |
+| `/assets/img/mapa-zonas.*` | `immutable`, 1 año | Lo genera `scripts/generar-mapa.py` con hash en el nombre (`mapa-zonas.68244c89.svg`). |
+| Resto de `/assets/*` | `max-age=3600, must-revalidate` | Nombre fijo (favicon, `og-image.png`, SVG hechos a mano): a lo sumo una hora desactualizado. |
+| HTML, `/css/`, `/js/` | default de Cloudflare (revalida siempre) | |
+
+Con `immutable` el navegador no vuelve a pedir el archivo durante un año, ni con F5. Por eso **la regla es: si cambia
+el contenido de un archivo immutable, tiene que cambiar su nombre**. Si no, quien ya visitó el sitio sigue viendo el viejo
+mientras el HTML, el CSS y el JS ya son nuevos (así se desalineó el mapa de zonas en octubre de 2026).
+
+- **Mapa de zonas**: al regenerarlo, subí la versión del nombre. `python scripts/generar-mapa.py` lo hace solo: escribe
+  `mapa-zonas.<hash>.svg`, borra el anterior, actualiza el `src` en `index.html` e imprime el nombre nuevo.
+- **Fotos**: `npm run images` hace lo mismo con cada `<nombre>-<ancho>.<hash>.webp`.
+- **No edites a mano** un `.webp` ni el SVG del mapa conservando el nombre. Si hace falta, regeneralo con su script.
+- **Tipografías**: si se reemplaza una, cambiale el nombre (por ejemplo `inter-400.v2.woff2`) y actualizá el `@font-face`.
+- Un `.webp` nuevo que no salga de `npm run images` tiene que llevar hash o versión en el nombre igual.
+
+Commiteá siempre el archivo nuevo **y** el borrado del viejo (`git add -A public/assets`).
+
+### Comprobar en producción qué archivo se sirve
+
+```bash
+# Qué nombre de mapa pide el HTML publicado
+curl -s https://alograndedistribuidora.com.ar/ | grep -o 'assets/img/mapa-zonas[^"]*'
+# Que ese archivo exista y tenga el caché esperado (200, image/svg+xml, immutable)
+curl -sI https://alograndedistribuidora.com.ar/assets/img/mapa-zonas.<hash>.svg
+```
+
+Ojo: una ruta inexistente no da 404 sino `index.html` con 200 (no hay `404.html`). Si `Content-Type` es `text/html`,
+el archivo no se subió.

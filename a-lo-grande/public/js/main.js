@@ -662,7 +662,7 @@ function initChapters() {
 
 /* 9. ZONAS DE REPARTO (mapa animado y tarjetas de provincia) -------------- */
 
-const MAP_SIZE = Object.freeze({ width: 1600, height: 1000 }); // viewBox de mapa-zonas.svg
+const MAP_SIZE = Object.freeze({ width: 1600, height: 1000 }); // viewBox de mapa-zonas.<hash>.svg
 const SVG_NS = "http://www.w3.org/2000/svg";
 
 /* Secuencia del mapa: desde Mercedes (carga) hasta cada base, y desde la base

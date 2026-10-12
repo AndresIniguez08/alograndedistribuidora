@@ -1,14 +1,18 @@
-"""Genera public/assets/img/mapa-zonas.svg y la posición en % de cada punto del mapa.
+"""Genera public/assets/img/mapa-zonas.<hash>.svg y la posición en % de cada punto del mapa.
 
 Uso (Python 3 y `pip install shapely`):
     python scripts/generar-mapa.py
 
+El nombre lleva un hash del contenido (cache busting: /assets/img/mapa-zonas.* se sirve como immutable).
+El script borra el SVG anterior y actualiza la referencia en index.html.
 La primera vez descarga datos de Natural Earth (dominio público) a .cache/, que no se sube a Git.
 Ver docs/MAPA-ZONAS.md.
 """
 
+import hashlib
 import json
 import math
+import re
 import sys
 import urllib.request
 from pathlib import Path
@@ -18,7 +22,11 @@ from shapely.geometry import shape
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / ".cache"
-OUT_SVG = ROOT / "public" / "assets" / "img" / "mapa-zonas.svg"
+OUT_DIR = ROOT / "public" / "assets" / "img"
+OUT_PREFIX = "mapa-zonas"
+# Archivos donde se reescribe la referencia al SVG (con o sin hash)
+REF_FILES = [ROOT / "public" / "index.html", ROOT / "public" / "css" / "styles.css"]
+REF_PATTERN = re.compile(r"assets/img/mapa-zonas(?:\.[0-9a-f]{8})?\.svg")
 
 NE_BASE = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/"
 NE_COUNTRIES = "ne_10m_admin_0_countries.geojson"
@@ -168,6 +176,29 @@ def route_path(a, b, bend):
     return f"M{x1:.1f} {y1:.1f} Q{cx:.1f} {cy:.1f} {x2:.1f} {y2:.1f}"
 
 
+def write_hashed_svg(svg):
+    """Escribe el SVG con un hash del contenido en el nombre y borra las versiones anteriores."""
+    data = svg.encode("utf-8")  # siempre LF: es lo que se commitea y se publica
+    out_svg = OUT_DIR / f"{OUT_PREFIX}.{hashlib.sha256(data).hexdigest()[:8]}.svg"
+    for old in OUT_DIR.glob(f"{OUT_PREFIX}*.svg"):
+        if old != out_svg:
+            old.unlink()
+    out_svg.write_bytes(data)
+    return out_svg
+
+
+def update_refs(name):
+    """Apunta las referencias al SVG nuevo. Lee y escribe bytes para respetar los finales de línea."""
+    found = False
+    for path in REF_FILES:
+        text = path.read_bytes().decode("utf-8")
+        found = found or bool(REF_PATTERN.search(text))
+        updated = REF_PATTERN.sub(f"assets/img/{name}", text)
+        if updated != text:
+            path.write_bytes(updated.encode("utf-8"))
+    return found
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     countries = load(NE_COUNTRIES)
@@ -211,9 +242,14 @@ def main():
             f'<path d="{" ".join(route_path(*r) for r in ROUTES)}" fill="none" {attrs(ROUTE)} stroke-linecap="round"/>'
         )
     lines.append("</svg>")
-    OUT_SVG.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    size_kb = OUT_SVG.stat().st_size / 1024
-    print(f"SVG: {OUT_SVG.relative_to(ROOT)} ({size_kb:.1f} KB)")
+    out_svg = write_hashed_svg("\n".join(lines) + "\n")
+    size_kb = out_svg.stat().st_size / 1024
+    print(f"SVG: {out_svg.relative_to(ROOT).as_posix()} ({size_kb:.1f} KB)")
+    print(f"Nombre nuevo: {out_svg.name}")
+    if update_refs(out_svg.name):
+        print("Referencias actualizadas (index.html / styles.css)")
+    else:
+        print("Atención: no se encontró ninguna referencia a assets/img/mapa-zonas*.svg para actualizar")
     print(f"Recorte: lon {LON_MIN} a {LON_MAX}, lat {lat_at(0):.2f} a {lat_at(HEIGHT):.2f}\n")
 
     print("/* Posiciones para styles.css (salen de scripts/generar-mapa.py) */")
