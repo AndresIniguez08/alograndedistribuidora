@@ -1073,7 +1073,7 @@ textarea.field__control {
 
 /* Posiciones para styles.css (salen de scripts/generar-mapa.py) */
 .coverage-map__point--mercedes {
-  --x: 72.50%;
+  --x: 72.5%;
   --y: 8.87%;
 }
 .coverage-map__point--pigue {
@@ -1264,7 +1264,8 @@ textarea.field__control {
 }
 /* Diagonales: solo si ningún lado recto entra */
 .coverage-map__tag--top-right {
-  translate: var(--map-tag-gap-diagonal) calc(-100% - var(--map-tag-gap-diagonal));
+  translate: var(--map-tag-gap-diagonal)
+    calc(-100% - var(--map-tag-gap-diagonal));
 }
 .coverage-map__tag--top-left {
   translate: calc(-100% - var(--map-tag-gap-diagonal))
@@ -1274,7 +1275,8 @@ textarea.field__control {
   translate: var(--map-tag-gap-diagonal) var(--map-tag-gap-diagonal);
 }
 .coverage-map__tag--bottom-left {
-  translate: calc(-100% - var(--map-tag-gap-diagonal)) var(--map-tag-gap-diagonal);
+  translate: calc(-100% - var(--map-tag-gap-diagonal))
+    var(--map-tag-gap-diagonal);
 }
 /* Visible con hover, foco o provincia activa (las de la secuencia las anima main.js) */
 .coverage-map__point:hover .coverage-map__tag,
@@ -1339,8 +1341,10 @@ textarea.field__control {
   opacity: 1;
 }
 /* Hover o foco: el punto se ve entero aunque esté atenuado o esperando la animación */
-.coverage-map.has-highlight .coverage-map__point--minor:is(:hover, :focus-visible),
-.coverage-map .coverage-map__point--minor.is-pending:is(:hover, :focus-visible) {
+.coverage-map.has-highlight
+  .coverage-map__point--minor:is(:hover, :focus-visible),
+.coverage-map
+  .coverage-map__point--minor.is-pending:is(:hover, :focus-visible) {
   opacity: 1;
 }
 .coverage-map__point.is-highlighted::before {
@@ -1692,19 +1696,29 @@ textarea.field__control {
   opacity: 1;
   transform: none;
 }
-.chapters.is-ready .chapters__panel.is-active > :not(.chapters__ghost):nth-child(4) {
+.chapters.is-ready
+  .chapters__panel.is-active
+  > :not(.chapters__ghost):nth-child(4) {
   transition-delay: calc(var(--chapter-stagger) * 1);
 }
-.chapters.is-ready .chapters__panel.is-active > :not(.chapters__ghost):nth-child(5) {
+.chapters.is-ready
+  .chapters__panel.is-active
+  > :not(.chapters__ghost):nth-child(5) {
   transition-delay: calc(var(--chapter-stagger) * 2);
 }
-.chapters.is-ready .chapters__panel.is-active > :not(.chapters__ghost):nth-child(6) {
+.chapters.is-ready
+  .chapters__panel.is-active
+  > :not(.chapters__ghost):nth-child(6) {
   transition-delay: calc(var(--chapter-stagger) * 3);
 }
-.chapters.is-ready .chapters__panel.is-active > :not(.chapters__ghost):nth-child(7) {
+.chapters.is-ready
+  .chapters__panel.is-active
+  > :not(.chapters__ghost):nth-child(7) {
   transition-delay: calc(var(--chapter-stagger) * 4);
 }
-.chapters.is-ready .chapters__panel.is-active > :not(.chapters__ghost):nth-child(n + 8) {
+.chapters.is-ready
+  .chapters__panel.is-active
+  > :not(.chapters__ghost):nth-child(n + 8) {
   transition-delay: calc(var(--chapter-stagger) * 5);
 }
 
@@ -1932,13 +1946,16 @@ textarea.field__control {
   transform: none;
 }
 .has-js .chapters.is-visible .chapters__tab:nth-child(2) {
-  transition-delay: calc(var(--chapter-stagger) * 1), calc(var(--chapter-stagger) * 1), 0s;
+  transition-delay:
+    calc(var(--chapter-stagger) * 1), calc(var(--chapter-stagger) * 1), 0s;
 }
 .has-js .chapters.is-visible .chapters__tab:nth-child(3) {
-  transition-delay: calc(var(--chapter-stagger) * 2), calc(var(--chapter-stagger) * 2), 0s;
+  transition-delay:
+    calc(var(--chapter-stagger) * 2), calc(var(--chapter-stagger) * 2), 0s;
 }
 .has-js .chapters.is-visible .chapters__tab:nth-child(4) {
-  transition-delay: calc(var(--chapter-stagger) * 3), calc(var(--chapter-stagger) * 3), 0s;
+  transition-delay:
+    calc(var(--chapter-stagger) * 3), calc(var(--chapter-stagger) * 3), 0s;
 }
 
 /* ---- Contacto ---- */
@@ -2229,5 +2246,26 @@ a.contact-list__value:hover {
   .recipe-card:hover .recipe-card__title,
   .recipe-card:focus-visible .recipe-card__title {
     transform: none;
+  }
+}
+/* PARCHE TEMPORAL logo: Claude Code lo reemplaza por reglas con tokens */
+img[src*="logo-horizontal"] {
+  display: block;
+  height: 64px;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+}
+@media (max-width: 700px) {
+  img[src*="logo-horizontal"] {
+    height: 52px;
+  }
+}
+footer img[src*="logo-horizontal"] {
+  height: 96px;
+}
+@media (max-width: 700px) {
+  footer img[src*="logo-horizontal"] {
+    height: 80px;
   }
 }
