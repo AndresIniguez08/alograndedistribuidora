@@ -6,6 +6,30 @@
 2. `npm run images` corre `scripts/optimize-images.mjs`, que lee `images-src/` y genera los WebP finales en `public/assets/img/`.
 3. Esos WebP sí se suben a git: son los que usa `index.html`.
 
+## Logo, íconos e imagen para compartir
+
+Son archivos **finales** del kit de marca (`images-src/a-lo-grande-logos/`, con su `LEEME.txt`): ya vienen optimizados y con
+transparencia. **No se pasan por `npm run images`**: el script los recomprimiría y les cambiaría el nombre. (Hoy el script
+solo lee `.jpg`/`.png` sueltos en la raíz de `images-src/` y no entra en subcarpetas, así que el kit queda afuera; no mover
+archivos del kit a la raíz de `images-src/`.) Se copian tal cual, con el mismo nombre:
+
+| Archivo | Dónde se usa |
+| --- | --- |
+| `assets/img/logo/logo-horizontal-400.webp` / `-800.webp` | Encabezado (fondo claro, texto negro). 64 px de alto en escritorio, 52 px en móvil. |
+| `assets/img/logo/logo-horizontal-texto-blanco-400.webp` / `-800.webp` | Pie (fondo navy, texto blanco). 48 px de alto, con `loading="lazy"`. |
+| `assets/img/logo/logo-horizontal.png` | Datos estructurados (`logo` del JSON-LD). La versión de texto blanco en PNG queda de reserva. |
+| `assets/img/logo/mascota-huevo.png` / `-400.webp` | Copiada, todavía sin usar. |
+| `/favicon.ico`, `/favicon-16.png`, `/favicon-32.png`, `/favicon-48.png`, `/apple-touch-icon-180.png` | Raíz de `public/`: pestaña del navegador e ícono en iPhone. |
+| `assets/img/icons/icon-192.png` / `icon-512.png` | `site.webmanifest` (íconos en Android). |
+| `assets/img/og-image-1200x630.png` | `og:image` y `twitter:image` (vista previa al compartir el link). |
+
+El `<img>` del logo lleva `width="891" height="483"` (la proporción real del archivo) para que el navegador reserve el lugar
+antes de cargarlo; el alto en pantalla sale de los tokens `--logo-height` y `--logo-height-footer`.
+
+**Si el logo cambia, subí la versión del nombre** (`logo-horizontal-v2-400.webp`, `og-image-1200x630-v2.png`, etc.) y
+actualizá las referencias, en lugar de pisar el archivo. Los `.webp` de `/assets/img/` se sirven como `immutable` por un año
+y el resto de `/assets/*` con una hora de caché: con el mismo nombre, quien ya visitó el sitio seguiría viendo el logo viejo.
+
 ## Qué genera el script
 
 - Nombres normalizados: minúsculas, sin tildes ni espacios (`huevos blanco.jpg` → `huevos-blanco-*.webp`).

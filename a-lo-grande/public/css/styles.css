@@ -104,12 +104,14 @@
   --text-sm: 0.9rem;
   --text-xs: 0.8rem;
   --text-map-label: clamp(0.8rem, 0.6rem + 0.7vw, 1.2rem);
-  --text-brand-tag: 10.5px;
 
   /* Espaciado y layout */
   --container: 1200px;
   --gutter: 24px;
-  --header-height: 72px;
+  --header-height: 80px;
+  /* Logo (imagen 891 × 483): el ancho sale solo de la proporción */
+  --logo-height: 64px;
+  --logo-height-footer: 48px;
   --nav-gap: clamp(20px, 2.4vw, 30px);
   --section-padding: clamp(4.5rem, 3rem + 4vw, 6.5rem);
   --grid-gap: clamp(2.75rem, 1rem + 4.5vw, 4.5rem);
@@ -579,20 +581,21 @@ textarea.field__control {
   white-space: nowrap;
 }
 
+/* Logo: imagen dentro del enlace al inicio. El alto lo marca el token; width y height
+   en el HTML reservan el lugar con la proporción real (sin salto al cargar). */
 .brand {
   display: inline-flex;
-  flex-direction: column;
-  font: 700 22px / 1 var(--font-head);
-  letter-spacing: -0.03em;
+  flex: none;
+  align-items: center;
+  border-radius: var(--radius-sm);
   text-decoration: none;
-  white-space: nowrap;
 }
-/* "Mayorista" como bajada del nombre: mantiene el ancho de la marca en la cabecera */
-.brand__tag {
-  margin-top: 4px;
-  font: 600 var(--text-brand-tag) / 1 var(--font-body);
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+.brand__logo {
+  width: auto;
+  height: var(--logo-height);
+}
+.brand--footer .brand__logo {
+  height: var(--logo-height-footer);
 }
 
 .nav__list {
@@ -2002,9 +2005,6 @@ a.contact-list__value:hover {
   background: var(--color-navy);
   color: var(--color-on-dark);
 }
-.site-footer .brand {
-  color: var(--color-white);
-}
 .site-footer__top {
   display: flex;
   flex-wrap: wrap;
@@ -2129,6 +2129,8 @@ a.contact-list__value:hover {
 @media (max-width: 560px) {
   :root {
     --gutter: 18px;
+    --header-height: 64px;
+    --logo-height: 52px;
     /* Mapa chico: las localidades cercanas encadenan sus nombres; el mínimo acorta la secuencia */
     --map-tag-hold: 1.2s;
     --map-tag-padding: 2px 7px;

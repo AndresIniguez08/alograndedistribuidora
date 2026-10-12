@@ -27,17 +27,23 @@
     <meta property="og:url" content="https://alograndedistribuidora.com.ar/" />
     <meta
       property="og:image"
-      content="https://alograndedistribuidora.com.ar/assets/img/og-image.png"
+      content="https://alograndedistribuidora.com.ar/assets/img/og-image-1200x630.png"
     />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta
-      property="og:image:alt"
-      content="A lo grande Mayorista, distribuidora de huevos en Pigüé y Neuquén"
-    />
+    <meta property="og:image:alt" content="A lo grande Mayorista" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:image"
+      content="https://alograndedistribuidora.com.ar/assets/img/og-image-1200x630.png"
+    />
 
-    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <!-- Íconos (kit de logos: images-src/a-lo-grande-logos/favicon/) -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon-180.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link
       rel="preload"
       href="assets/fonts/sora-700.woff2"
@@ -63,6 +69,7 @@
         "name": "A lo grande Mayorista",
         "url": "https://alograndedistribuidora.com.ar/",
         "description": "Distribuidora de huevos para mayoristas, con sede en Pigüé y depósito en Neuquén.",
+        "logo": "https://alograndedistribuidora.com.ar/assets/img/logo/logo-horizontal.png",
         "foundingDate": "2020",
         "email": "contacto@alograndedistribuidora.com.ar",
         "areaServed": [
@@ -177,8 +184,19 @@
           class="brand"
           href="#inicio"
           aria-label="A lo grande Mayorista, ir al inicio"
-          >A lo grande <span class="brand__tag">Mayorista</span></a
-        >
+          ><img
+            class="brand__logo"
+            src="assets/img/logo/logo-horizontal-400.webp"
+            srcset="
+              assets/img/logo/logo-horizontal-400.webp 400w,
+              assets/img/logo/logo-horizontal-800.webp 800w
+            "
+            sizes="(max-width: 560px) 96px, 118px"
+            width="891"
+            height="483"
+            alt="A lo grande Mayorista"
+            fetchpriority="high"
+        /></a>
 
         <nav class="nav" id="site-nav" aria-label="Principal" data-nav>
           <ul class="nav__list">
@@ -1675,9 +1693,21 @@
     <footer class="site-footer">
       <div class="container">
         <div class="site-footer__top">
-          <a class="brand" href="#inicio"
-            >A lo grande <span class="brand__tag">Mayorista</span></a
-          >
+          <a class="brand brand--footer" href="#inicio"
+            ><img
+              class="brand__logo"
+              src="assets/img/logo/logo-horizontal-texto-blanco-400.webp"
+              srcset="
+                assets/img/logo/logo-horizontal-texto-blanco-400.webp 400w,
+                assets/img/logo/logo-horizontal-texto-blanco-800.webp 800w
+              "
+              sizes="89px"
+              width="891"
+              height="483"
+              alt="A lo grande Mayorista"
+              loading="lazy"
+              decoding="async"
+          /></a>
           <nav aria-label="Pie de página">
             <ul class="site-footer__nav">
               <li><a href="#inicio">Inicio</a></li>

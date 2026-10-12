@@ -91,7 +91,7 @@ Si algo sale mal, en **Deployments** se puede volver a una versión anterior.
 | `/assets/fonts/*` | `immutable`, 1 año | Las tipografías no cambian. |
 | `/assets/img/*.webp` | `immutable`, 1 año | Los genera `npm run images` con hash en el nombre (`budin-pan-800.1582c871.webp`). |
 | `/assets/img/mapa-zonas.*` | `immutable`, 1 año | Lo genera `scripts/generar-mapa.py` con hash en el nombre (`mapa-zonas.68244c89.svg`). |
-| Resto de `/assets/*` | `max-age=3600, must-revalidate` | Nombre fijo (favicon, `og-image.png`, SVG hechos a mano): a lo sumo una hora desactualizado. |
+| Resto de `/assets/*` | `max-age=3600, must-revalidate` | Nombre fijo (`og-image-1200x630.png`, logo PNG, íconos del manifest, SVG hechos a mano): a lo sumo una hora desactualizado. El logo en `.webp` cae en la regla immutable de arriba: si cambia, nombre nuevo (ver `docs/IMAGENES.md`, "Logo"). |
 | HTML, `/css/`, `/js/` | default de Cloudflare (revalida siempre) | |
 
 Con `immutable` el navegador no vuelve a pedir el archivo durante un año, ni con F5. Por eso **la regla es: si cambia

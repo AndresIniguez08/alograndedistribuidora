@@ -11,7 +11,11 @@ public/                  Todo lo que se publica
   index.html             Estructura y contenido
   css/styles.css         Estilos, con tokens de diseño en :root
   js/main.js             Comportamiento y configuración (SITE_CONFIG)
-  assets/                Tipografías, imágenes e ícono
+  assets/fonts/          Tipografías autoalojadas
+  assets/img/            Fotos (WebP con hash, generadas por npm run images) y mapa de zonas
+  assets/img/logo/       Logo y mascota (copiados del kit de marca, no pasan por el script)
+  assets/img/icons/      Íconos 192 y 512 para site.webmanifest
+  favicon.ico, favicon-*.png, apple-touch-icon-180.png, site.webmanifest
   robots.txt, sitemap.xml, _headers
 functions/api/contact.js Función de Cloudflare Pages que envía el formulario por mail
 docs/                    Guías de publicación, mejora visual, imágenes y mapa de zonas
