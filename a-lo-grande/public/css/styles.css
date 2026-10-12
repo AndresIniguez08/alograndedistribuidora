@@ -89,8 +89,14 @@
   --image-position-top: top;
   --image-position-bottom: bottom;
 
-  /* Imagen de portada: reemplazar por url(../assets/img/hero.jpg) cuando haya foto */
-  --hero-image: none;
+  /* Portada: video del camión (assets/video/hero-camion-v1.*) con su póster */
+  --hero-video-position: 50% 55%;
+  --hero-video-fade: 0.8s;
+  --hero-toggle-size: 44px;
+  --hero-overlay-strong: 0.85;
+  --hero-overlay-mid: 0.68;
+  --hero-overlay-soft: 0.45;
+  --hero-overlay-bottom: 0.55;
 
   /* Tipografía */
   --font-head: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -109,9 +115,9 @@
   --container: 1200px;
   --gutter: 24px;
   --header-height: 80px;
-  /* Logo (imagen 891 × 483): el ancho sale solo de la proporción */
-  --logo-height: 64px;
-  --logo-height-footer: 48px;
+  /* Logo (imagen 891 × 483): el alto lo fija el token y el ancho sale de la proporción */
+  --logo-header-h: 64px;
+  --logo-footer-h: 96px;
   --nav-gap: clamp(20px, 2.4vw, 30px);
   --section-padding: clamp(4.5rem, 3rem + 4vw, 6.5rem);
   --grid-gap: clamp(2.75rem, 1rem + 4.5vw, 4.5rem);
@@ -581,8 +587,9 @@ textarea.field__control {
   white-space: nowrap;
 }
 
-/* Logo: imagen dentro del enlace al inicio. El alto lo marca el token; width y height
-   en el HTML reservan el lugar con la proporción real (sin salto al cargar). */
+/* Logo: imagen dentro del enlace al inicio. width="891" height="483" en el HTML reservan
+   el lugar antes de que cargue; el tamaño real lo manda el CSS (alto por token, ancho por
+   proporción). object-fit evita que se deforme si algún contenedor lo achica. */
 .brand {
   display: inline-flex;
   flex: none;
@@ -591,11 +598,15 @@ textarea.field__control {
   text-decoration: none;
 }
 .brand__logo {
+  display: block;
   width: auto;
-  height: var(--logo-height);
+  max-width: 100%;
+  height: var(--logo-header-h);
+  aspect-ratio: 891 / 483;
+  object-fit: contain;
 }
-.brand--footer .brand__logo {
-  height: var(--logo-height-footer);
+.brand__logo--footer {
+  height: var(--logo-footer-h);
 }
 
 .nav__list {
@@ -648,42 +659,81 @@ textarea.field__control {
 .hero {
   position: relative;
   overflow: hidden;
-  background: var(--color-navy) var(--hero-image) center / cover no-repeat;
+  background: var(--color-navy);
   color: var(--color-white);
 }
-.hero::before {
-  content: "";
+
+/* Fondo: póster debajo, video encima (entra con fade al empezar) y overlay para el texto.
+   Todo es absoluto dentro de la portada, así que no cambia su alto ni produce saltos. */
+.hero__media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.hero__poster,
+.hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--hero-video-position);
+}
+.hero__video {
+  opacity: 0;
+  transition: opacity var(--hero-video-fade) ease;
+}
+.hero__media.is-playing .hero__video {
+  opacity: 1;
+}
+/* Pausa del video: discreto, abajo a la derecha, por encima del overlay */
+.hero__video-toggle {
+  position: absolute;
+  right: var(--gutter);
+  bottom: var(--space-4);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--hero-toggle-size);
+  height: var(--hero-toggle-size);
+  padding: 0;
+  border: 1px solid var(--color-card-dark-border);
+  border-radius: 50%;
+  background: rgb(18 24 43 / 0.6);
+  color: var(--color-white);
+  cursor: pointer;
+  transition:
+    background var(--ease),
+    border-color var(--ease);
+}
+.hero__video-toggle[hidden] {
+  display: none;
+}
+.hero__video-toggle:hover {
+  border-color: var(--color-amber);
+  background: var(--color-navy);
+}
+.hero__video-toggle .icon {
+  width: 18px;
+  height: 18px;
+}
+/* Navy de marca: más opaco a la izquierda (título), más suave a la derecha y refuerzo abajo */
+.hero__overlay {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(
-      900px 480px at 88% -8%,
-      rgb(38 70 200 / 0.42),
-      transparent 62%
+    linear-gradient(
+      0deg,
+      rgb(18 24 43 / var(--hero-overlay-bottom)) 0%,
+      transparent 40%
     ),
-    radial-gradient(
-      700px 380px at 0% 105%,
-      rgb(240 180 41 / 0.1),
-      transparent 60%
-    ),
-    linear-gradient(180deg, rgb(18 24 43 / 0.55), rgb(18 24 43 / 0.78));
-}
-.hero__egg {
-  position: absolute;
-  left: -170px;
-  bottom: -250px;
-  width: 560px;
-  height: 680px;
-  border: 1px solid rgb(255 255 255 / 0.1);
-  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
-  pointer-events: none;
-}
-.hero__egg--alt {
-  left: -110px;
-  bottom: -290px;
-  width: 480px;
-  height: 600px;
-  border-color: rgb(240 180 41 / 0.16);
+    linear-gradient(
+      90deg,
+      rgb(18 24 43 / var(--hero-overlay-strong)) 0%,
+      rgb(18 24 43 / var(--hero-overlay-strong)) 38%,
+      rgb(18 24 43 / var(--hero-overlay-mid)) 60%,
+      rgb(18 24 43 / var(--hero-overlay-soft)) 100%
+    );
 }
 .hero__grid {
   position: relative;
@@ -2065,6 +2115,17 @@ a.contact-list__value:hover {
 /* Los breakpoints no admiten variables CSS: 1000px = tablet, 560px = celular. */
 
 @media (max-width: 1000px) {
+  /* Portada apilada: el texto ocupa todo el ancho, así que el overlay es parejo
+     y el recorte del video se corre hacia el logo del semi */
+  .hero {
+    --hero-overlay-mid: var(--hero-overlay-strong);
+    --hero-overlay-soft: var(--hero-overlay-strong);
+    --hero-video-position: 22% 50%;
+  }
+  /* El formulario llega casi al borde inferior: el botón baja al margen libre debajo */
+  .hero__video-toggle {
+    bottom: var(--space-1);
+  }
   .hero__grid,
   .contact__grid,
   .product {
@@ -2147,7 +2208,8 @@ a.contact-list__value:hover {
   :root {
     --gutter: 18px;
     --header-height: 64px;
-    --logo-height: 52px;
+    --logo-header-h: 52px;
+    --logo-footer-h: 80px;
     /* Mapa chico: las localidades cercanas encadenan sus nombres; el mínimo acorta la secuencia */
     --map-tag-hold: 1.2s;
     --map-tag-padding: 2px 7px;
@@ -2246,26 +2308,5 @@ a.contact-list__value:hover {
   .recipe-card:hover .recipe-card__title,
   .recipe-card:focus-visible .recipe-card__title {
     transform: none;
-  }
-}
-/* PARCHE TEMPORAL logo: Claude Code lo reemplaza por reglas con tokens */
-img[src*="logo-horizontal"] {
-  display: block;
-  height: 64px;
-  width: auto;
-  max-width: none;
-  object-fit: contain;
-}
-@media (max-width: 700px) {
-  img[src*="logo-horizontal"] {
-    height: 52px;
-  }
-}
-footer img[src*="logo-horizontal"] {
-  height: 96px;
-}
-@media (max-width: 700px) {
-  footer img[src*="logo-horizontal"] {
-    height: 80px;
   }
 }

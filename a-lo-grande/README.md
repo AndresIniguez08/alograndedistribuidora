@@ -12,7 +12,8 @@ public/                  Todo lo que se publica
   css/styles.css         Estilos, con tokens de diseño en :root
   js/main.js             Comportamiento y configuración (SITE_CONFIG)
   assets/fonts/          Tipografías autoalojadas
-  assets/img/            Fotos (WebP con hash, generadas por npm run images) y mapa de zonas
+  assets/img/            Fotos (WebP con hash, generadas por npm run images), póster de la portada y mapa de zonas
+  assets/video/          Video de la portada (npm run video, nombre con versión)
   assets/img/logo/       Logo y mascota (copiados del kit de marca, no pasan por el script)
   assets/img/icons/      Íconos 192 y 512 para site.webmanifest
   favicon.ico, favicon-*.png, apple-touch-icon-180.png, site.webmanifest
@@ -29,6 +30,7 @@ CLAUDE.md                Reglas del proyecto para Claude Code
 npm install
 cp .dev.vars.example .dev.vars   # completar con tus claves para probar el formulario
 npm run dev                      # sitio y función en http://localhost:8788
+npm run assets:version           # después de tocar styles.css o main.js (ver docs/PUBLICACION.md)
 ```
 
 Para ver solo el diseño alcanza con abrir `public/index.html` en el navegador o usar la extensión Live Server de VS Code.
@@ -42,7 +44,7 @@ Lo que quede vacío no se muestra en el sitio.
 ## Reemplazar las ilustraciones por fotos
 
 - Productos: en `public/index.html`, cambiar el `src` de cada `<img>` dentro de `.product__media` por la foto real (relación 16:10) y actualizar el `alt`.
-- Portada: en `public/css/styles.css`, token `--hero-image`: `url(../assets/img/hero.jpg)`.
+- Portada: video del camión con su póster. Ver `docs/IMAGENES.md`, "Video de la portada" (`npm run video`).
 - Recetas: ver `docs/IMAGENES.md`, sección "Fotos para recetas".
 
 ## Agregar una receta nueva

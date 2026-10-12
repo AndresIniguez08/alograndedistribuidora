@@ -30,6 +30,50 @@ antes de cargarlo; el alto en pantalla sale de los tokens `--logo-height` y `--l
 actualizá las referencias, en lugar de pisar el archivo. Los `.webp` de `/assets/img/` se sirven como `immutable` por un año
 y el resto de `/assets/*` con una hora de caché: con el mismo nombre, quien ya visitó el sitio seguiría viendo el logo viejo.
 
+## Video de la portada
+
+El fondo de la portada es un video corto del camión (3 s, sin audio) que se repite **en loop**, a 0,8× de velocidad
+(`data-playback-rate` en el `<video>`): cada vuelta dura 3,75 s y el corte al reiniciar se nota menos. Debajo hay un póster con
+el último fotograma (donde mejor se ve el logo del semi): es lo que se ve antes de que arranque el video (que entra con un
+fundido) y lo único que se ve si el video no se carga. Como es movimiento automático de más de 5 s, la portada tiene un
+botón de pausa (abajo a la derecha, `data-hero-video-toggle`, con `aria-pressed`) que solo aparece si el video arranca;
+si la persona lo pausa, no se reanuda solo al volver a la pestaña.
+
+| Archivo | Qué es | Peso |
+| --- | --- | --- |
+| `assets/video/hero-camion-v1.webm` | VP9, 1280 px, 30 fps, CRF 36, sin audio (se ofrece primero) | 215 KB |
+| `assets/video/hero-camion-v1.mp4` | H.264, 1280 px, 30 fps, CRF 27, preset slow, yuv420p, `+faststart`, sin audio | 250 KB |
+| `assets/img/hero-camion-poster-v1.webp` | Último fotograma, 1280 × 720, calidad 80 | 39 KB |
+| `assets/img/hero-camion-poster-v1-800.webp` | Ídem 800 × 450, para pantallas de hasta 700 px | 23 KB |
+
+El original (`images-src/camion con logo.mp4`, 1280 × 720, 3 s) no se sube a git. Tiene movimiento de punta a punta,
+así que no se recorta. El póster no se agranda a más de 1280 px porque el original no tiene más definición.
+
+**Regenerar** (necesita ffmpeg: viene con la devDependency `ffmpeg-static`, o el del sistema si está en el PATH):
+
+```bash
+npm run video
+```
+
+`scripts/build-video.mjs` busca `images-src/camion con logo.*` y corre lo equivalente a:
+
+```bash
+ffmpeg -i "camion con logo.mp4" -an -vf "scale=1280:-2:flags=lanczos,fps=30" -c:v libx264 -preset slow -crf 27 -pix_fmt yuv420p -movflags +faststart hero-camion-v1.mp4
+ffmpeg -i "camion con logo.mp4" -an -vf "scale=1280:-2:flags=lanczos,fps=30" -c:v libvpx-vp9 -b:v 0 -crf 36 -row-mt 1 -deadline good -cpu-used 2 hero-camion-v1.webm
+ffmpeg -sseof -0.5 -i "camion con logo.mp4" -vf "scale=1280:-2:flags=lanczos" -update 1 ultimo.png   # póster: último fotograma
+```
+
+y pasa el último fotograma a WebP (1280 y 800 px, calidad 80) con sharp. Imprime el peso y la duración de cada archivo.
+Objetivo: menos de 4 MB por video; Cloudflare Pages no acepta archivos de más de 25 MiB.
+
+**Si el video cambia, subí la versión** (`VERSION = "v2"` en `scripts/build-video.mjs`) y actualizá las rutas en
+`index.html` (`data-src-webm`, `data-src-mp4` y el `srcset` del póster). No pises los archivos `-v1`: el póster `.webp` se
+sirve como `immutable` por un año y el resto de `/assets/*` con una hora de caché. Borrá los `-v1` cuando ya nada los use.
+
+Cuándo se carga (lo decide `initHeroVideo` en `main.js`): nunca con `prefers-reduced-motion`, con ahorro de datos o con
+conexión 2g; en pantallas de hasta 700 px, solo con 4g (si el navegador no informa la conexión, se carga). En los demás
+casos queda solo el póster. Se pausa con la pestaña oculta o la portada fuera de pantalla.
+
 ## Qué genera el script
 
 - Nombres normalizados: minúsculas, sin tildes ni espacios (`huevos blanco.jpg` → `huevos-blanco-*.webp`).

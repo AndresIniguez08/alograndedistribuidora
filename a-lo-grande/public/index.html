@@ -3,7 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>A lo grande Mayorista | Distribuidora de huevos en Pigüé y Neuquén</title>
+    <title>
+      A lo grande Mayorista | Distribuidora de huevos en Pigüé y Neuquén
+    </title>
     <meta
       name="description"
       content="Distribuidora de huevos para mayoristas, con sede en Pigüé y depósito en Neuquén. Repartimos en Buenos Aires, Neuquén, Río Negro y Chubut."
@@ -58,8 +60,8 @@
       type="font/woff2"
       crossorigin
     />
-    <link rel="stylesheet" href="css/styles.css" />
-    <script src="js/main.js" defer></script>
+    <link rel="stylesheet" href="css/styles.css?v=6fbe693d" />
+    <script src="js/main.js?v=ff32b5e3" defer></script>
 
     <!-- Datos estructurados para buscadores -->
     <script type="application/ld+json">
@@ -234,8 +236,52 @@
     <main id="main">
       <!-- ======================= INICIO ======================= -->
       <section class="hero" id="inicio">
-        <span class="hero__egg" aria-hidden="true"></span>
-        <span class="hero__egg hero__egg--alt" aria-hidden="true"></span>
+        <!-- Fondo: póster (último fotograma) + video en loop + overlay para el contraste.
+             Las fuentes del video las agrega main.js solo si la conexión y las preferencias lo permiten.
+             sizes: en pantallas de hasta 700 px se pide a propósito el póster de 800 (queda bajo un overlay
+             del 85 %, no hace falta más definición y ahorra datos móviles). -->
+        <div class="hero__media" aria-hidden="true" data-hero-media>
+          <img
+            class="hero__poster"
+            src="assets/img/hero-camion-poster-v1.webp"
+            srcset="
+              assets/img/hero-camion-poster-v1-800.webp  800w,
+              assets/img/hero-camion-poster-v1.webp     1280w
+            "
+            sizes="(max-width: 700px) 260px, 100vw"
+            width="1280"
+            height="720"
+            alt=""
+            fetchpriority="high"
+            decoding="async"
+          />
+          <video
+            class="hero__video"
+            muted
+            playsinline
+            preload="metadata"
+            disablepictureinpicture
+            tabindex="-1"
+            data-hero-video
+            data-src-webm="assets/video/hero-camion-v1.webm"
+            data-src-mp4="assets/video/hero-camion-v1.mp4"
+            data-playback-rate="0.5"
+          ></video>
+          <div class="hero__overlay"></div>
+        </div>
+        <!-- Pausa del video de fondo (se repite en loop). Visible solo si el video arranca. -->
+        <button
+          class="hero__video-toggle"
+          type="button"
+          aria-pressed="false"
+          aria-label="Pausar video de fondo"
+          data-hero-video-toggle
+          hidden
+        >
+          <svg class="icon icon--solid" aria-hidden="true">
+            <use href="#i-pause" />
+          </svg>
+        </button>
 
         <div class="container hero__grid">
           <div>
@@ -1215,9 +1261,7 @@
                 data-province-toggle="chubut"
               >
                 <span class="province-card__name">Chubut</span>
-                <span class="province-card__places">
-                  Comodoro Rivadavia.
-                </span>
+                <span class="province-card__places"> Comodoro Rivadavia. </span>
               </button>
             </li>
           </ul>
@@ -1442,16 +1486,38 @@
                   <ul class="chapters__provinces">
                     <li class="province-chips">
                       <span class="province-chips__name"
-                        >Buenos Aires<span class="visually-hidden">:</span></span
+                        >Buenos Aires<span class="visually-hidden"
+                          >:</span
+                        ></span
                       >
                       <p class="province-chips__list">
-                        <span class="place-chip">Mercedes<span class="visually-hidden">,</span></span>
-                        <span class="place-chip">Pigüé<span class="visually-hidden">,</span></span>
-                        <span class="place-chip">Bahía Blanca<span class="visually-hidden">,</span></span>
-                        <span class="place-chip">Punta Alta<span class="visually-hidden">,</span></span>
-                        <span class="place-chip">Bolívar<span class="visually-hidden">,</span></span>
-                        <span class="place-chip">Trenque Lauquen<span class="visually-hidden"> y</span></span>
-                        <span class="place-chip">Carhué<span class="visually-hidden">.</span></span>
+                        <span class="place-chip"
+                          >Mercedes<span class="visually-hidden">,</span></span
+                        >
+                        <span class="place-chip"
+                          >Pigüé<span class="visually-hidden">,</span></span
+                        >
+                        <span class="place-chip"
+                          >Bahía Blanca<span class="visually-hidden"
+                            >,</span
+                          ></span
+                        >
+                        <span class="place-chip"
+                          >Punta Alta<span class="visually-hidden"
+                            >,</span
+                          ></span
+                        >
+                        <span class="place-chip"
+                          >Bolívar<span class="visually-hidden">,</span></span
+                        >
+                        <span class="place-chip"
+                          >Trenque Lauquen<span class="visually-hidden">
+                            y</span
+                          ></span
+                        >
+                        <span class="place-chip"
+                          >Carhué<span class="visually-hidden">.</span></span
+                        >
                       </p>
                     </li>
                     <li class="province-chips">
@@ -1459,9 +1525,19 @@
                         >Neuquén<span class="visually-hidden">:</span></span
                       >
                       <p class="province-chips__list">
-                        <span class="place-chip">Neuquén<span class="visually-hidden">,</span></span>
-                        <span class="place-chip">San Martín de los Andes<span class="visually-hidden"> y</span></span>
-                        <span class="place-chip">Villa La Angostura<span class="visually-hidden">.</span></span>
+                        <span class="place-chip"
+                          >Neuquén<span class="visually-hidden">,</span></span
+                        >
+                        <span class="place-chip"
+                          >San Martín de los Andes<span class="visually-hidden">
+                            y</span
+                          ></span
+                        >
+                        <span class="place-chip"
+                          >Villa La Angostura<span class="visually-hidden"
+                            >.</span
+                          ></span
+                        >
                       </p>
                     </li>
                     <li class="province-chips">
@@ -1469,13 +1545,35 @@
                         >Río Negro<span class="visually-hidden">:</span></span
                       >
                       <p class="province-chips__list">
-                        <span class="place-chip">Cipolletti<span class="visually-hidden">,</span></span>
-                        <span class="place-chip">Allen<span class="visually-hidden">,</span></span>
-                        <span class="place-chip">Villa Regina<span class="visually-hidden">,</span></span>
-                        <span class="place-chip">Choele Choel<span class="visually-hidden">,</span></span>
-                        <span class="place-chip">Río Colorado<span class="visually-hidden">,</span></span>
-                        <span class="place-chip">Viedma<span class="visually-hidden"> y</span></span>
-                        <span class="place-chip">Bariloche<span class="visually-hidden">.</span></span>
+                        <span class="place-chip"
+                          >Cipolletti<span class="visually-hidden"
+                            >,</span
+                          ></span
+                        >
+                        <span class="place-chip"
+                          >Allen<span class="visually-hidden">,</span></span
+                        >
+                        <span class="place-chip"
+                          >Villa Regina<span class="visually-hidden"
+                            >,</span
+                          ></span
+                        >
+                        <span class="place-chip"
+                          >Choele Choel<span class="visually-hidden"
+                            >,</span
+                          ></span
+                        >
+                        <span class="place-chip"
+                          >Río Colorado<span class="visually-hidden"
+                            >,</span
+                          ></span
+                        >
+                        <span class="place-chip"
+                          >Viedma<span class="visually-hidden"> y</span></span
+                        >
+                        <span class="place-chip"
+                          >Bariloche<span class="visually-hidden">.</span></span
+                        >
                       </p>
                     </li>
                     <li class="province-chips">
@@ -1483,7 +1581,11 @@
                         >Chubut<span class="visually-hidden">:</span></span
                       >
                       <p class="province-chips__list">
-                        <span class="place-chip">Comodoro Rivadavia<span class="visually-hidden">.</span></span>
+                        <span class="place-chip"
+                          >Comodoro Rivadavia<span class="visually-hidden"
+                            >.</span
+                          ></span
+                        >
                       </p>
                     </li>
                   </ul>
@@ -1693,15 +1795,15 @@
     <footer class="site-footer">
       <div class="container">
         <div class="site-footer__top">
-          <a class="brand brand--footer" href="#inicio"
+          <a class="brand" href="#inicio"
             ><img
-              class="brand__logo"
+              class="brand__logo brand__logo--footer"
               src="assets/img/logo/logo-horizontal-texto-blanco-400.webp"
               srcset="
                 assets/img/logo/logo-horizontal-texto-blanco-400.webp 400w,
                 assets/img/logo/logo-horizontal-texto-blanco-800.webp 800w
               "
-              sizes="89px"
+              sizes="(max-width: 560px) 148px, 177px"
               width="891"
               height="483"
               alt="A lo grande Mayorista"

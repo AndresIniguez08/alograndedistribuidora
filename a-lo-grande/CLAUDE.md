@@ -37,7 +37,8 @@ Objetivo: captar consultas con un formulario simple y aparecer en Google.
   y para los elementos tipográficos del componente de capítulos de "Nosotros" (nombres de pestaña, número de fondo, "2020" y "seis años").
   No usarla en otro lado sin motivo concreto.
 - Mantener el orden de secciones y la estructura del wireframe aprobado: inicio con formulario, productos, recetas, zonas, nosotros y contacto.
-- Rendimiento: sin imágenes pesadas, sin librerías de animación. Las animaciones son CSS y respetan `prefers-reduced-motion`.
+- Rendimiento: sin imágenes pesadas, sin librerías de animación.
+  Única excepción: el video corto de la portada (`npm run video`, ~215 KB, carga condicional; ver `docs/IMAGENES.md`). Las animaciones son CSS y respetan `prefers-reduced-motion`.
 - No agregar chatbots.
 - El carrusel de "Recetas" (`.carousel`) y su modal (`<dialog>` nativo) son la única excepción admitida a "sin carruseles ni ventanas emergentes":
   se armaron sin librerías, con scroll-snap nativo y `<dialog>`, y están pensados para reusarse si hace falta otro listado similar.
@@ -47,6 +48,7 @@ Objetivo: captar consultas con un formulario simple y aparecer en Google.
 `npm install` y `npm run dev` (sitio y función en http://localhost:8788). El formulario necesita `.dev.vars` (ver `.dev.vars.example`).
 
 ## Checklist antes de dar un cambio por terminado
+- Si cambió `styles.css` o `main.js`: `npm run assets:version` (actualiza los `?v=` en `index.html`; ver `docs/PUBLICACION.md`).
 - Sin errores en la consola del navegador.
 - Menú móvil, validación del formulario, envío exitoso y envío con falla funcionando.
 - 390px y 1440px de ancho sin scroll horizontal.

@@ -11,7 +11,8 @@
    7. Recetas (carrusel y modal)
    8. Nosotros: capítulos (tabs)
    9. Zonas de reparto (mapa animado y tarjetas de provincia)
-   10. Inicio
+   10. Portada (video de fondo)
+   11. Inicio
    ========================================================================== */
 
 "use strict";
@@ -1641,7 +1642,126 @@ function initCoverageMap() {
   observer.observe(map);
 }
 
-/* 10. INICIO -------------------------------------------------------------- */
+/* 10. PORTADA (video de fondo) -------------------------------------------- */
+/* El póster (último fotograma, con el logo del semi) siempre está. El video solo se
+   carga si nada lo desaconseja: movimiento reducido, ahorro de datos, conexión 2g o,
+   en pantallas chicas, una conexión que no sea 4g. Se repite en loop; como es
+   movimiento automático de más de 5 s, tiene botón de pausa (WCAG 2.2.2). */
+
+const HERO_VIDEO_SMALL = "(max-width: 700px)";
+
+function heroVideoAllowed() {
+  if (prefersReducedMotion()) return false;
+  const connection = navigator.connection;
+  if (!connection) return true; // Safari y Firefox no informan la conexión
+  if (connection.saveData) return false;
+  const type = connection.effectiveType || "";
+  if (type === "2g" || type === "slow-2g") return false;
+  if (window.matchMedia(HERO_VIDEO_SMALL).matches && type && type !== "4g")
+    return false;
+  return true;
+}
+
+function initHeroVideo() {
+  const media = $("[data-hero-media]");
+  const video = $("[data-hero-video]", media || document);
+  const toggle = $("[data-hero-video-toggle]");
+  if (!media || !video || !heroVideoAllowed()) return;
+
+  let started = false;
+  let failed = false;
+  let inView = true;
+  let pausedByUser = false;
+
+  // Botón de pausa: aria-pressed="true" = pausado por la persona
+  const updateToggle = () => {
+    if (!toggle) return;
+    toggle.setAttribute("aria-pressed", String(pausedByUser));
+    toggle.setAttribute(
+      "aria-label",
+      pausedByUser ? "Reproducir video de fondo" : "Pausar video de fondo",
+    );
+    $("use", toggle)?.setAttribute("href", pausedByUser ? "#i-play" : "#i-pause");
+  };
+
+  // Si algo falla, el video se oculta y queda el póster, sin mensajes en consola
+  const fail = () => {
+    if (failed) return;
+    failed = true;
+    media.classList.remove("is-playing");
+    video.pause();
+    if (toggle) toggle.hidden = true;
+  };
+
+  const tryPlay = () => {
+    if (failed || pausedByUser || document.hidden || !inView) return;
+    const attempt = video.play();
+    if (attempt) attempt.catch(() => {}); // autoplay bloqueado: queda el póster
+  };
+
+  video.addEventListener("playing", () => {
+    started = true;
+    media.classList.add("is-playing");
+    if (toggle) toggle.hidden = false; // el botón aparece solo si hay video
+  });
+  video.addEventListener("error", fail);
+  // "stalled" antes de empezar: no insistir y dejar el póster
+  video.addEventListener("stalled", () => {
+    if (!started) fail();
+  });
+
+  // Fuentes: primero WebM (más liviano), después MP4. El error de la última fuente es el definitivo.
+  const sources = [
+    ["webm", video.dataset.srcWebm],
+    ["mp4", video.dataset.srcMp4],
+  ].filter(([, src]) => src);
+  sources.forEach(([type, src], index) => {
+    const source = document.createElement("source");
+    source.src = src;
+    source.type = `video/${type}`;
+    if (index === sources.length - 1) source.addEventListener("error", fail);
+    video.append(source);
+  });
+  video.muted = true; // necesario para la reproducción automática en móviles
+  video.loop = true;
+  // Un poco más lento que el original (data-playback-rate): cada vuelta dura más y el corte del loop se nota menos
+  const rate = parseFloat(video.dataset.playbackRate) || 1;
+  const applyRate = () => {
+    video.defaultPlaybackRate = rate;
+    video.playbackRate = rate;
+  };
+  video.addEventListener("loadedmetadata", applyRate); // load() la vuelve a 1 en algunos navegadores
+  applyRate();
+  video.load();
+  tryPlay();
+
+  toggle?.addEventListener("click", () => {
+    pausedByUser = !pausedByUser;
+    updateToggle();
+    if (pausedByUser) video.pause();
+    else tryPlay();
+  });
+  updateToggle();
+
+  // Pestaña oculta o portada fuera de pantalla: pausa; al volver, sigue
+  // (salvo que la persona la haya pausado con el botón)
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) video.pause();
+    else tryPlay();
+  });
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting;
+        if (inView) tryPlay();
+        else video.pause();
+      },
+      { threshold: 0.1 },
+    ).observe(media);
+  }
+}
+
+/* 11. INICIO -------------------------------------------------------------- */
 
 document.addEventListener("DOMContentLoaded", () => {
   const openedAt = Date.now();
@@ -1660,4 +1780,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initChapters();
   initProvinceCards();
   initCoverageMap();
+  initHeroVideo();
 });

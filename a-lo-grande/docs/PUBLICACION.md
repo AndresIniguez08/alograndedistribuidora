@@ -92,7 +92,9 @@ Si algo sale mal, en **Deployments** se puede volver a una versión anterior.
 | `/assets/img/*.webp` | `immutable`, 1 año | Los genera `npm run images` con hash en el nombre (`budin-pan-800.1582c871.webp`). |
 | `/assets/img/mapa-zonas.*` | `immutable`, 1 año | Lo genera `scripts/generar-mapa.py` con hash en el nombre (`mapa-zonas.68244c89.svg`). |
 | Resto de `/assets/*` | `max-age=3600, must-revalidate` | Nombre fijo (`og-image-1200x630.png`, logo PNG, íconos del manifest, SVG hechos a mano): a lo sumo una hora desactualizado. El logo en `.webp` cae en la regla immutable de arriba: si cambia, nombre nuevo (ver `docs/IMAGENES.md`, "Logo"). |
-| HTML, `/css/`, `/js/` | default de Cloudflare (revalida siempre) | |
+| `/assets/video/*` | `max-age=3600, must-revalidate` (regla de `/assets/*`) | Nombre con versión (`hero-camion-v1.webm`): si el video cambia, `-v2`. Ver `docs/IMAGENES.md`, "Video de la portada". |
+| HTML | `max-age=0, must-revalidate` | Se revalida en cada visita. |
+| `/css/styles.css`, `/js/main.js` | `max-age=14400` (4 h) en producción | No lo pone `_headers`: lo aplica Cloudflare (ajuste *Browser Cache TTL* de la zona). Por eso van con `?v=<hash>` en la URL; ver abajo. |
 
 Con `immutable` el navegador no vuelve a pedir el archivo durante un año, ni con F5. Por eso **la regla es: si cambia
 el contenido de un archivo immutable, tiene que cambiar su nombre**. Si no, quien ya visitó el sitio sigue viendo el viejo
@@ -106,6 +108,23 @@ mientras el HTML, el CSS y el JS ya son nuevos (así se desalineó el mapa de zo
 - Un `.webp` nuevo que no salga de `npm run images` tiene que llevar hash o versión en el nombre igual.
 
 Commiteá siempre el archivo nuevo **y** el borrado del viejo (`git add -A public/assets`).
+
+### CSS y JS: `?v=<hash>` en la URL
+
+El HTML se revalida en cada visita, pero `styles.css` y `main.js` pueden quedar **4 horas** en la caché del navegador
+(lo fija Cloudflare, no `_headers`). Si el HTML nuevo llega con un CSS viejo, el sitio se rompe: en octubre de 2026 el logo
+nuevo se vio deformado y gigante para quien ya había visitado el sitio, porque el CSS viejo no tenía sus reglas.
+
+Por eso `index.html` pide `css/styles.css?v=<hash>` y `js/main.js?v=<hash>`, con un hash del contenido.
+**Después de cualquier cambio en `styles.css` o `main.js`, y antes de commitear o publicar:**
+
+```bash
+npm run assets:version
+```
+
+Actualiza los `?v=` en `index.html` (no toca nada si los archivos no cambiaron). `npm run deploy` ya lo corre antes de subir.
+Si Cloudflare Pages publica desde Git, configurá además como comando de build `node scripts/version-assets.mjs`
+(Settings → Builds → Build command, con `public` como directorio de salida), así no depende de acordarse.
 
 ### Comprobar en producción qué archivo se sirve
 
