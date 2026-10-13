@@ -13,7 +13,7 @@ public/                  Todo lo que se publica
   js/main.js             Comportamiento y configuración (SITE_CONFIG)
   assets/fonts/          Tipografías autoalojadas
   assets/img/            Fotos (WebP con hash, generadas por npm run images), póster de la portada y mapa de zonas
-  assets/video/          Video de la portada (npm run video, nombre con versión)
+  assets/video/          Videos de fondo de portada y contacto (npm run video -- <nombre>, nombre con versión)
   assets/img/logo/       Logo y mascota (copiados del kit de marca, no pasan por el script)
   assets/img/icons/      Íconos 192 y 512 para site.webmanifest
   favicon.ico, favicon-*.png, apple-touch-icon-180.png, site.webmanifest
@@ -44,7 +44,7 @@ Lo que quede vacío no se muestra en el sitio.
 ## Reemplazar las ilustraciones por fotos
 
 - Productos: en `public/index.html`, cambiar el `src` de cada `<img>` dentro de `.product__media` por la foto real (relación 16:10) y actualizar el `alt`.
-- Portada: video del camión con su póster. Ver `docs/IMAGENES.md`, "Video de la portada" (`npm run video`).
+- Portada y contacto: videos de fondo con su póster. Ver `docs/IMAGENES.md`, "Videos de fondo" (`npm run video -- <nombre>`).
 - Recetas: ver `docs/IMAGENES.md`, sección "Fotos para recetas".
 
 ## Agregar una receta nueva

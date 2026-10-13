@@ -89,29 +89,50 @@
   --image-position-top: top;
   --image-position-bottom: bottom;
 
-  /* Portada: video del camión (assets/video/hero-camion-v1.*) con su póster */
-  --hero-video-position: 50% 55%;
-  --hero-video-fade: 0.8s;
-  --hero-toggle-size: 44px;
-  /* Portada: composición "portada de revista" */
-  --hero-min-height: clamp(560px, 46vw + 220px, 720px);
-  --hero-form-width: 340px;
-  --hero-gap: clamp(3rem, 1rem + 6vw, 7.5rem);
-  --text-hero-sans: clamp(1.75rem, 1.15rem + 2.4vw, 3rem);
-  --text-hero-script: clamp(2.35rem, 1.3rem + 4.4vw, 4.75rem);
-  --text-hero-kicker: clamp(1.05rem, 0.98rem + 0.3vw, 1.25rem);
-  --hero-lead-width: 40ch;
-  --hero-idea-sep: 1.6em; /* ancho del punto medio entre ideas */
-  --hero-kicker-rule: 36px;
-  --hero-rise-duration: 0.55s;
-  --hero-rise-stagger: 90ms;
-  --hero-form-delay: 0.3s;
-  --hero-form-duration: 0.6s;
+  /* Canales RGB de colores de marca (los mismos de arriba), para overlays con opacidad variable */
+  --rgb-navy: 18 24 43;
+  --rgb-cobalt: 38 70 200;
+
+  /* Video de fondo (componente bg-video: portada y contacto) */
+  --bg-video-fade: 0.8s;
+  --video-toggle-size: 44px;
+
+  /* Título partido (Sora + Fraunces itálica) y etiqueta editorial: portada y contacto */
+  --text-split-sans: clamp(1.75rem, 1.15rem + 2.4vw, 3rem);
+  --text-split-script: clamp(2.35rem, 1.3rem + 4.4vw, 4.75rem);
+  --text-split-sans-section: clamp(1.6rem, 1.15rem + 1.8vw, 2.5rem);
+  --text-split-script-section: clamp(2.2rem, 1.3rem + 3.6vw, 4rem);
+  --split-rise-duration: 0.55s;
+  --split-rise-stagger: 90ms;
+  --text-kicker: clamp(1.05rem, 0.98rem + 0.3vw, 1.25rem);
+  --kicker-rule: 36px;
+
+  /* Formularios (panel de papel) */
   --field-line-height: 48px;
+  --field-textarea-height: 120px;
+
+  /* Portada: video del camión (assets/video/hero-camion-v1.*) y composición "portada de revista" */
+  --hero-video-position: 50% 55%;
   --hero-overlay-strong: 0.85;
   --hero-overlay-mid: 0.68;
   --hero-overlay-soft: 0.45;
   --hero-overlay-bottom: 0.55;
+  --hero-min-height: clamp(560px, 46vw + 220px, 720px);
+  --hero-form-width: 340px;
+  --hero-gap: clamp(3rem, 1rem + 6vw, 7.5rem);
+  --hero-lead-width: 40ch;
+  --hero-idea-sep: 1.6em; /* ancho del punto medio entre ideas */
+  --hero-form-delay: 0.3s;
+  --hero-form-duration: 0.6s;
+
+  /* Contacto: video de huevos en el maple (assets/video/contacto-huevos-v1.*) */
+  --contact-video-position: 50% 62%;
+  --contact-overlay-strong: 0.85;
+  --contact-overlay-mid: 0.72;
+  --contact-overlay-soft: 0.55;
+  --contact-form-width: 400px;
+  --contact-form-offset: var(--space-6);
+  --contact-text-width: 45ch;
 
   /* Tipografía */
   --font-head: "Sora", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -322,14 +343,14 @@ svg {
 
 /* Bloques que aparecen una vez al entrar en pantalla (initReveal en main.js).
    Solo se ocultan si hay JS, para no esconder contenido si el script no carga. */
-.has-js [data-reveal]:not(.recipe-card) {
+.has-js [data-reveal]:not(.recipe-card):not(.split-title) {
   opacity: 0;
   transform: translateY(var(--reveal-distance));
   transition:
     opacity var(--reveal-duration) ease,
     transform var(--reveal-duration) var(--ease-out-expo);
 }
-.has-js [data-reveal].is-visible:not(.recipe-card) {
+.has-js [data-reveal].is-visible:not(.recipe-card):not(.split-title) {
   opacity: 1;
   transform: none;
 }
@@ -471,28 +492,28 @@ svg {
   cursor: progress;
 }
 
-/* Formularios (tarjeta blanca) */
+/* Formularios: panel de papel (portada y contacto). Crema, borde fino, radio chico, sin sombra,
+   campos con solo línea inferior. */
 .form-card {
-  padding: 30px;
-  border-radius: var(--radius-lg);
-  background: var(--color-white);
+  padding: clamp(24px, 1.2rem + 1vw, 32px);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-xs);
+  background: var(--color-bone);
   color: var(--color-text);
-  box-shadow: var(--shadow-card);
 }
 .form-card__title {
-  font-weight: 700;
-  font-size: 1.35rem;
-  line-height: 1.2;
+  font: italic 400 1.75rem / 1.1 var(--font-script);
+  letter-spacing: 0;
 }
 .form-card__sub {
-  margin: 6px 0 var(--space-3) 0;
+  margin: var(--space-1) 0 var(--space-4);
   color: var(--color-muted);
-  font-size: 14.5px;
+  font: italic 400 1.02rem / 1.35 var(--font-script);
 }
 .form-card__note {
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
   color: var(--color-muted);
-  font-size: 12.5px;
+  font-size: var(--text-xs);
   text-align: center;
 }
 .form-card__status {
@@ -528,51 +549,86 @@ svg {
 .form-card__done p {
   color: var(--color-muted);
 }
+/* Sobre el crema el anillo ámbar del sitio no llega a 3:1: en el panel, el foco es cobalto */
+.form-card :focus-visible {
+  outline-color: var(--color-cobalt);
+}
 
-/* Variante "papel" (formulario de la portada): crema, borde fino, radio chico, sin sombra,
-   campos con solo línea inferior. El formulario de Contacto conserva la tarjeta blanca. */
-.form-card--paper {
-  padding: clamp(24px, 1.2rem + 1vw, 32px);
-  border: 1px solid var(--color-line);
+/* Botón de envío: sin flecha; subrayado animado del texto al pasar o enfocar */
+.form-card__submit {
+  min-height: var(--field-line-height);
+  margin-top: var(--space-2);
   border-radius: var(--radius-xs);
-  background: var(--color-bone);
-  box-shadow: none;
 }
-.form-card--paper .form-card__title {
-  font: italic 400 1.75rem / 1.1 var(--font-script);
-  letter-spacing: 0;
+.btn__label {
+  position: relative;
 }
-.form-card--paper .form-card__sub {
-  margin: var(--space-1) 0 var(--space-4);
-  font: italic 400 1.02rem / 1.35 var(--font-script);
+.form-card__submit .btn__label::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -4px;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--ease);
 }
-.form-card--paper .field {
+.form-card__submit:hover .btn__label::after,
+.form-card__submit:focus-visible .btn__label::after {
+  transform: scaleX(1);
+}
+.form-card__submit[disabled] .btn__label::after {
+  transform: scaleX(0);
+}
+
+/* Campos: etiqueta chica y liviana, solo línea inferior, línea de foco animada */
+.field {
   margin-bottom: var(--space-3);
 }
-.form-card--paper .field__label {
-  margin-bottom: 0;
+.field__label {
+  display: block;
   color: var(--color-muted);
   font: 400 var(--text-xs) / 1.3 var(--font-body);
   letter-spacing: 0.01em;
 }
-.form-card--paper .field__control {
+.field__control {
+  width: 100%;
   min-height: var(--field-line-height);
   padding: 10px 0 8px;
   border: 0;
   border-bottom: 1px solid var(--color-muted);
   border-radius: 0;
   background: transparent;
-  font-size: var(--text-base);
+  color: var(--color-text);
+  font: 400 var(--text-base) / 1.4 var(--font-body);
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color var(--ease);
 }
-.form-card--paper .field__control::placeholder {
+.field__control::placeholder {
   color: var(--color-muted);
 }
-.form-card--paper .field__control:focus {
-  border-bottom-color: var(--color-muted);
-  box-shadow: none;
+.field__control:focus {
+  outline: none;
 }
-.form-card--paper .field__control[aria-invalid="true"] {
+.field__control[aria-invalid="true"] {
   border-bottom-color: var(--color-error);
+}
+/* Select: flecha propia (CSS) a la derecha; el control sigue siendo el select nativo */
+.field__control--select {
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2312182B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  cursor: pointer;
+}
+textarea.field__control {
+  min-height: var(--field-textarea-height);
+  padding-top: 12px;
+  line-height: 1.5;
+  resize: vertical;
 }
 /* Línea de foco: crece desde la izquierda sobre el borde inferior (cobalto: 6:1 sobre el crema) */
 .field__underline {
@@ -590,90 +646,141 @@ svg {
 .field__control[aria-invalid="true"] + .field__underline {
   background: var(--color-error);
 }
-.form-card--paper .btn {
-  min-height: var(--field-line-height);
-  margin-top: var(--space-2);
-  border-radius: var(--radius-xs);
-}
-/* Botón: sin flecha; subrayado animado del texto al pasar o enfocar */
-.btn__label {
-  position: relative;
-}
-.form-card--paper .btn__label::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: -4px;
-  left: 0;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform var(--ease);
-}
-.form-card--paper .btn:hover .btn__label::after,
-.form-card--paper .btn:focus-visible .btn__label::after {
-  transform: scaleX(1);
-}
-.form-card--paper .btn[disabled] .btn__label::after {
-  transform: scaleX(0);
-}
-/* Sobre el crema el anillo ámbar del sitio no llega a 3:1: en el panel, el foco es cobalto */
-.form-card--paper :focus-visible {
-  outline-color: var(--color-cobalt);
-}
-.form-card--paper .form-card__note {
-  margin-top: var(--space-3);
-  font-size: var(--text-xs);
-}
-
-.field {
-  margin-bottom: 14px;
-}
-.field__label {
-  display: block;
-  margin-bottom: 6px;
-  font: 600 13.5px / 1.3 var(--font-body);
-}
-.field__control {
-  width: 100%;
-  padding: 13px 14px;
-  border: 1.5px solid var(--color-input-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-white);
-  color: var(--color-text);
-  font: 400 15.5px / 1.4 var(--font-body);
-  appearance: none;
-  -webkit-appearance: none;
-  transition:
-    border-color var(--ease),
-    box-shadow var(--ease);
-}
-.field__control::placeholder {
-  color: var(--color-placeholder);
-}
-.field__control:focus {
-  outline: none;
-  border-color: var(--color-cobalt);
-  box-shadow: 0 0 0 4px rgb(38 70 200 / 0.16);
-}
-.field__control[aria-invalid="true"] {
-  border-color: var(--color-error);
-}
-.field__control--select {
-  padding-right: 40px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2312182B' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-}
-textarea.field__control {
-  min-height: 112px;
-  resize: vertical;
-}
 .field__error {
   margin-top: 6px;
   color: var(--color-error);
   font-size: 13px;
+}
+
+/* Etiqueta editorial (portada y contacto): guion ámbar + Fraunces itálica, sin mayúsculas */
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-on-dark);
+  font: italic 400 var(--text-kicker) / 1.3 var(--font-script);
+}
+.kicker::before {
+  content: "";
+  flex: none;
+  width: var(--kicker-rule);
+  height: 1px;
+  background: var(--color-amber);
+}
+
+/* Título partido (portada y contacto): Sora 500 + Fraunces itálica más grande.
+   Cada tramo sube desde una máscara. En la portada arranca al cargar; con data-reveal
+   (contacto) espera a que el título entre en pantalla. */
+.split-title {
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: normal;
+}
+.split-title__line {
+  display: block;
+  overflow: hidden;
+  /* aire para los descendentes (g, p) dentro de la máscara */
+  padding-bottom: 0.08em;
+}
+.split-title__text {
+  display: block;
+  font: 500 var(--text-split-sans) / 1.15 var(--font-head);
+  letter-spacing: -0.01em;
+  animation: split-rise var(--split-rise-duration) var(--ease-out-expo) both;
+}
+.split-title__line--script .split-title__text {
+  font: italic 400 var(--text-split-script) / 1.02 var(--font-script);
+  letter-spacing: 0;
+  animation-delay: var(--split-rise-stagger);
+}
+.split-title--section {
+  --text-split-sans: var(--text-split-sans-section);
+  --text-split-script: var(--text-split-script-section);
+}
+.has-js .split-title[data-reveal]:not(.is-visible) .split-title__text {
+  animation-play-state: paused;
+}
+@keyframes split-rise {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* Video de fondo (portada y contacto): póster debajo, video encima (entra con fade al empezar) y
+   overlay para el texto. Todo es absoluto dentro de la sección: no cambia su alto ni produce saltos.
+   Cada sección define --bg-video-tint (canales RGB), las opacidades y el encuadre. */
+.bg-video {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.bg-video__poster,
+.bg-video__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--bg-video-position);
+}
+.bg-video__video {
+  opacity: 0;
+  transition: opacity var(--bg-video-fade) ease;
+}
+.bg-video.is-playing .bg-video__video {
+  opacity: 1;
+}
+/* Más opaco a la izquierda (texto), más suave a la derecha y refuerzo abajo */
+.bg-video__overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      0deg,
+      rgb(var(--bg-video-tint) / var(--bg-video-bottom)) 0%,
+      transparent 40%
+    ),
+    linear-gradient(
+      90deg,
+      rgb(var(--bg-video-tint) / var(--bg-video-strong)) 0%,
+      rgb(var(--bg-video-tint) / var(--bg-video-strong)) 38%,
+      rgb(var(--bg-video-tint) / var(--bg-video-mid)) 60%,
+      rgb(var(--bg-video-tint) / var(--bg-video-soft)) 100%
+    );
+}
+/* Pausa del video: discreto, abajo a la derecha de la sección, por encima del overlay */
+.video-toggle {
+  position: absolute;
+  right: var(--gutter);
+  bottom: var(--space-4);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--video-toggle-size);
+  height: var(--video-toggle-size);
+  padding: 0;
+  border: 1px solid var(--color-card-dark-border);
+  border-radius: 50%;
+  background: rgb(var(--rgb-navy) / 0.6);
+  color: var(--color-white);
+  cursor: pointer;
+  transition:
+    background var(--ease),
+    border-color var(--ease);
+}
+.video-toggle[hidden] {
+  display: none;
+}
+.video-toggle:hover {
+  border-color: var(--color-amber);
+  background: var(--color-navy);
+}
+.video-toggle .icon {
+  width: 18px;
+  height: 18px;
 }
 
 /* 6. SECCIONES ------------------------------------------------------------ */
@@ -774,80 +881,15 @@ textarea.field__control {
   overflow: hidden;
   background: var(--color-navy);
   color: var(--color-white);
+  /* Video de fondo: navy de marca */
+  --bg-video-tint: var(--rgb-navy);
+  --bg-video-position: var(--hero-video-position);
+  --bg-video-strong: var(--hero-overlay-strong);
+  --bg-video-mid: var(--hero-overlay-mid);
+  --bg-video-soft: var(--hero-overlay-soft);
+  --bg-video-bottom: var(--hero-overlay-bottom);
 }
 
-/* Fondo: póster debajo, video encima (entra con fade al empezar) y overlay para el texto.
-   Todo es absoluto dentro de la portada, así que no cambia su alto ni produce saltos. */
-.hero__media {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
-.hero__poster,
-.hero__video {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: var(--hero-video-position);
-}
-.hero__video {
-  opacity: 0;
-  transition: opacity var(--hero-video-fade) ease;
-}
-.hero__media.is-playing .hero__video {
-  opacity: 1;
-}
-/* Pausa del video: discreto, abajo a la derecha, por encima del overlay */
-.hero__video-toggle {
-  position: absolute;
-  right: var(--gutter);
-  bottom: var(--space-4);
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  width: var(--hero-toggle-size);
-  height: var(--hero-toggle-size);
-  padding: 0;
-  border: 1px solid var(--color-card-dark-border);
-  border-radius: 50%;
-  background: rgb(18 24 43 / 0.6);
-  color: var(--color-white);
-  cursor: pointer;
-  transition:
-    background var(--ease),
-    border-color var(--ease);
-}
-.hero__video-toggle[hidden] {
-  display: none;
-}
-.hero__video-toggle:hover {
-  border-color: var(--color-amber);
-  background: var(--color-navy);
-}
-.hero__video-toggle .icon {
-  width: 18px;
-  height: 18px;
-}
-/* Navy de marca: más opaco a la izquierda (título), más suave a la derecha y refuerzo abajo */
-.hero__overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      0deg,
-      rgb(18 24 43 / var(--hero-overlay-bottom)) 0%,
-      transparent 40%
-    ),
-    linear-gradient(
-      90deg,
-      rgb(18 24 43 / var(--hero-overlay-strong)) 0%,
-      rgb(18 24 43 / var(--hero-overlay-strong)) 38%,
-      rgb(18 24 43 / var(--hero-overlay-mid)) 60%,
-      rgb(18 24 43 / var(--hero-overlay-soft)) 100%
-    );
-}
 /* Contenido (dirección "portada de revista"): la etiqueta queda arriba a la izquierda, el título y lo
    demás bajan al pie, y el formulario (más angosto) flota centrado a la derecha. */
 .hero__grid {
@@ -864,54 +906,6 @@ textarea.field__control {
   flex-direction: column;
   justify-content: space-between;
   gap: var(--space-5);
-}
-
-/* Etiqueta: guion editorial ámbar + Fraunces itálica, sin mayúsculas */
-.hero__kicker {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--color-on-dark);
-  font: italic 400 var(--text-hero-kicker) / 1.3 var(--font-script);
-}
-.hero__kicker::before {
-  content: "";
-  flex: none;
-  width: var(--hero-kicker-rule);
-  height: 1px;
-  background: var(--color-amber);
-}
-
-/* Título: Sora 500 + Fraunces itálica más grande. Cada tramo sube desde una máscara. */
-.hero__title {
-  margin: 0;
-  font-weight: 500;
-  letter-spacing: normal;
-}
-.hero__title-line {
-  display: block;
-  overflow: hidden;
-  /* aire para los descendentes (g, p) dentro de la máscara */
-  padding-bottom: 0.08em;
-}
-.hero__title-text {
-  display: block;
-  font: 500 var(--text-hero-sans) / 1.15 var(--font-head);
-  letter-spacing: -0.01em;
-  animation: hero-rise var(--hero-rise-duration) var(--ease-out-expo) both;
-}
-.hero__title-line--script .hero__title-text {
-  font: italic 400 var(--text-hero-script) / 1.02 var(--font-script);
-  letter-spacing: 0;
-  animation-delay: var(--hero-rise-stagger);
-}
-@keyframes hero-rise {
-  from {
-    transform: translateY(105%);
-  }
-  to {
-    transform: none;
-  }
 }
 
 .hero__lead {
@@ -2220,61 +2214,76 @@ textarea.field__control {
 }
 
 /* ---- Contacto ---- */
+/* Mismo criterio que la portada: video de fondo (huevos en el maple) con overlay en el azul de la
+   sección, texto con aire a la izquierda y panel de papel más angosto a la derecha, un poco más abajo. */
+.contact {
+  position: relative;
+  overflow: hidden;
+  --bg-video-tint: var(--rgb-cobalt);
+  --bg-video-position: var(--contact-video-position);
+  --bg-video-strong: var(--contact-overlay-strong);
+  --bg-video-mid: var(--contact-overlay-mid);
+  --bg-video-soft: var(--contact-overlay-soft);
+  --bg-video-bottom: 0;
+}
 .contact__grid {
+  position: relative;
   display: grid;
-  grid-template-columns: 1fr 1.05fr;
-  gap: var(--grid-gap);
+  grid-template-columns: minmax(0, 1fr) var(--contact-form-width);
+  gap: var(--hero-gap);
   align-items: start;
 }
-.contact__text {
-  max-width: 30em;
-  margin-top: 18px;
-  color: rgb(255 255 255 / 0.88);
+.contact__title {
+  margin-top: var(--space-3);
 }
-.contact .form-card__title {
-  margin: 0;
-  font-size: 1.4rem;
+.contact__text {
+  max-width: var(--contact-text-width);
+  margin-top: var(--space-4);
+  color: rgb(255 255 255 / 0.88);
+  font: 400 var(--text-lead) / 1.55 var(--font-body);
+}
+.contact .form-card {
+  margin-top: var(--contact-form-offset);
 }
 
+/* Datos de contacto (los completa SITE_CONFIG): etiqueta en Fraunces itálica y valor en Inter */
 .contact-list {
   display: grid;
-  gap: 18px;
-  margin-top: 34px;
-}
-.contact-list__item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-4);
+  margin-top: var(--space-5);
 }
 .contact-list__item[hidden] {
   display: none;
 }
-.contact-list__icon {
-  display: grid;
-  place-items: center;
-  width: 50px;
-  height: 50px;
-  flex: none;
-  border: 1.5px solid rgb(255 255 255 / 0.5);
-  border-radius: 12px;
-}
-.contact-list__icon .icon {
-  width: 22px;
-  height: 22px;
-}
 .contact-list__label {
   display: block;
-  color: rgb(255 255 255 / 0.78);
-  font-size: 12.5px;
+  color: var(--color-on-dark);
+  font: italic 400 var(--text-sm) / 1.3 var(--font-script);
 }
 .contact-list__value {
-  font: 600 18px / 1.3 var(--font-head);
+  position: relative;
+  display: inline-block;
+  margin-top: 2px;
+  color: var(--color-white);
+  font: 500 var(--text-lead) / 1.4 var(--font-body);
   text-decoration: none;
   word-break: break-word;
 }
-a.contact-list__value:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+a.contact-list__value::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  left: 0;
+  height: 1px;
+  background: var(--color-amber);
+  transform: scaleX(0.25);
+  transform-origin: left;
+  transition: transform var(--ease);
+}
+a.contact-list__value:hover::after,
+a.contact-list__value:focus-visible::after {
+  transform: scaleX(1);
 }
 
 /* ---- Pie ---- */
@@ -2326,15 +2335,17 @@ a.contact-list__value:hover {
 /* Los breakpoints no admiten variables CSS: 1000px = tablet, 560px = celular. */
 
 @media (max-width: 1000px) {
-  /* Portada apilada: el texto ocupa todo el ancho, así que el overlay es parejo
-     y el recorte del video se corre hacia el logo del semi */
+  /* Secciones apiladas: el texto ocupa todo el ancho, así que el overlay es parejo */
+  .bg-video__overlay {
+    --bg-video-mid: var(--bg-video-strong);
+    --bg-video-soft: var(--bg-video-strong);
+  }
+  /* En la portada, el recorte del video se corre hacia el logo del semi */
   .hero {
-    --hero-overlay-mid: var(--hero-overlay-strong);
-    --hero-overlay-soft: var(--hero-overlay-strong);
-    --hero-video-position: 22% 50%;
+    --bg-video-position: 22% 50%;
   }
   /* El formulario llega casi al borde inferior: el botón baja al margen libre debajo */
-  .hero__video-toggle {
+  .video-toggle {
     bottom: var(--space-1);
   }
   .hero__grid,
@@ -2349,8 +2360,12 @@ a.contact-list__value:hover {
   .hero__copy {
     gap: var(--space-4);
   }
-  .hero .form-card {
+  .hero .form-card,
+  .contact .form-card {
     width: min(100%, 30rem);
+  }
+  .contact .form-card {
+    margin-top: var(--space-2);
   }
 
   .product {
@@ -2490,7 +2505,7 @@ a.contact-list__value:hover {
   html {
     scroll-behavior: auto;
   }
-  .hero__title-text,
+  .split-title__text,
   .hero .form-card {
     animation: none;
   }

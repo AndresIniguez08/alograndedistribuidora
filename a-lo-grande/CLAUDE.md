@@ -35,11 +35,13 @@ Objetivo: captar consultas con un formulario simple y aparecer en Google.
 - Mantener las tipografías Sora e Inter autoalojadas. Única excepción: Fraunces Italic (autoalojada, ~23 KB, token `--font-script`),
   solo para los títulos cursivos de "Recetas", "Zonas de reparto" y "Nosotros" (clase compartida `.section-title--script`)
   y para los elementos tipográficos del componente de capítulos de "Nosotros" (nombres de pestaña, número de fondo, "2020" y "seis años")
-  y de la portada (segundo tramo del título, etiqueta "De Pigüé a tu negocio", título y bajada del formulario). Se precarga en el <head>.
+  y de la portada y contacto (segundo tramo del título partido `.split-title`, etiqueta `.kicker`, título y bajada del formulario
+  `.form-card`, etiqueta de los datos de contacto). Se precarga en el <head>.
   No usarla en otro lado sin motivo concreto.
 - Mantener el orden de secciones y la estructura del wireframe aprobado: inicio con formulario, productos, recetas, zonas, nosotros y contacto.
 - Rendimiento: sin imágenes pesadas, sin librerías de animación.
-  Única excepción: el video corto de la portada (`npm run video`, ~215 KB, carga condicional; ver `docs/IMAGENES.md`). Las animaciones son CSS y respetan `prefers-reduced-motion`.
+  Única excepción: los videos de fondo de portada (~215 KB) y contacto (~520 KB, carga diferida), con carga condicional
+  (`npm run video -- <nombre>`; ver `docs/IMAGENES.md`, "Videos de fondo"). Las animaciones son CSS y respetan `prefers-reduced-motion`.
 - No agregar chatbots.
 - El carrusel de "Recetas" (`.carousel`) y su modal (`<dialog>` nativo) son la única excepción admitida a "sin carruseles ni ventanas emergentes":
   se armaron sin librerías, con scroll-snap nativo y `<dialog>`, y están pensados para reusarse si hace falta otro listado similar.

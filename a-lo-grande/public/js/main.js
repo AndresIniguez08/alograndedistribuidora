@@ -11,7 +11,7 @@
    7. Recetas (carrusel y modal)
    8. Nosotros: capítulos (tabs)
    9. Zonas de reparto (mapa animado y tarjetas de provincia)
-   10. Portada (video de fondo)
+   10. Videos de fondo (portada y contacto)
    11. Inicio
    ========================================================================== */
 
@@ -1642,33 +1642,42 @@ function initCoverageMap() {
   observer.observe(map);
 }
 
-/* 10. PORTADA (video de fondo) -------------------------------------------- */
-/* El póster (último fotograma, con el logo del semi) siempre está. El video solo se
-   carga si nada lo desaconseja: movimiento reducido, ahorro de datos, conexión 2g o,
-   en pantallas chicas, una conexión que no sea 4g. Se repite en loop; como es
-   movimiento automático de más de 5 s, tiene botón de pausa (WCAG 2.2.2). */
+/* 10. VIDEOS DE FONDO (portada y contacto) -------------------------------- */
+/* Un mismo componente para las dos secciones ([data-bg-video]). El póster (último
+   fotograma) siempre está; el video solo se carga si nada lo desaconseja: movimiento
+   reducido, ahorro de datos, conexión 2g o, en pantallas chicas, una conexión que no
+   sea 4g. Opciones por atributo en el contenedor:
+   - data-bg-video-loop: se repite (portada). Sin él, se reproduce una vez y queda en
+     el último fotograma, igual al póster (contacto).
+   - data-bg-video-lazy="300px": no carga nada hasta que la sección se acerca a esa
+     distancia de la pantalla (contacto, que está lejos del inicio).
+   Como es movimiento automático de más de 5 s, cada sección tiene botón de pausa
+   ([data-bg-video-toggle], hermano del contenedor) (WCAG 2.2.2). */
 
-const HERO_VIDEO_SMALL = "(max-width: 700px)";
+const BG_VIDEO_SMALL = "(max-width: 700px)";
 
-function heroVideoAllowed() {
+function backgroundVideoAllowed() {
   if (prefersReducedMotion()) return false;
   const connection = navigator.connection;
   if (!connection) return true; // Safari y Firefox no informan la conexión
   if (connection.saveData) return false;
   const type = connection.effectiveType || "";
   if (type === "2g" || type === "slow-2g") return false;
-  if (window.matchMedia(HERO_VIDEO_SMALL).matches && type && type !== "4g")
+  if (window.matchMedia(BG_VIDEO_SMALL).matches && type && type !== "4g")
     return false;
   return true;
 }
 
-function initHeroVideo() {
-  const media = $("[data-hero-media]");
-  const video = $("[data-hero-video]", media || document);
-  const toggle = $("[data-hero-video-toggle]");
-  if (!media || !video || !heroVideoAllowed()) return;
+function initBackgroundVideo(container) {
+  const video = $("video", container);
+  const toggle = container.parentElement.querySelector("[data-bg-video-toggle]");
+  if (!video || !backgroundVideoAllowed()) return;
+
+  const loop = container.hasAttribute("data-bg-video-loop");
+  const lazyMargin = container.dataset.bgVideoLazy;
 
   let started = false;
+  let ended = false;
   let failed = false;
   let inView = true;
   let pausedByUser = false;
@@ -1688,21 +1697,26 @@ function initHeroVideo() {
   const fail = () => {
     if (failed) return;
     failed = true;
-    media.classList.remove("is-playing");
+    container.classList.remove("is-playing");
     video.pause();
     if (toggle) toggle.hidden = true;
   };
 
   const tryPlay = () => {
-    if (failed || pausedByUser || document.hidden || !inView) return;
+    if (failed || ended || pausedByUser || document.hidden || !inView) return;
     const attempt = video.play();
     if (attempt) attempt.catch(() => {}); // autoplay bloqueado: queda el póster
   };
 
   video.addEventListener("playing", () => {
     started = true;
-    media.classList.add("is-playing");
+    container.classList.add("is-playing");
     if (toggle) toggle.hidden = false; // el botón aparece solo si hay video
+  });
+  video.addEventListener("ended", () => {
+    // Sin loop: queda en el último fotograma (igual al póster). Ya no hay movimiento que pausar.
+    ended = true;
+    if (toggle) toggle.hidden = true;
   });
   video.addEventListener("error", fail);
   // "stalled" antes de empezar: no insistir y dejar el póster
@@ -1710,30 +1724,13 @@ function initHeroVideo() {
     if (!started) fail();
   });
 
-  // Fuentes: primero WebM (más liviano), después MP4. El error de la última fuente es el definitivo.
-  const sources = [
-    ["webm", video.dataset.srcWebm],
-    ["mp4", video.dataset.srcMp4],
-  ].filter(([, src]) => src);
-  sources.forEach(([type, src], index) => {
-    const source = document.createElement("source");
-    source.src = src;
-    source.type = `video/${type}`;
-    if (index === sources.length - 1) source.addEventListener("error", fail);
-    video.append(source);
-  });
-  video.muted = true; // necesario para la reproducción automática en móviles
-  video.loop = true;
-  // Un poco más lento que el original (data-playback-rate): cada vuelta dura más y el corte del loop se nota menos
+  // Velocidad (data-playback-rate en el <video>, por defecto 1)
   const rate = parseFloat(video.dataset.playbackRate) || 1;
   const applyRate = () => {
     video.defaultPlaybackRate = rate;
     video.playbackRate = rate;
   };
   video.addEventListener("loadedmetadata", applyRate); // load() la vuelve a 1 en algunos navegadores
-  applyRate();
-  video.load();
-  tryPlay();
 
   toggle?.addEventListener("click", () => {
     pausedByUser = !pausedByUser;
@@ -1743,22 +1740,62 @@ function initHeroVideo() {
   });
   updateToggle();
 
-  // Pestaña oculta o portada fuera de pantalla: pausa; al volver, sigue
-  // (salvo que la persona la haya pausado con el botón)
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) video.pause();
-    else tryPlay();
-  });
-  if ("IntersectionObserver" in window) {
-    new IntersectionObserver(
-      ([entry]) => {
-        inView = entry.isIntersecting;
-        if (inView) tryPlay();
-        else video.pause();
-      },
-      { threshold: 0.1 },
-    ).observe(media);
+  // Recién acá se agregan las fuentes (primero WebM, más liviano; después MP4) y se reproduce
+  const start = () => {
+    const sources = [
+      ["webm", video.dataset.srcWebm],
+      ["mp4", video.dataset.srcMp4],
+    ].filter(([, src]) => src);
+    sources.forEach(([type, src], index) => {
+      const source = document.createElement("source");
+      source.src = src;
+      source.type = `video/${type}`;
+      // El error de la última fuente es el definitivo
+      if (index === sources.length - 1) source.addEventListener("error", fail);
+      video.append(source);
+    });
+    video.muted = true; // necesario para la reproducción automática en móviles
+    video.loop = loop;
+    applyRate();
+    video.load();
+    tryPlay();
+
+    // Pestaña oculta o sección fuera de pantalla: pausa; al volver, sigue
+    // (salvo que la persona la haya pausado con el botón o que ya haya terminado)
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) video.pause();
+      else tryPlay();
+    });
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(
+        ([entry]) => {
+          inView = entry.isIntersecting;
+          if (inView) tryPlay();
+          else video.pause();
+        },
+        { threshold: 0.1 },
+      ).observe(container);
+    }
+  };
+
+  if (!lazyMargin || !("IntersectionObserver" in window)) {
+    start();
+    return;
   }
+  // Carga diferida: nada se descarga hasta que la sección se acerca a la pantalla
+  const near = new IntersectionObserver(
+    ([entry]) => {
+      if (!entry.isIntersecting) return;
+      near.disconnect();
+      start();
+    },
+    { rootMargin: `${lazyMargin} 0px` },
+  );
+  near.observe(container);
+}
+
+function initBackgroundVideos() {
+  $$("[data-bg-video]").forEach(initBackgroundVideo);
 }
 
 /* 11. INICIO -------------------------------------------------------------- */
@@ -1780,5 +1817,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initChapters();
   initProvinceCards();
   initCoverageMap();
-  initHeroVideo();
+  initBackgroundVideos();
 });

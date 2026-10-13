@@ -68,8 +68,8 @@
       type="font/woff2"
       crossorigin
     />
-    <link rel="stylesheet" href="css/styles.css?v=3cbeb6c9" />
-    <script src="js/main.js?v=ff32b5e3" defer></script>
+    <link rel="stylesheet" href="css/styles.css?v=b92e58f3" />
+    <script src="js/main.js?v=95b6dea1" defer></script>
 
     <!-- Datos estructurados para buscadores -->
     <script type="application/ld+json">
@@ -105,10 +105,6 @@
         <symbol id="i-arrow" viewBox="0 0 24 24">
           <path d="M7 17L17 7M9 7h8v8" />
         </symbol>
-        <symbol id="i-box" viewBox="0 0 24 24">
-          <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z" />
-          <path d="M3 8l9 5 9-5M12 13v8" />
-        </symbol>
         <symbol id="i-truck" viewBox="0 0 24 24">
           <path d="M3 6h11v10H3zM14 9.5h4l3 3.2V16h-7z" />
           <circle cx="7" cy="18" r="2" />
@@ -119,23 +115,10 @@
             d="M21 12a8.5 8.5 0 01-12.3 7.6L3.5 21l1.4-4.9A8.5 8.5 0 1121 12z"
           />
         </symbol>
-        <symbol id="i-phone" viewBox="0 0 24 24">
-          <path
-            d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"
-          />
-        </symbol>
-        <symbol id="i-mail" viewBox="0 0 24 24">
-          <rect x="3" y="5" width="18" height="14" rx="2.5" />
-          <path d="M3.5 7l8.5 6 8.5-6" />
-        </symbol>
         <symbol id="i-instagram" viewBox="0 0 24 24">
           <rect x="3" y="3" width="18" height="18" rx="5" />
           <circle cx="12" cy="12" r="4" />
           <circle cx="17.5" cy="6.5" r=".6" />
-        </symbol>
-        <symbol id="i-clock" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="9" />
-          <path d="M12 7v5l3.2 2" />
         </symbol>
         <symbol id="i-check" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10" />
@@ -146,12 +129,6 @@
         </symbol>
         <symbol id="i-close" viewBox="0 0 24 24">
           <path d="M6 6l12 12M18 6L6 18" />
-        </symbol>
-        <symbol id="i-whatsapp" viewBox="0 0 24 24">
-          <path d="M20 11.5a8 8 0 01-11.8 7L4 20l1.4-4A8 8 0 1120 11.5z" />
-          <path
-            d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 .8a4 4 0 01-2-2l.8-1-1-2z"
-          />
         </symbol>
         <symbol id="i-warehouse" viewBox="0 0 24 24">
           <path d="M3 9.5L12 4l9 5.5V20H3z" />
@@ -248,9 +225,9 @@
              Las fuentes del video las agrega main.js solo si la conexión y las preferencias lo permiten.
              sizes: en pantallas de hasta 700 px se pide a propósito el póster de 800 (queda bajo un overlay
              del 85 %, no hace falta más definición y ahorra datos móviles). -->
-        <div class="hero__media" aria-hidden="true" data-hero-media>
+        <div class="bg-video" aria-hidden="true" data-bg-video data-bg-video-loop>
           <img
-            class="hero__poster"
+            class="bg-video__poster"
             src="assets/img/hero-camion-poster-v1.webp"
             srcset="
               assets/img/hero-camion-poster-v1-800.webp  800w,
@@ -264,26 +241,25 @@
             decoding="async"
           />
           <video
-            class="hero__video"
+            class="bg-video__video"
             muted
             playsinline
             preload="metadata"
             disablepictureinpicture
             tabindex="-1"
-            data-hero-video
             data-src-webm="assets/video/hero-camion-v1.webm"
             data-src-mp4="assets/video/hero-camion-v1.mp4"
             data-playback-rate="0.5"
           ></video>
-          <div class="hero__overlay"></div>
+          <div class="bg-video__overlay"></div>
         </div>
         <!-- Pausa del video de fondo (se repite en loop). Visible solo si el video arranca. -->
         <button
-          class="hero__video-toggle"
+          class="video-toggle"
           type="button"
           aria-pressed="false"
           aria-label="Pausar video de fondo"
-          data-hero-video-toggle
+          data-bg-video-toggle
           hidden
         >
           <svg class="icon icon--solid" aria-hidden="true">
@@ -294,15 +270,15 @@
         <div class="container hero__grid">
           <!-- Composición "portada de revista": la etiqueta queda arriba y el bloque de texto baja al pie -->
           <div class="hero__copy">
-            <p class="hero__kicker">De Pigüé a tu negocio</p>
+            <p class="kicker">De Pigüé a tu negocio</p>
             <div class="hero__body">
               <!-- Cada tramo del título entra desde una máscara (solo CSS) -->
-              <h1 class="hero__title">
-                <span class="hero__title-line"
-                  ><span class="hero__title-text">Huevos para tu negocio,</span></span
+              <h1 class="split-title">
+                <span class="split-title__line"
+                  ><span class="split-title__text">Huevos para tu negocio,</span></span
                 >
-                <span class="hero__title-line hero__title-line--script"
-                  ><span class="hero__title-text"
+                <span class="split-title__line split-title__line--script"
+                  ><span class="split-title__text"
                     >entregados donde los necesitás</span
                   ></span
                 >
@@ -318,7 +294,7 @@
             </div>
           </div>
 
-          <form class="form-card form-card--paper" data-form="hero" novalidate>
+          <form class="form-card" data-form="hero" novalidate>
             <h2 class="form-card__title">Hablemos de tu pedido</h2>
             <p class="form-card__sub">Dejanos tus datos y te contactamos.</p>
 
@@ -375,7 +351,10 @@
                   autocomplete="off"
               /></label>
             </div>
-            <button class="btn btn--primary btn--block" type="submit">
+            <button
+              class="btn btn--primary btn--block form-card__submit"
+              type="submit"
+            >
               <span class="btn__label" data-submit-label
                 >Quiero que me contacten</span
               >
@@ -1612,10 +1591,66 @@
 
       <!-- ======================= CONTACTO ======================= -->
       <section class="section section--brand contact" id="contacto">
+        <!-- Fondo: póster (último fotograma) + video que se reproduce una vez + overlay azul.
+             La sección está lejos del inicio: main.js agrega las fuentes del video recién cuando
+             se acerca a la pantalla (data-bg-video-lazy) y si la conexión y las preferencias lo permiten. -->
+        <div
+          class="bg-video"
+          aria-hidden="true"
+          data-bg-video
+          data-bg-video-lazy="300px"
+        >
+          <img
+            class="bg-video__poster"
+            src="assets/img/contacto-huevos-poster-v1.webp"
+            srcset="
+              assets/img/contacto-huevos-poster-v1-800.webp   800w,
+              assets/img/contacto-huevos-poster-v1.webp      1600w
+            "
+            sizes="(max-width: 700px) 260px, 100vw"
+            width="1600"
+            height="900"
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
+          <video
+            class="bg-video__video"
+            muted
+            playsinline
+            preload="none"
+            disablepictureinpicture
+            tabindex="-1"
+            data-src-webm="assets/video/contacto-huevos-v1.webm"
+            data-src-mp4="assets/video/contacto-huevos-v1.mp4"
+          ></video>
+          <div class="bg-video__overlay"></div>
+        </div>
+        <!-- Pausa del video de fondo (dura 10 s). Visible solo mientras el video corre. -->
+        <button
+          class="video-toggle"
+          type="button"
+          aria-pressed="false"
+          aria-label="Pausar video de fondo"
+          data-bg-video-toggle
+          hidden
+        >
+          <svg class="icon icon--solid" aria-hidden="true">
+            <use href="#i-pause" />
+          </svg>
+        </button>
+
         <div class="container contact__grid">
           <div>
-            <p class="eyebrow">Contacto</p>
-            <h2 class="section-title">Contanos qué necesitás</h2>
+            <p class="kicker">Contacto</p>
+            <h2 class="split-title split-title--section contact__title" data-reveal>
+              <span class="split-title__line"
+                ><span class="split-title__text">Contanos</span></span
+              >
+              <span class="split-title__line split-title__line--script"
+                ><span class="split-title__text">qué necesitás</span></span
+              >
+            </h2>
             <p class="contact__text">
               ¿Tenés un almacén, un restaurante o un negocio gastronómico?
               Dejanos tu consulta y coordinamos una propuesta de abastecimiento.
@@ -1624,20 +1659,12 @@
             <!-- Los datos se completan desde SITE_CONFIG en js/main.js; los vacíos quedan ocultos -->
             <ul class="contact-list">
               <li class="contact-list__item" data-contact="phone" hidden>
-                <span class="contact-list__icon"
-                  ><svg class="icon" aria-hidden="true">
-                    <use href="#i-phone" /></svg
-                ></span>
                 <div>
                   <small class="contact-list__label">Teléfono</small
                   ><a class="contact-list__value" href="#"></a>
                 </div>
               </li>
               <li class="contact-list__item" data-contact="whatsapp" hidden>
-                <span class="contact-list__icon"
-                  ><svg class="icon" aria-hidden="true">
-                    <use href="#i-whatsapp" /></svg
-                ></span>
                 <div>
                   <small class="contact-list__label">WhatsApp</small
                   ><a class="contact-list__value" href="#" rel="noopener"
@@ -1646,30 +1673,18 @@
                 </div>
               </li>
               <li class="contact-list__item" data-contact="email" hidden>
-                <span class="contact-list__icon"
-                  ><svg class="icon" aria-hidden="true">
-                    <use href="#i-mail" /></svg
-                ></span>
                 <div>
                   <small class="contact-list__label">Email</small
                   ><a class="contact-list__value" href="#"></a>
                 </div>
               </li>
               <li class="contact-list__item" data-contact="instagram" hidden>
-                <span class="contact-list__icon"
-                  ><svg class="icon" aria-hidden="true">
-                    <use href="#i-instagram" /></svg
-                ></span>
                 <div>
                   <small class="contact-list__label">Instagram</small
                   ><a class="contact-list__value" href="#" rel="noopener"></a>
                 </div>
               </li>
               <li class="contact-list__item" data-contact="hours" hidden>
-                <span class="contact-list__icon"
-                  ><svg class="icon" aria-hidden="true">
-                    <use href="#i-clock" /></svg
-                ></span>
                 <div>
                   <small class="contact-list__label">Horario</small
                   ><span class="contact-list__value"></span>
@@ -1684,7 +1699,7 @@
             >
           </div>
 
-          <form class="form-card" data-form="contact" novalidate>
+          <form class="form-card" data-form="contact" novalidate data-reveal>
             <h2 class="form-card__title">Tu consulta, en un solo lugar</h2>
             <p class="form-card__sub">
               Completá tus datos para que podamos responderte.
@@ -1703,6 +1718,7 @@
                 placeholder="Tu nombre y apellido"
                 required
               />
+              <span class="field__underline" aria-hidden="true"></span>
               <p class="field__error" id="contact-name-error" hidden></p>
             </div>
             <div class="field">
@@ -1717,6 +1733,7 @@
                 placeholder="Código de área + número"
                 required
               />
+              <span class="field__underline" aria-hidden="true"></span>
               <p class="field__error" id="contact-phone-error" hidden></p>
             </div>
             <div class="field">
@@ -1730,6 +1747,7 @@
                 placeholder="Localidad de tu negocio"
                 required
               />
+              <span class="field__underline" aria-hidden="true"></span>
               <p class="field__error" id="contact-city-error" hidden></p>
             </div>
             <div class="field">
@@ -1749,6 +1767,7 @@
                 <option>Panadería o rotisería</option>
                 <option>Otro</option>
               </select>
+              <span class="field__underline" aria-hidden="true"></span>
               <p class="field__error" id="contact-type-error" hidden></p>
             </div>
             <div class="field">
@@ -1759,6 +1778,7 @@
                 name="message"
                 placeholder="Contanos qué productos y cantidades necesitás…"
               ></textarea>
+              <span class="field__underline" aria-hidden="true"></span>
             </div>
 
             <div class="form-card__trap" aria-hidden="true">
@@ -1770,9 +1790,11 @@
                   autocomplete="off"
               /></label>
             </div>
-            <button class="btn btn--primary btn--block" type="submit">
-              <span data-submit-label>Enviar consulta</span>
-              <svg class="icon" aria-hidden="true"><use href="#i-arrow" /></svg>
+            <button
+              class="btn btn--primary btn--block form-card__submit"
+              type="submit"
+            >
+              <span class="btn__label" data-submit-label>Enviar consulta</span>
             </button>
             <p
               class="form-card__status"
