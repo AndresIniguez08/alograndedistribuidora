@@ -34,7 +34,8 @@ Objetivo: captar consultas con un formulario simple y aparecer en Google.
   Cualquier cambio de color se hace en los tokens y con justificación.
 - Mantener las tipografías Sora e Inter autoalojadas. Única excepción: Fraunces Italic (autoalojada, ~23 KB, token `--font-script`),
   solo para los títulos cursivos de "Recetas", "Zonas de reparto" y "Nosotros" (clase compartida `.section-title--script`)
-  y para los elementos tipográficos del componente de capítulos de "Nosotros" (nombres de pestaña, número de fondo, "2020" y "seis años").
+  y para los elementos tipográficos del componente de capítulos de "Nosotros" (nombres de pestaña, número de fondo, "2020" y "seis años")
+  y de la portada (segundo tramo del título, etiqueta "De Pigüé a tu negocio", título y bajada del formulario). Se precarga en el <head>.
   No usarla en otro lado sin motivo concreto.
 - Mantener el orden de secciones y la estructura del wireframe aprobado: inicio con formulario, productos, recetas, zonas, nosotros y contacto.
 - Rendimiento: sin imágenes pesadas, sin librerías de animación.

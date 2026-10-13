@@ -53,6 +53,14 @@
       type="font/woff2"
       crossorigin
     />
+    <!-- Fraunces itálica: está en el título de la portada, se precarga para evitar saltos al cambiar de fuente -->
+    <link
+      rel="preload"
+      href="assets/fonts/fraunces-italic-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link
       rel="preload"
       href="assets/fonts/inter-400.woff2"
@@ -60,7 +68,7 @@
       type="font/woff2"
       crossorigin
     />
-    <link rel="stylesheet" href="css/styles.css?v=6fbe693d" />
+    <link rel="stylesheet" href="css/styles.css?v=3cbeb6c9" />
     <script src="js/main.js?v=ff32b5e3" defer></script>
 
     <!-- Datos estructurados para buscadores -->
@@ -284,32 +292,33 @@
         </button>
 
         <div class="container hero__grid">
-          <div>
-            <p class="eyebrow">De Pigüé a tu negocio</p>
-            <h1 class="hero__title">
-              Huevos para tu negocio, entregados donde los necesitás
-            </h1>
-            <p class="hero__lead">
-              Abastecé tu negocio con una atención cercana y simple.
-            </p>
-            <ul class="hero__benefits">
-              <li>
-                <svg class="icon" aria-hidden="true"><use href="#i-box" /></svg
-                >Venta mayorista
-              </li>
-              <li>
-                <svg class="icon" aria-hidden="true">
-                  <use href="#i-truck" /></svg
-                >Reparto coordinado
-              </li>
-              <li>
-                <svg class="icon" aria-hidden="true"><use href="#i-chat" /></svg
-                >Atención directa
-              </li>
-            </ul>
+          <!-- Composición "portada de revista": la etiqueta queda arriba y el bloque de texto baja al pie -->
+          <div class="hero__copy">
+            <p class="hero__kicker">De Pigüé a tu negocio</p>
+            <div class="hero__body">
+              <!-- Cada tramo del título entra desde una máscara (solo CSS) -->
+              <h1 class="hero__title">
+                <span class="hero__title-line"
+                  ><span class="hero__title-text">Huevos para tu negocio,</span></span
+                >
+                <span class="hero__title-line hero__title-line--script"
+                  ><span class="hero__title-text"
+                    >entregados donde los necesitás</span
+                  ></span
+                >
+              </h1>
+              <p class="hero__lead">
+                Abastecé tu negocio con una atención cercana y simple.
+              </p>
+              <ul class="hero__ideas">
+                <li class="hero__idea">Venta mayorista</li>
+                <li class="hero__idea">Reparto coordinado</li>
+                <li class="hero__idea">Atención directa</li>
+              </ul>
+            </div>
           </div>
 
-          <form class="form-card" data-form="hero" novalidate>
+          <form class="form-card form-card--paper" data-form="hero" novalidate>
             <h2 class="form-card__title">Hablemos de tu pedido</h2>
             <p class="form-card__sub">Dejanos tus datos y te contactamos.</p>
 
@@ -324,6 +333,7 @@
                 placeholder="Tu nombre"
                 required
               />
+              <span class="field__underline" aria-hidden="true"></span>
               <p class="field__error" id="hero-name-error" hidden></p>
             </div>
             <div class="field">
@@ -338,6 +348,7 @@
                 placeholder="Código de área + número"
                 required
               />
+              <span class="field__underline" aria-hidden="true"></span>
               <p class="field__error" id="hero-phone-error" hidden></p>
             </div>
             <div class="field">
@@ -351,6 +362,7 @@
                 placeholder="¿Dónde está tu negocio?"
                 required
               />
+              <span class="field__underline" aria-hidden="true"></span>
               <p class="field__error" id="hero-city-error" hidden></p>
             </div>
 
@@ -364,8 +376,9 @@
               /></label>
             </div>
             <button class="btn btn--primary btn--block" type="submit">
-              <span data-submit-label>Quiero que me contacten</span>
-              <svg class="icon" aria-hidden="true"><use href="#i-arrow" /></svg>
+              <span class="btn__label" data-submit-label
+                >Quiero que me contacten</span
+              >
             </button>
             <p
               class="form-card__status"
