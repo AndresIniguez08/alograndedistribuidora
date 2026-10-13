@@ -127,9 +127,14 @@
 
   /* Contacto: video de huevos en el maple (assets/video/contacto-huevos-v1.*) */
   --contact-video-position: 50% 62%;
-  --contact-overlay-strong: 0.85;
-  --contact-overlay-mid: 0.72;
-  --contact-overlay-soft: 0.55;
+  /* Overlay azul de Contacto: izquierda (detrás del texto) y derecha (lado del formulario);
+     el punto medio se calcula entre los dos. En pantallas apiladas, un valor parejo propio. */
+  --contacto-overlay-izq: 0.55;
+  --contacto-overlay-der: 0.25;
+  --contacto-overlay-mobile: 0.6;
+  /* Refuerzo localizado detrás de la columna de texto (se suma al overlay): mantiene AA sobre los
+     fotogramas claros (bandeja y huevos) sin oscurecer el resto del video */
+  --contacto-overlay-texto: 0.62;
   --contact-form-width: 400px;
   --contact-form-offset: var(--space-6);
   --contact-text-width: 45ch;
@@ -733,11 +738,13 @@ textarea.field__control {
 .bg-video.is-playing .bg-video__video {
   opacity: 1;
 }
-/* Más opaco a la izquierda (texto), más suave a la derecha y refuerzo abajo */
+/* Más opaco a la izquierda (texto), más suave a la derecha y refuerzo abajo.
+   --bg-video-local (opcional) agrega un refuerzo solo detrás del texto. */
 .bg-video__overlay {
   position: absolute;
   inset: 0;
   background:
+    var(--bg-video-local, none),
     linear-gradient(
       0deg,
       rgb(var(--bg-video-tint) / var(--bg-video-bottom)) 0%,
@@ -2221,9 +2228,15 @@ textarea.field__control {
   overflow: hidden;
   --bg-video-tint: var(--rgb-cobalt);
   --bg-video-position: var(--contact-video-position);
-  --bg-video-strong: var(--contact-overlay-strong);
-  --bg-video-mid: var(--contact-overlay-mid);
-  --bg-video-soft: var(--contact-overlay-soft);
+  --bg-video-strong: var(--contacto-overlay-izq);
+  --bg-video-mid: calc((var(--contacto-overlay-izq) + var(--contacto-overlay-der)) / 2);
+  --bg-video-soft: var(--contacto-overlay-der);
+  --bg-video-local: radial-gradient(
+    ellipse 50% 46% at 26% 28%,
+    rgb(var(--rgb-cobalt) / var(--contacto-overlay-texto)) 0%,
+    rgb(var(--rgb-cobalt) / var(--contacto-overlay-texto)) 60%,
+    transparent 100%
+  );
   --bg-video-bottom: 0;
 }
 .contact__grid {
@@ -2343,6 +2356,17 @@ a.contact-list__value:focus-visible::after {
   /* En la portada, el recorte del video se corre hacia el logo del semi */
   .hero {
     --bg-video-position: 22% 50%;
+  }
+  /* Contacto apilado: overlay parejo, algo más fuerte que el lado izquierdo de escritorio */
+  .contact {
+    --bg-video-strong: var(--contacto-overlay-mobile);
+    /* El texto ocupa todo el ancho arriba: el refuerzo es una franja superior que se desvanece antes del formulario */
+    --bg-video-local: linear-gradient(
+      180deg,
+      rgb(var(--rgb-cobalt) / var(--contacto-overlay-texto)) 0%,
+      rgb(var(--rgb-cobalt) / var(--contacto-overlay-texto)) 32%,
+      transparent 46%
+    );
   }
   /* El formulario llega casi al borde inferior: el botón baja al margen libre debajo */
   .video-toggle {
