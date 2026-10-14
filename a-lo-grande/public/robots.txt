@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://alograndedistribuidora.com.ar/sitemap.xml
+Sitemap: https://alograndemayorista.com.ar/sitemap.xml

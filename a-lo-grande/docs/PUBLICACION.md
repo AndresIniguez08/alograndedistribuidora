@@ -4,9 +4,10 @@ Nombres de menús y botones de Cloudflare, GitHub y Resend pueden cambiar. Si al
 
 ## Antes de empezar
 
-- Los dos dominios (`alograndedistribuidora.com.ar` y `.com`) registrados a nombre del cliente.
+- Dominio definitivo: **`https://alograndemayorista.com.ar`** (sin `www`), registrado a nombre del cliente.
+- Dominio anterior `alograndedistribuidora.com.ar` (y `.com`, si sigue registrado): se conserva solo para redirigir con 301 al nuevo (ver paso 3).
 - Cuenta de Cloudflare creada por el cliente, con vos agregado como miembro.
-- Casilla `contacto@alograndedistribuidora.com.ar` creada (Google Workspace).
+- Casilla `contacto@alograndemayorista.com.ar` creada (Google Workspace).
 - Repositorio del proyecto en GitHub.
 
 ## 1. Subir el proyecto a Git
@@ -34,13 +35,23 @@ Alternativa sin Git, desde la terminal: `npm install` y después `npm run deploy
 
 ## 3. Conectar el dominio
 
-1. Agregá los dos dominios a Cloudflare (plan gratuito) y cambiá los servidores de nombres:
-   - `.com`: desde el panel de DonWeb.
-   - `.com.ar`: desde el panel de DonWeb si lo permite o desde NIC Argentina, con la Clave Fiscal del titular.
-2. En el proyecto de Pages: **Custom domains → Set up a custom domain** y agregá `alograndedistribuidora.com.ar`.
-3. Agregá también `www` y redirigilo al dominio sin `www` con una regla de redirección.
-4. Creá una **regla de redirección** para que `alograndedistribuidora.com` (y su `www`) vayan a `https://alograndedistribuidora.com.ar` con código 301.
-5. Esperá a que el certificado de seguridad quede activo.
+1. Agregá a Cloudflare (plan gratuito) el dominio nuevo `alograndemayorista.com.ar` y los dominios viejos que se conserven,
+   y cambiá los servidores de nombres (`.com.ar`: desde el panel de DonWeb si lo permite o desde NIC Argentina, con la Clave
+   Fiscal del titular; `.com`: desde el panel de DonWeb).
+2. En el proyecto de Pages: **Custom domains → Set up a custom domain** y agregá `alograndemayorista.com.ar`.
+3. Agregá también `www.alograndemayorista.com.ar` y redirigilo con 301 al dominio sin `www`.
+4. **Redirecciones 301 desde el dominio viejo.** En cada zona vieja, creá un registro DNS proxied (nube naranja) para la raíz
+   y para `www` (por ejemplo `A` → `192.0.2.1`, solo para que Cloudflare atienda el tráfico) y una regla en
+   **Rules → Redirect Rules** (o *Bulk Redirects* si son varias zonas):
+   - Si coincide: hostname es `alograndedistribuidora.com.ar` o `www.alograndedistribuidora.com.ar`
+     (y lo mismo para `.com` si se conserva).
+   - Destino dinámico: `concat("https://alograndemayorista.com.ar", http.request.uri.path)`, código **301**,
+     con **Preserve query string** activado.
+   - Comprobación: `curl -sI https://alograndedistribuidora.com.ar/algo?x=1` tiene que responder `301` con
+     `location: https://alograndemayorista.com.ar/algo?x=1`.
+5. Esperá a que el certificado de seguridad quede activo en todos los hostnames.
+6. Mantené las redirecciones y la renovación del dominio viejo al menos un año, para que Google y los enlaces compartidos
+   pasen al nuevo. En Search Console, usá **Cambio de dirección** desde la propiedad vieja hacia la nueva.
 
 ## 4. Correo del dominio (Google Workspace)
 
@@ -50,30 +61,33 @@ Alternativa sin Git, desde la terminal: `npm install` y después `npm run deploy
 
 ## 5. Envío del formulario con Resend
 
-1. Creá una cuenta en Resend y agregá el dominio. Cargá en Cloudflare los registros DNS que te indique y esperá la verificación.
+1. Creá una cuenta en Resend y agregá el dominio `alograndemayorista.com.ar`. Cargá en Cloudflare los registros DNS que te indique y esperá la verificación.
 2. **Un dominio solo puede tener un registro SPF.** Si Resend te pide uno en el dominio raíz y ya cargaste el de Google, unificalos en un solo registro que incluya ambos.
 3. Creá una API key con permiso de envío.
-4. En el proyecto de Pages: **Settings → Variables and Secrets** (en Production y en Preview) y cargá:
+4. En el proyecto de Pages: **Settings → Variables and Secrets** (en Production y en Preview) y cargá las tres variables.
+   `functions/api/contact.js` las lee del entorno y no tiene ningún dominio escrito en el código:
    - `RESEND_API_KEY`: la clave, como secreto.
-   - `CONTACT_TO`: `contacto@alograndedistribuidora.com.ar`
-   - `CONTACT_FROM`: `A lo grande Mayorista <consultas@alograndedistribuidora.com.ar>`
-5. Hacé un nuevo deploy para que tome las variables.
+   - `CONTACT_TO`: casilla que recibe las consultas, `contacto@alograndemayorista.com.ar`
+   - `CONTACT_FROM`: remitente de un dominio verificado en Resend, `A lo grande Mayorista <consultas@alograndemayorista.com.ar>`
+5. Hacé un nuevo deploy para que tome las variables. Si falta alguna, la función responde `not_configured` y el formulario
+   muestra el error con el mail de contacto. Para probar en local, copiá `.dev.vars.example` a `.dev.vars`.
 6. Revisá los límites del plan gratuito de Resend antes de depender de él.
 
 ## 6. Completar los datos del sitio
 
-En `public/js/main.js`, bloque `SITE_CONFIG`: teléfono (solo si el cliente decide publicarlo), WhatsApp, Instagram y horario. Commit y push.
+En `public/js/main.js`, bloque `SITE_CONFIG`: el mail (`email`) ya es `contacto@alograndemayorista.com.ar` y de ahí salen el
+`mailto:` y los textos del sitio; si cambia, actualizá también `"email"` en el JSON-LD de `index.html`. Completá teléfono (solo si el cliente decide publicarlo), WhatsApp, Instagram y horario. Commit y push.
 
 ## 7. Prueba final
 
 - Enviar los dos formularios desde el celular y desde la computadora, y confirmar que llegan los mails.
 - Abrir el sitio en 390px y 1440px.
-- Abrir `https://alograndedistribuidora.com.ar/robots.txt` y `/sitemap.xml`.
+- Abrir `https://alograndemayorista.com.ar/robots.txt` y `/sitemap.xml`.
 - Compartir el enlace en WhatsApp para ver la imagen de vista previa.
 
 ## 8. Google
 
-1. **Search Console**: agregar la propiedad del dominio, verificarla con un registro TXT en Cloudflare y enviar `https://alograndedistribuidora.com.ar/sitemap.xml`.
+1. **Search Console**: agregar la propiedad del dominio, verificarla con un registro TXT en Cloudflare y enviar `https://alograndemayorista.com.ar/sitemap.xml`.
 2. **Google Business Profile**: crear la ficha como negocio con reparto, sin local, y completar la verificación.
 3. Nadie puede garantizar posiciones. Medir las consultas recibidas mes a mes.
 
@@ -130,9 +144,9 @@ Si Cloudflare Pages publica desde Git, configurá además como comando de build 
 
 ```bash
 # Qué nombre de mapa pide el HTML publicado
-curl -s https://alograndedistribuidora.com.ar/ | grep -o 'assets/img/mapa-zonas[^"]*'
+curl -s https://alograndemayorista.com.ar/ | grep -o 'assets/img/mapa-zonas[^"]*'
 # Que ese archivo exista y tenga el caché esperado (200, image/svg+xml, immutable)
-curl -sI https://alograndedistribuidora.com.ar/assets/img/mapa-zonas.<hash>.svg
+curl -sI https://alograndemayorista.com.ar/assets/img/mapa-zonas.<hash>.svg
 ```
 
 Ojo: una ruta inexistente no da 404 sino `index.html` con 200 (no hay `404.html`). Si `Content-Type` es `text/html`,

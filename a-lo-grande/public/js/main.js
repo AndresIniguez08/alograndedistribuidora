@@ -24,7 +24,7 @@ document.documentElement.classList.add("has-js");
 /* Los campos vacíos no se muestran en el sitio. */
 
 const SITE_CONFIG = Object.freeze({
-  email: "contacto@alograndedistribuidora.com.ar",
+  email: "contacto@alograndemayorista.com.ar",
   phone: "", // ejemplo: "+54 9 2923 00 0000"
   whatsapp: "", // solo dígitos con código de país, ejemplo: "5492923000000"
   instagram: "", // usuario sin @, ejemplo: "alogrande"
